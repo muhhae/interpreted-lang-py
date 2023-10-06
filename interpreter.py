@@ -1,3 +1,6 @@
+from InfixToPostfix import infixToPostfix, calculatePostfix, isOp
+
+
 class var:
     def __init__(self, name: str, value):
         self.name = name
@@ -44,10 +47,11 @@ class interpreter:
         asgnIndex = input.find('=')
         if asgnIndex == -1:
             return
-        tmpVar_name = input[0:asgnIndex].replace(" ", "")
-        tmpVar_val = input[asgnIndex+1:].replace(" ", "")
-
-        if tmpVar_val[0] != "\"" and tmpVar_val[-1] != "\"":
+        tmpVar_name = input[0:asgnIndex].strip()
+        tmpVar_val = input[asgnIndex+1:].strip()
+        if tmpVar_val.isdigit():
+            tmpVar_val = float(tmpVar_val)
+        elif tmpVar_val[0] != "\"" and tmpVar_val[-1] != "\"":
             other_var = self.findVar(tmpVar_val)
             if other_var != -1:
                 tmpVar_val = other_var.value
@@ -58,11 +62,20 @@ class interpreter:
         else:
             old_var.value = tmpVar_val
 
-    def checkOperator(self, input: str):
-        pass
+    def checkOperator(self):
+        for i, v in enumerate(self.var_list):
+            tmpVar = infixToPostfix(str(v.value))
+            for j, el in enumerate(tmpVar):
+                if isOp(el):
+                    continue
+                other_var = self.findVar(el)
+                if other_var != -1:
+                    tmpVar[j] = other_var.value
+            self.var_list[i].value = calculatePostfix(tmpVar)
 
     def execline(self, input: str):
         self.checkAssignment(input)
+        self.checkOperator()
         return
 
     def runstring(self, input):
@@ -73,9 +86,9 @@ class interpreter:
 
 
 in_str = [
-    "A = 10",
-    "B = A",
-    "A = 99"
+    "A = 45",
+    "B = 100",
+    "C = A + B"
 ]
 it = interpreter()
 
