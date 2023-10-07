@@ -1,0 +1,33 @@
+var1 = 100
+var2 = 20
+hasilpembagian = var1 / var2
+
+out "Hello World"; "Haekal"; "Tes koma"
+out "tes"
+out 
+out "newline"
+out 
+out "var1: "; var1; " var2: "; var2; " hasilpembagian: "; hasilpembagian
+out "99 * 56 / 23 + 10 = "; 99 * 56 / 23 + 10
+out "100 % 96 = "; 100 % 96
+out
+
+out "tes comment"
+# out "You can't see me"
+out "now you can"
+
+if var1 > var2
+    out "HAHHAHA"; "Its work"
+END
+
+if var1 < var2
+    out "HAHHAHA"; "Its work"
+END
+
+if 10 / 100 < 100 / 10
+    out "HAHHAHA"; "finally finally"
+END
+
+if 10 / 100 > 100 / 10
+    out "HAHHAHA"; "finally finally"
+END

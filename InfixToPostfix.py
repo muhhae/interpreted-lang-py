@@ -3,7 +3,7 @@ from rich.table import Table
 
 
 def isOp(c):
-    op = ["+", "/", "*", "-", "^", "(", ")"]
+    op = ["+", "/", "*", "-", "^", "%", "(", ")", "&", "|", "=", "!", "<", ">"]
     return c in op
 
 
@@ -39,18 +39,12 @@ def checkBracket(n: str):
 
 def infixToPostfix(n: str):
     n = checkBracket(n)
-    # print("infix:", n)
     result = []
     aux = []
 
     fullNum = False
     cTemp = ""
-
-    table = Table("Step", "Input", "Operator", "Result",
-                  title="Infix To Postfix",
-                  title_justify="center",
-                  caption_justify="center",)
-    step = 0
+    
     for i, c in enumerate(n):
         if c == " ":
             continue
@@ -59,10 +53,6 @@ def infixToPostfix(n: str):
             if i == len(n) - 1:
                 result.append(cTemp)
                 result.append(" ")
-                step += 1
-                table.add_row(str(step), cTemp, listToStr(
-                    aux), listToStr(result))
-                table.add_section()
             continue
         if isOp(c):
             if cTemp != "":
@@ -73,19 +63,11 @@ def infixToPostfix(n: str):
                 else:
                     aux.append(cTemp)
                     cTemp = ""
-                step += 1
-                table.add_row(str(step), cTemp, listToStr(
-                    aux), listToStr(result))
-                table.add_section()
         if not isOp(c):
             cTemp += c
             if i == len(n) - 1:
                 result.append(cTemp)
                 result.append(" ")
-                step += 1
-                table.add_row(str(step), cTemp, listToStr(
-                    aux), listToStr(result))
-                table.add_section()
             continue
         elif c == '(':
             aux.append(c)
@@ -99,17 +81,10 @@ def infixToPostfix(n: str):
                 result.append(aux.pop())
                 result.append(" ")
             aux.append(c)
-        step += 1
-        table.add_row(str(step), c, listToStr(aux), listToStr(result))
-        table.add_section()
 
     while len(aux) > 0:
         result.append(aux.pop())
         result.append(" ")
-
-    step += 1
-    table.add_row(str(step), "", listToStr(aux), listToStr(result))
-    table.add_section()
 
     # print(table)
     strResult = listToStr(result)
@@ -146,6 +121,8 @@ def calculatePostfix(n: list):
             case "^":
                 # print(a, "^", b, "=", a**b)
                 result.append(a**b)
+            case "%":
+                result.append(a % b)
     # print()
     res = result.pop()
     # print("result\t:", res)
