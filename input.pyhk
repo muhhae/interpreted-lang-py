@@ -12,22 +12,26 @@ out "99 * 56 / 23 + 10 = "; 99 * 56 / 23 + 10
 out "100 % 96 = "; 100 % 96
 out
 
+vartes = var1 * var2 > var2 * var2 and var1 * var1 < var2 * var1
+out "vartes: "; vartes
+
 out "tes comment"
 # out "You can't see me"
 out "now you can"
+out 
 
 if var1 > var2
-    out "HAHHAHA"; "Its work"
+    out "var1 is more than var2"
 END
 
 if var1 < var2
-    out "HAHHAHA"; "Its work"
+    out "var1 is less than var2"
 END
 
 if 10 / 100 < 100 / 10
-    out "HAHHAHA"; "finally finally"
+    out "10 / 100 is less than 100 / 10"
 END
 
 if 10 / 100 > 100 / 10
-    out "HAHHAHA"; "finally finally"
+   out "10 / 100 is more than 100 / 10"
 END

@@ -3,7 +3,7 @@ from rich.table import Table
 
 
 def isOp(c):
-    op = ["+", "/", "*", "-", "^", "%", "(", ")", "&", "|", "=", "!", "<", ">"]
+    op = ["+", "/", "*", "-", "^", "%", "(", ")"]
     return c in op
 
 
@@ -44,7 +44,7 @@ def infixToPostfix(n: str):
 
     fullNum = False
     cTemp = ""
-    
+
     for i, c in enumerate(n):
         if c == " ":
             continue
@@ -160,8 +160,9 @@ def initTugas(s: str):
 
 if __name__ == "__main__":
     Str = [
-        "ab + ac * ad"
-        # "1 * 2 * (3 + 4 * (5 + 6))"
+        "ab + ac * ad",
+        # "1 * 2 * (3 + 4 * (5 + 6))",
+        "a > 1 and a < 2"
     ]
     # print("-- Infix To Postfix -- \n")
     for e in Str:

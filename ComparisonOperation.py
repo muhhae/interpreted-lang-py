@@ -2,15 +2,28 @@ from InfixToPostfix import checkBracket
 
 
 def isCprOp(n):
-    return n in [
-        "==", "!=", "<=", ">=", "<", ">"
-    ]
+    cpr = ["and", "or", "not", "!=", "==", "<=", ">=", "<", ">"]
+    return n in cpr
+
+
+def cprVal(n):
+    if n in ["not"]:
+        return 3
+    if n in ["and", "or"]:
+        return 2
+    if n in ["!=", "==", "<=", ">=", "<", ">"]:
+        return 1
+
+
+def cprPostfix(n):
+    aux = []
+    res = []
+    for c in n:
+        pass
 
 
 def compare(n):
-    op = []
-    for e in ["==", "!=", "<=", ">=", "<", ">"]:
-        pass
+    pass
 
 
 if __name__ == "__main__":

@@ -56,11 +56,30 @@ class interpreter:
         for e in tmpVar:
             if e == " " or isOp(e):
                 continue
-            if type == str:
+            if type(e) == str:
                 print(f"var {e} not found")
+                return
+            if e == None:
                 return
         res = calculatePostfix(tmpVar)
         return res
+
+    def checkTruthValue(self, input: str):
+        tmp = input.replace(" ", "")
+        tmp_2 = input.replace(" ", "")
+        logic = False
+
+        for e in ["and", "or", "not", "!=", "==", "<=", ">=", "<", ">"]:
+            while tmp.count(e):
+                logic = True
+                tmp = tmp.replace(e, " ")
+        for e in tmp.split(" "):
+            if e == "" or type(e) != str:
+                continue
+            tmp_2 = tmp_2.replace(e, str(self.checkOperator(e)))
+        if not logic:
+            return self.checkOperator(tmp_2)
+        return None
 
     def checkAssignment(self, input: str):
         if input.count('=') > 1:
@@ -73,8 +92,7 @@ class interpreter:
         if tmpVar_val.isdigit():
             tmpVar_val = float(tmpVar_val)
         elif tmpVar_val[0] != "\"" and tmpVar_val[-1] != "\"":
-            tmpVar_val = self.checkOperator(tmpVar_val)
-
+            tmpVar_val = self.checkTruthValue(tmpVar_val)
         old_var = self.findVar(tmpVar_name)
         if old_var == -1:
             self.var_list.append(var(tmpVar_name, tmpVar_val))
@@ -89,6 +107,9 @@ class interpreter:
             for e in tmp_val:
                 e.strip()
                 if len(e) == 0:
+                    continue
+                if e == None:
+                    print("NULL", end="")
                     continue
                 if e[0] != "\"" and e[-1] != "\"":
                     e = self.checkOperator(e)
@@ -194,4 +215,4 @@ it.execfile("input.pyhk")
 # it.execstring(one_str)
 
 # for e in it.var_list:
-# print(e.name, e.value)
+#     print(e.name, e.value)
