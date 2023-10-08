@@ -1,4 +1,5 @@
-from InfixToPostfix import infixToPostfix, calculatePostfix, isOp, logicPostfix, calculateLogic
+from InfixToPostfix import infixToPostfix, calculatePostfix, isOp
+from LogicOperation import logicPostfix, calculateLogic
 
 
 class var:
@@ -40,35 +41,7 @@ class interpreter:
                 return e
         return -1
 
-    def checkOperator(self, input):
-        tmpVar = infixToPostfix(str(input))
-        for j, el in enumerate(tmpVar):
-            if isOp(el) or el == " ":
-                continue
-            other_var = self.findVar(el)
-            if other_var != -1:
-                tmpVar[j] = other_var.value
-            else:
-                if el.isdigit():
-                    el = float(el)
-                tmpVar[j] = el
-
-        # print(tmpVar)
-        for e in tmpVar:
-            if e == "None":
-                return
-            if e == " " or isOp(e):
-                continue
-            if type(e) == str and e.isalnum():
-                print(f"var {e} not found")
-                return
-            if e == None:
-                return
-        res = calculatePostfix(tmpVar)
-        # print("res", res)
-        return res
-
-    def checkTruthValue(self, input: str):
+    def checkOperation(self, input: str):
         cprOp = ["and", "or", "not", "!=", "==", "<=", ">=",
                  "<", ">", "+", "/", "*", "-", "^", "%", "(", ")"]
 
@@ -84,7 +57,11 @@ class interpreter:
                 op_in = int(e[2:])
                 tmp_ls[i] = cprOp[op_in]
             else:
-                tmp_ls[i] = self.checkOperator(e)
+                if type(e) == str:
+                    if e.isdigit():
+                        tmp_ls[i] = e
+                    else:
+                        tmp_ls[i] = self.findVar(e)
                 if tmp_ls[i] == None:
                     return None
         # print("tmp_ls", tmp_ls)
@@ -108,7 +85,7 @@ class interpreter:
         if tmpVar_val.isdigit():
             tmpVar_val = float(tmpVar_val)
         elif tmpVar_val[0] != "\"" and tmpVar_val[-1] != "\"":
-            tmpVar_val = self.checkTruthValue(tmpVar_val)
+            tmpVar_val = self.checkOperation(tmpVar_val)
         old_var = self.findVar(tmpVar_name)
         if old_var == -1:
             self.var_list.append(var(tmpVar_name, tmpVar_val))
@@ -125,7 +102,7 @@ class interpreter:
                 if len(e) == 0:
                     continue
                 if e[0] != "\"" and e[-1] != "\"":
-                    e = self.checkOperator(e)
+                    e = self.checkOperation(e)
                 else:
                     e = e.replace("\"", "")
 
@@ -151,7 +128,7 @@ class interpreter:
 
         # print('con', condition)
 
-        if self.checkTruthValue(condition):
+        if self.checkOperation(condition):
             str = ""
             for e in input[1:]:
                 str += e + "\n"
