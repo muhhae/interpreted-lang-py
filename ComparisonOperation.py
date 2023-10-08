@@ -15,10 +15,10 @@ def cprVal(n):
         return 1
 
 
-def cprPostfix(n):
+def cprPostfix(n: list):
     aux = []
     res = []
-    for c in n:
+    for e in n:
         pass
 
 

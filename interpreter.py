@@ -1,4 +1,4 @@
-from InfixToPostfix import infixToPostfix, calculatePostfix, isOp
+from InfixToPostfix import infixToPostfix, calculatePostfix, isOp, logicPostfix, calculateLogic
 
 
 class var:
@@ -53,10 +53,13 @@ class interpreter:
                     el = float(el)
                 tmpVar[j] = el
 
+        # print(tmpVar)
         for e in tmpVar:
+            if e == "None":
+                return
             if e == " " or isOp(e):
                 continue
-            if type(e) == str:
+            if type(e) == str and e.isalnum():
                 print(f"var {e} not found")
                 return
             if e == None:
@@ -65,11 +68,14 @@ class interpreter:
         return res
 
     def checkTruthValue(self, input: str):
+        cprOp = ["and", "or", "not", "!=", "==", "<=", ">=",
+                 "<", ">", "+", "/", "*", "-", "^", "%", "(", ")"]
+
         tmp = input.replace(" ", "")
         tmp_2 = input.replace(" ", "")
         logic = False
 
-        for e in ["and", "or", "not", "!=", "==", "<=", ">=", "<", ">"]:
+        for e in cprOp:
             while tmp.count(e):
                 logic = True
                 tmp = tmp.replace(e, " ")
@@ -79,7 +85,25 @@ class interpreter:
             tmp_2 = tmp_2.replace(e, str(self.checkOperator(e)))
         if not logic:
             return self.checkOperator(tmp_2)
-        return None
+
+        for i, e in enumerate(cprOp):
+            while tmp_2.count(e):
+                tmp_2 = tmp_2.replace(e, f" op{i} ")
+
+        tmp_ls = tmp_2.split(" ")
+        for i, e in enumerate(tmp_ls):
+            if e[:2] == "op":
+                op_in = int(e[2:])
+                tmp_ls[i] = cprOp[op_in]
+        # print("tmp_ls", tmp_ls)
+        # print("ps", logicPostfix(tmp_ls))
+        # print("res", calculateLogic(logicPostfix(tmp_ls)))
+        ls = 0
+        try:
+            ls = calculateLogic(logicPostfix(tmp_ls))
+        except:
+            return 0
+        return ls
 
     def checkAssignment(self, input: str):
         if input.count('=') > 1:
@@ -108,13 +132,14 @@ class interpreter:
                 e.strip()
                 if len(e) == 0:
                     continue
-                if e == None:
-                    print("NULL", end="")
-                    continue
                 if e[0] != "\"" and e[-1] != "\"":
                     e = self.checkOperator(e)
                 else:
                     e = e.replace("\"", "")
+
+                if e == None or e == 'None':
+                    print("NULL", end="")
+                    continue
                 print(e, end="")
             print()
             return
@@ -132,51 +157,11 @@ class interpreter:
         condition = input[0][input[0].find("if") + 2:]
         condition.strip()
 
-        lg = ["and", "or", "<=", "<", ">=", ">", "==", "not", "!="]
-        key_loc = -1
-        lgc_type = ""
-
-        cond = False
-        for e in lg:
-            tmp = condition.find(e)
-            if tmp != -1:
-                lgc_type = e
-                key_loc = tmp
-                break
-
-        if key_loc == -1:
-            return
-
-        a = condition[:key_loc].strip()
-        b = condition[key_loc + len(lgc_type):].strip()
-
-        a = self.checkOperator(a)
-        b = self.checkOperator(b)
-
-        str = ""
-
-        for e in input[1:]:
-            str += e + "\n"
-
-        match lgc_type:
-            case ">":
-                if a > b:
-                    self.execstring(str)
-            case ">=":
-                if a >= b:
-                    self.execstring(str)
-            case "<=":
-                if a <= b:
-                    self.execstring(str)
-            case "<":
-                if a < b:
-                    self.execstring(str)
-            case "!=":
-                if a != b:
-                    self.execstring(str)
-            case "==":
-                if a == b:
-                    self.execstring(str)
+        if self.checkTruthValue(condition):
+            str = ""
+            for e in input[1:]:
+                str += e + "\n"
+            self.execstring(str)
 
     def execstring(self, input):
         input = input.split("\n")

@@ -1,9 +1,11 @@
+varacak = z
+out "idk"
+
 var1 = 100
 var2 = 20
 hasilpembagian = var1 / var2
 
 out "Hello World"; "Haekal"; "Tes koma"
-out "tes"
 out 
 out "newline"
 out 
@@ -34,4 +36,11 @@ END
 
 if 10 / 100 > 100 / 10
    out "10 / 100 is more than 100 / 10"
+END
+
+if 1 > 0
+    out "1 lebih besar dari 0"
+    if 1 < 9
+        out " 1 kurang dari 9"
+    END
 END
