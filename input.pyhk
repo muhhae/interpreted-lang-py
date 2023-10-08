@@ -40,7 +40,10 @@ END
 
 if 1 > 0
     out "1 lebih besar dari 0"
-    if 1 < 9
-        out " 1 kurang dari 9"
+    if 1 < 0
+        out "1 kurang dari 0"
+    END
+    if 1 > 0
+        out "1 lebih dari 0"
     END
 END

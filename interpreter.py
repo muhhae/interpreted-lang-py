@@ -65,26 +65,14 @@ class interpreter:
             if e == None:
                 return
         res = calculatePostfix(tmpVar)
+        # print("res", res)
         return res
 
     def checkTruthValue(self, input: str):
         cprOp = ["and", "or", "not", "!=", "==", "<=", ">=",
                  "<", ">", "+", "/", "*", "-", "^", "%", "(", ")"]
 
-        tmp = input.replace(" ", "")
         tmp_2 = input.replace(" ", "")
-        logic = False
-
-        for e in cprOp:
-            while tmp.count(e):
-                logic = True
-                tmp = tmp.replace(e, " ")
-        for e in tmp.split(" "):
-            if e == "" or type(e) != str:
-                continue
-            tmp_2 = tmp_2.replace(e, str(self.checkOperator(e)))
-        if not logic:
-            return self.checkOperator(tmp_2)
 
         for i, e in enumerate(cprOp):
             while tmp_2.count(e):
@@ -95,6 +83,10 @@ class interpreter:
             if e[:2] == "op":
                 op_in = int(e[2:])
                 tmp_ls[i] = cprOp[op_in]
+            else:
+                tmp_ls[i] = self.checkOperator(e)
+                if tmp_ls[i] == None:
+                    return None
         # print("tmp_ls", tmp_ls)
         # print("ps", logicPostfix(tmp_ls))
         # print("res", calculateLogic(logicPostfix(tmp_ls)))
@@ -157,32 +149,45 @@ class interpreter:
         condition = input[0][input[0].find("if") + 2:]
         condition.strip()
 
+        # print('con', condition)
+
         if self.checkTruthValue(condition):
             str = ""
             for e in input[1:]:
                 str += e + "\n"
+            # print("str\n", str)
             self.execstring(str)
 
     def execstring(self, input):
+        # print("ip\n", input)
+        block_k = ["if", "while"]
         input = input.split("\n")
-        in_block = False
+        in_block = 0
         block_type = ""
         block_content = []
+        # print("ib", in_block)
         for l in input:
+            l = l.strip()
             if l[:1] == "#":
                 continue
             if l[:2] == "if":
-                block_type = "if"
-                in_block = True
+                if in_block == 0:
+                    block_type = "if"
+                in_block += 1
             elif l[:4] == "END":
-                match block_type:
-                    case "if":
-                        self.exec_if(block_content)
-                in_block = False
-                block_content.clear()
+                in_block -= 1
+                # print("ib", in_block)
+                if in_block == 0:
+                    # print("bc", block_content)
+                    match block_type:
+                        case "if":
+                            self.exec_if(block_content)
+                    block_content.clear()
+                    continue
             if in_block:
                 block_content.append(l)
             else:
+                # print("ln", l)
                 self.execline(l)
 
     def execfile(self, path):
