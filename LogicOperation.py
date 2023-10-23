@@ -30,6 +30,7 @@ def isOpLgc(c):
 
 
 def logicPostfix(ls: list):
+    # print("ls", ls)
     n = checkBracketLs(ls)
     result = []
     aux = []
@@ -56,6 +57,7 @@ def logicPostfix(ls: list):
 
 
 def calculateLogic(n: list):
+    # print("post:", n)
     result = []
     for c in n:
         if not isOpLgc(c):
@@ -64,7 +66,10 @@ def calculateLogic(n: list):
 
         b = result.pop()
         if c != "not":
-            a = result.pop()
+            if len(result) == 0 or isOpLgc(result[-1]):
+                a = 0
+            else:
+                a = result.pop()
 
         match c:
             case "*":

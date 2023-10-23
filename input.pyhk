@@ -1,4 +1,6 @@
+# z = 100
 varacak = z
+out "varacak: "; varacak 
 out "idk"
 
 var1 = 100
@@ -38,7 +40,13 @@ if 10 / 100 > 100 / 10
    out "10 / 100 is more than 100 / 10"
 END
 
-if 1 > 0
+haekal = 1000
+if haekal == 1000
+    haekal = 0
+END
+out "haekal"; haekal
+
+if 1 > 0 
     out "1 lebih besar dari 0"
     if 1 < 0
         out "1 kurang dari 0"
@@ -47,3 +55,9 @@ if 1 > 0
         out "1 lebih dari 0"
     END
 END
+
+out
+out "tes pos"
+out 1 * 8
+out "tes negatif"
+out -1 * 8

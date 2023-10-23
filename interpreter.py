@@ -1,17 +1,11 @@
-from InfixToPostfix import infixToPostfix, calculatePostfix, isOp
 from LogicOperation import logicPostfix, calculateLogic
+import sys
 
 
 class var:
     def __init__(self, name: str, value):
         self.name = name
         self.value = value
-
-    def set(self, value):
-        self.value = value
-
-    def get(self):
-        return self.value
 
 
 class label:
@@ -53,6 +47,8 @@ class interpreter:
 
         tmp_ls = tmp_2.split(" ")
         for i, e in enumerate(tmp_ls):
+            if e in ["", " "]:
+                continue
             if e[:2] == "op":
                 op_in = int(e[2:])
                 tmp_ls[i] = cprOp[op_in]
@@ -61,7 +57,12 @@ class interpreter:
                     if e.isdigit():
                         tmp_ls[i] = e
                     else:
-                        tmp_ls[i] = self.findVar(e)
+                        find_var = self.findVar(e)
+                        if find_var != -1:
+                            tmp_ls[i] = find_var.value
+                        else:
+                            print("error:", e, "is not defined")
+
                 if tmp_ls[i] == None:
                     return None
         # print("tmp_ls", tmp_ls)
@@ -99,6 +100,7 @@ class interpreter:
             tmp_val = input[3:].strip().split(";")
             for e in tmp_val:
                 e.strip()
+                # print("e", e)
                 if len(e) == 0:
                     continue
                 if e[0] != "\"" and e[-1] != "\"":
@@ -173,8 +175,19 @@ class interpreter:
         file_in.close()
 
 
-it = interpreter()
-it.execfile("input.pyhk")
+def main():
+    it = interpreter()
+    line_input = ""
+    if len(sys.argv) == 1:
+        while not line_input in ["/q", "/quit", "/exit"]:
+            line_input = input(">> ")
+            it.execline(line_input)
+    else:
+        it.execfile(input(sys.argv[1]))
+
+
+if __name__ == "__main__":
+    main()
 
 # for e in in_str:
 #     it.execline(e)
