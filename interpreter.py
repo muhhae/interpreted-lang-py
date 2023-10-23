@@ -178,12 +178,26 @@ class interpreter:
 def main():
     it = interpreter()
     line_input = ""
+    input_tmp = ""
+
+    key_block = ["if", "while", "fn"]
+    in_block = False
+
     if len(sys.argv) == 1:
         while not line_input in ["/q", "/quit", "/exit"]:
-            line_input = input(">> ")
-            it.execline(line_input)
+            line_input = input(">> ").strip()
+            input_tmp += "\n" + line_input
+            for e in key_block:
+                if line_input[0:len(e)] == e:
+                    in_block = True
+                    break
+            if line_input == "END":
+                in_block = False
+            if not in_block:
+                it.execstring(input_tmp)
+                input_tmp = ""
     else:
-        it.execfile(input(sys.argv[1]))
+        it.execfile(sys.argv[1])
 
 
 if __name__ == "__main__":
