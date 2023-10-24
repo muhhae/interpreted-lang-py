@@ -143,7 +143,7 @@ class interpreter:
         input = input.split("\n")
         in_block = 0
         block_type = ""
-        block_content = []
+        block_content = []  
         # print("ib", in_block)
         for l in input:
             l = l.strip()

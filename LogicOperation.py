@@ -3,11 +3,11 @@ from InfixToPostfix import opVal
 
 def cprVal(n):
     if n in ["not"]:
-        return 3
-    if n in ["and", "or"]:
         return 2
-    if n in ["!=", "==", "<=", ">=", "<", ">"]:
+    if n in ["and", "or"]:
         return 1
+    if n in ["!=", "==", "<=", ">=", "<", ">"]:
+        return 3
     return opVal(n)
 
 
