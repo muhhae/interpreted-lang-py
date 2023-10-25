@@ -1,63 +1,26 @@
-# z = 100
-varacak = z
-out "varacak: "; varacak 
-out "idk"
+out "Assigning Variable"
+a = 10
+out "a ="; a 
 
-var1 = 100
-var2 = 20
-hasilpembagian = var1 / var2
+out "If Else Statement"
 
-out "Hello World"; "Haekal"; "Tes koma"
-out 
-out "newline"
-out 
-out "var1: "; var1; " var2: "; var2; " hasilpembagian: "; hasilpembagian
-out "99 * 56 / 23 + 10 = "; 99 * 56 / 23 + 10
-out "100 % 96 = "; 100 % 96
-out
-
-vartes = var1 * var2 > var2 * var2 and var1 * var1 < var2 * var1
-out "vartes: "; vartes
-
-out "tes comment"
-# out "You can't see me"
-out "now you can"
-out 
-
-if var1 > var2
-    out "var1 is more than var2"
-end
-
-if var1 < var2
-    out "var1 is less than var2"
-end
-
-if 10 / 100 < 100 / 10
-    out "10 / 100 is less than 100 / 10"
-end
-
-if 10 / 100 > 100 / 10
-   out "10 / 100 is more than 100 / 10"
-end
-
-haekal = 1000
-if haekal == 1000
-    haekal = 0
-end
-out "haekal"; haekal
-
-if 1 > 0 
-    out "1 lebih besar dari 0"
-    if 1 < 0
-        out "1 kurang dari 0"
-    end
-    if 1 > 0
-        out "1 lebih dari 0"
+while a != 5
+    out "a = "; a
+    if a == 10
+        out "hello if"
+        a = 99
+    else_if a == 99
+        out "hello else_if
+        a = 100
+    else
+        out "hello else"
+        a = 5
     end
 end
 
-out
-out "tes pos"
-out 1 * 8
-out "tes negatif"
-out -1 * 8
+while a > 0
+    out a 
+    a = a - 1
+end
+
+out "Hasil Akhir"; a

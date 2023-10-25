@@ -120,18 +120,36 @@ class interpreter:
         self.checkAssignment(input)
         return
 
-    def exec_if(self, input):
-        condition = input[0][input[0].find("if") + 2:]
-        condition.strip()
+    def exec_if(self, inp: list[str]):
+        # print("exec if")
 
-        # print('con', condition)
+        ls_cond = []
+        ls_task = []
 
-        if self.checkOperation(condition):
-            str = ""
-            for e in input[1:]:
-                str += e + "\n"
-            # print("str\n", str)
-            self.execstring(str)
+        tmp = ""
+
+        for e in inp:
+            es = e.strip()
+            if es[:2] == 'if':
+                ls_cond.append(e[2:].strip())
+            elif es[:7] == 'else_if':
+                ls_cond.append(e[7:].strip())
+                ls_task.append(tmp)
+                tmp = ""
+            elif es[:4] == 'else':
+                ls_cond.append('1')
+                ls_task.append(tmp)
+                tmp = ""
+            else:
+                tmp += es + '\n'
+        ls_task.append(tmp)
+
+        for condition, task in zip(ls_cond, ls_task):
+            # print("condition", condition)
+            # print("task", task)
+            if self.checkOperation(condition):
+                self.execstring(task)
+                break
 
     def exec_while(self, inp):
         condition = inp[0][inp[0].find("while") + len('while'):]
@@ -207,7 +225,7 @@ def main():
                 if line_input[0:len(e)] == e:
                     in_block = True
                     break
-            if line_input == "END":
+            if line_input == "end":
                 in_block = False
             if not in_block:
                 it.execstring(input_tmp)
