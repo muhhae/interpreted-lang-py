@@ -16,9 +16,8 @@ class label:
 
 class funct:
     def __init__(self, name: str, content: str):
-        pass
-
-    def call(self, param: str):
+        self.name = name
+        self.content = content
         pass
 
 
@@ -65,9 +64,6 @@ class interpreter:
 
                 if tmp_ls[i] == None:
                     return None
-        # print("tmp_ls", tmp_ls)
-        # print("ps", logicPostfix(tmp_ls))
-        # print("res", calculateLogic(logicPostfix(tmp_ls)))
         ls = 0
         try:
             ls = calculateLogic(logicPostfix(tmp_ls))
@@ -137,23 +133,36 @@ class interpreter:
             # print("str\n", str)
             self.execstring(str)
 
+    def exec_while(self, inp):
+        condition = inp[0][inp[0].find("while") + len('while'):]
+        condition.strip()
+        str = ""
+        for e in inp[1:]:
+            str += e + "\n"
+        while self.checkOperation(condition):
+            self.execstring(str)
+
+    def def_fn(self, inp):
+        pass
+
     def execstring(self, input):
         # print("ip\n", input)
-        block_k = ["if", "while"]
+        block_k = ["if", "while", "fn"]
         input = input.split("\n")
         in_block = 0
         block_type = ""
-        block_content = []  
+        block_content = []
         # print("ib", in_block)
         for l in input:
             l = l.strip()
             if l[:1] == "#":
                 continue
-            if l[:2] == "if":
-                if in_block == 0:
-                    block_type = "if"
-                in_block += 1
-            elif l[:4] == "END":
+            for k in block_k:
+                if l[:len(k)] == k:
+                    if in_block == 0:
+                        block_type = k
+                    in_block += 1
+            if l[:4] == "end":
                 in_block -= 1
                 # print("ib", in_block)
                 if in_block == 0:
@@ -161,6 +170,10 @@ class interpreter:
                     match block_type:
                         case "if":
                             self.exec_if(block_content)
+                        case "while":
+                            self.exec_while(block_content)
+                        case "fn":
+                            self.def_fn(block_content)
                     block_content.clear()
                     continue
             if in_block:
@@ -185,7 +198,10 @@ def main():
 
     if len(sys.argv) == 1:
         while not line_input in ["/q", "/quit", "/exit"]:
-            line_input = input(">> ").strip()
+            if in_block:
+                line_input = input(".. ").strip()
+            else:
+                line_input = input(">> ").strip()
             input_tmp += "\n" + line_input
             for e in key_block:
                 if line_input[0:len(e)] == e:
@@ -202,11 +218,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# for e in in_str:
-#     it.execline(e)
-
-# it.execstring(one_str)
-
-# for e in it.var_list:
-#     print(e.name, e.value)

@@ -26,35 +26,35 @@ out
 
 if var1 > var2
     out "var1 is more than var2"
-END
+end
 
 if var1 < var2
     out "var1 is less than var2"
-END
+end
 
 if 10 / 100 < 100 / 10
     out "10 / 100 is less than 100 / 10"
-END
+end
 
 if 10 / 100 > 100 / 10
    out "10 / 100 is more than 100 / 10"
-END
+end
 
 haekal = 1000
 if haekal == 1000
     haekal = 0
-END
+end
 out "haekal"; haekal
 
 if 1 > 0 
     out "1 lebih besar dari 0"
     if 1 < 0
         out "1 kurang dari 0"
-    END
+    end
     if 1 > 0
         out "1 lebih dari 0"
-    END
-END
+    end
+end
 
 out
 out "tes pos"
