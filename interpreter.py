@@ -1,4 +1,4 @@
-from LogicOperation import logicPostfix, calculateLogic
+from LogicOperation import logicPostfix, calculateLogic, isString
 import sys
 
 
@@ -18,6 +18,7 @@ class funct:
     def __init__(self, name: str, content: str):
         self.name = name
         self.content = content
+        self.arg = []
         pass
 
 
@@ -35,6 +36,7 @@ class interpreter:
         return -1
 
     def checkOperation(self, input: str):
+        # print("masuk chekOp", input)
         cprOp = ["and", "or", "not", "!=", "==", "<=", ">=",
                  "<", ">", "+", "/", "*", "-", "^", "%", "(", ")"]
 
@@ -53,18 +55,18 @@ class interpreter:
                 tmp_ls[i] = cprOp[op_in]
             else:
                 if type(e) == str:
-                    if e.isdigit():
+                    if e.isdigit() or isString(e):
                         tmp_ls[i] = e
                     else:
                         find_var = self.findVar(e)
                         if find_var != -1:
+                            # print("ketemu", find_var.name, find_var.value)
                             tmp_ls[i] = find_var.value
                         else:
                             print("error:", e, "is not defined")
 
-                if tmp_ls[i] == None:
-                    return None
         ls = 0
+        # print("tmp_ls", tmp_ls)
         try:
             ls = calculateLogic(logicPostfix(tmp_ls))
         except:
@@ -81,7 +83,7 @@ class interpreter:
         tmpVar_val = input[asgnIndex+1:].strip()
         if tmpVar_val.isdigit():
             tmpVar_val = float(tmpVar_val)
-        elif tmpVar_val[0] != "\"" and tmpVar_val[-1] != "\"":
+        else:
             tmpVar_val = self.checkOperation(tmpVar_val)
         old_var = self.findVar(tmpVar_name)
         if old_var == -1:
@@ -94,22 +96,22 @@ class interpreter:
 
         if b_out:
             tmp_val = input[3:].strip().split(";")
+            # print("tmp_val", tmp_val)
             for e in tmp_val:
                 e.strip()
-                # print("e", e)
                 if len(e) == 0:
                     continue
-                if e[0] != "\"" and e[-1] != "\"":
+                if not isString(e):
                     e = self.checkOperation(e)
-                else:
-                    e = e.replace("\"", "")
+                if type(e) == str and isString(e):
+                    e = e[1:-1]
 
                 if e == None or e == 'None':
                     print("NULL", end="")
                     continue
                 print(e, end="")
             print()
-            return
+            return True
 
     def execline(self, input: str):
 
@@ -225,6 +227,10 @@ def main():
                 if line_input[0:len(e)] == e:
                     in_block = True
                     break
+            if line_input == "var":
+                ls = [e.value for e in it.var_list]
+                print(ls)
+                continue
             if line_input == "end":
                 in_block = False
             if not in_block:

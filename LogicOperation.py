@@ -1,6 +1,10 @@
 from InfixToPostfix import opVal
 
 
+def isString(n: str):
+    return n[0] == "\"" and n[-1] == "\"" and n.count('"') == 2
+
+
 def cprVal(n):
     if n in ["not"]:
         return 2
@@ -30,12 +34,11 @@ def isOpLgc(c):
 
 
 def logicPostfix(ls: list):
-    # print("ls", ls)
     n = checkBracketLs(ls)
     result = []
     aux = []
 
-    for i, c in enumerate(n):
+    for c in n:
         if c in [" ", ""]:
             continue
         if not isOpLgc(c):
@@ -57,11 +60,17 @@ def logicPostfix(ls: list):
 
 
 def calculateLogic(n: list):
-    # print("post:", n)
+    # print("calculateLogic", n)
     result = []
     for c in n:
+        if type(c) == float or type(c) == int:
+            result.append(c)
+            continue
         if not isOpLgc(c):
-            result.append(float(c))
+            if isString(c):
+                result.append(c[1:-1])
+            else:
+                result.append(float(c))
             continue
 
         b = result.pop()
@@ -103,4 +112,9 @@ def calculateLogic(n: list):
             case ">":
                 result.append(int(a > b))
     res = result.pop()
+    if type(res) == float:
+        if res.is_integer():
+            return int(res)
+    if type(res) == str:
+        return "\"" + res + "\""
     return res
