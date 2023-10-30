@@ -1,26 +1,54 @@
-out "Assigning Variable"
+out("Assigning Variable")
 a = 10
-out "a = "; a 
+out("a = ", a)
 
-out "If Else Statement"
+out("If Else Statement")
 
 while a != 5
-    out "a = "; a
+    out("a = ", a)
     if a == 10
-        out "hello if"
+        out("hello if")
         a = 99
     else_if a == 99
-        out "hello else_if"
+        out("hello else_if")
         a = 100
     else
-        out "hello else"
+        out("hello else")
         a = 5
     end
 end
 
 while a > 0
-    out a 
+    out(a) 
     a = a - 1
 end
 
-out "Hasil Akhir "; a
+out("Hasil Akhir ", a)
+
+out("Tes Fungsi")
+
+fn tambah_dan_cetak(a,b)
+    out("hasil: ", a + b)
+end
+
+tambah_dan_cetak(2 + 5,3)
+
+out("Fungsi dalam loop")
+i = 0
+j = 9
+while i < 9
+    tambah_dan_cetak(i, j)
+    i = i + 1
+    j = j - 1
+end
+
+out("Loop dalam fungsi")
+fn loop_and_print(start, end)
+    while start < end
+        out(start)
+        start = start + 1
+    end
+end
+loop_and_print(0, 10)
+
+out("Demo Selesai")

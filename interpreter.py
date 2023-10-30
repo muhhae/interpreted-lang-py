@@ -15,15 +15,22 @@ class label:
 
 
 class funct:
-    def __init__(self, name: str, content: str):
+    def __init__(self, name: str, content: str, arg: list[str]):
         self.name = name
         self.content = content
-        self.arg = []
-        pass
+        self.arg = arg
+        self.local_interpreter = interpreter()
+
+    def exec(self, arg):
+        for a, b in zip(self.arg, arg):
+            self.local_interpreter.var_list.append(var(a, b))
+        self.local_interpreter.execstring(self.content)
+        self.local_interpreter.var_list.clear()
 
 
 class interpreter:
-    def __init__(self):
+    def __init__(self, parent=None):
+        self.parent = parent
         self.var_list = []
         self.label_list = []
         self.funct_list = []
@@ -74,6 +81,7 @@ class interpreter:
         return ls
 
     def checkAssignment(self, input: str):
+        # print("checkAssignment", input)
         if input.count('=') > 1:
             return
         asgnIndex = input.find('=')
@@ -92,12 +100,12 @@ class interpreter:
             old_var.value = tmpVar_val
 
     def checkkeyword(self, input: str):
-        b_out = input[:3] == "out"
-
-        if b_out:
-            tmp_val = input[3:].strip().split(";")
-            # print("tmp_val", tmp_val)
-            for e in tmp_val:
+        key = input[:input.find("(")]
+        # print("key", key)
+        arg = input[input.find("(") + 1:input.rfind(")")].strip().split(",")
+        # print("arg", arg)
+        if key == "out":
+            for e in arg:
                 e.strip()
                 if len(e) == 0:
                     continue
@@ -112,11 +120,20 @@ class interpreter:
                 print(e, end="")
             print()
             return True
+        for fun in self.funct_list:
+            if fun.name == key:
+                for i, e in enumerate(arg):
+                    e = e.strip()
+                    e = self.checkOperation(e)
+                    arg[i] = e
+                fun.exec(arg)
+                return True
+        return False
 
     def execline(self, input: str):
 
         input = input.strip()
-
+        # print("input", input)
         if self.checkkeyword(input):
             return
         self.checkAssignment(input)
@@ -163,12 +180,22 @@ class interpreter:
             self.execstring(str)
 
     def def_fn(self, inp):
-        pass
+        # print("def fn")
+        name = inp[0][inp[0].find("fn") + len('fn'):inp[0].find("(")].strip()
+        arg = inp[0][inp[0].find("(") + 1:inp[0].rfind(")")].strip().split(",")
+        arg = [e.strip() for e in arg]
+        content = ""
+        for e in inp[1:]:
+            content += e + "\n"
+        # print('name', name)
+        # print('arg', arg)
+        # print('content', content)
+        self.funct_list.append(funct(name, content, arg))
 
     def execstring(self, input):
-        # print("ip\n", input)
         block_k = ["if", "while", "fn"]
         input = input.split("\n")
+        # print("input ", input, '\n')
         in_block = 0
         block_type = ""
         block_content = []

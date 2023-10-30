@@ -1,0 +1,10 @@
+fn A(a,b,c)
+    out("a ", a)
+    out("b ", b)
+    out("c ", c)
+end
+
+out("loop dalam fungsi")
+
+
+A(1,2,3)
