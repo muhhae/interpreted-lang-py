@@ -99,10 +99,10 @@ class interpreter:
         else:
             old_var.value = tmpVar_val
 
-    def checkkeyword(self, input: str):
-        key = input[:input.find("(")]
+    def checkkeyword(self, inp: str):
+        key = inp[:inp.find("(")]
         # print("key", key)
-        arg = input[input.find("(") + 1:input.rfind(")")].strip().split(",")
+        arg = inp[inp.find("(") + 1:inp.rfind(")")].strip().split(",")
         # print("arg", arg)
         if key == "out":
             for e in arg:
@@ -120,6 +120,24 @@ class interpreter:
                 print(e, end="")
             print()
             return True
+        if key == "in":
+            if len(arg) == 0:
+                input()
+                return True
+            val = input()
+            if val.isdigit():
+                val = float(val)
+            else:
+                val = "\"" + val + "\""
+            for e in arg:
+                e.strip()
+                if len(e) == 0:
+                    continue
+                old_var = self.findVar(e)
+                if old_var == -1:
+                    self.var_list.append(var(e, val))
+                else:
+                    old_var.value = val
         for fun in self.funct_list:
             if fun.name == key:
                 for i, e in enumerate(arg):
@@ -140,15 +158,24 @@ class interpreter:
         return
 
     def exec_if(self, inp: list[str]):
-        # print("exec if")
+        # print("exec_if", inp, "\n")
 
         ls_cond = []
         ls_task = []
 
         tmp = ""
+        nested = 0
 
         for e in inp:
             es = e.strip()
+            if es[:2] == 'if':
+                nested += 1
+            if e == "end":
+                nested -= 1
+            if nested > 1:
+                tmp += es + '\n'
+                continue
+
             if es[:2] == 'if':
                 ls_cond.append(e[2:].strip())
             elif es[:7] == 'else_if':
@@ -162,6 +189,7 @@ class interpreter:
             else:
                 tmp += es + '\n'
         ls_task.append(tmp)
+        # print("cond", ls_cond)
 
         for condition, task in zip(ls_cond, ls_task):
             # print("condition", condition)

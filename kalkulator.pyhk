@@ -1,0 +1,31 @@
+running = 1
+
+while running == 1
+    out("Pilih Operasi")
+    out("1. Penjumlahan")
+    out("2. Pengurangan")
+    out("3. Perkalian")
+    out("4. Pembagian")
+    out("5. Quit")
+    
+    in(input)
+    if input == 5
+        running = 0
+    else
+        out("Masukkan nilai A")
+        in(A)
+        
+        out("Masukkan nilai B")
+        in(B)
+        
+        if input == 1
+            out(A," + ",B," = ", A+B)
+        else_if input == 2
+            out(A," - ",B," = ", A-B)
+        else_if input == 3
+            out(A," * ",B," = ", A*B)
+        else_if input == 4
+            out(A," / ",B," = ", A/B)
+        end
+    end
+end
