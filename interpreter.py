@@ -170,7 +170,7 @@ class interpreter:
         for e in inp:
             es = e.strip()
             for k in block_k:
-                if es[:len(k)] == 'k':
+                if es[:len(k)] == k:
                     nested += 1
                     break
             if e == "end":

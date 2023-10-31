@@ -27,5 +27,6 @@ while running == 1
         else_if input == 4
             out(A," / ",B," = ", A/B)
         end
+        out()
     end
 end
