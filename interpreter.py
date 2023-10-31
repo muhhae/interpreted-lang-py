@@ -159,6 +159,7 @@ class interpreter:
 
     def exec_if(self, inp: list[str]):
         # print("exec_if", inp, "\n")
+        block_k = ["if", "while", "fn"]
 
         ls_cond = []
         ls_task = []
@@ -168,8 +169,10 @@ class interpreter:
 
         for e in inp:
             es = e.strip()
-            if es[:2] == 'if':
-                nested += 1
+            for k in block_k:
+                if es[:len(k)] == 'k':
+                    nested += 1
+                    break
             if e == "end":
                 nested -= 1
             if nested > 1:
