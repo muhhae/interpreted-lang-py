@@ -34,6 +34,7 @@ class interpreter:
         self.var_list = []
         self.label_list = []
         self.funct_list = []
+        self.line_done = []
         pass
 
     def findVar(self, var_name):
@@ -151,6 +152,13 @@ class interpreter:
     def execline(self, input: str):
 
         input = input.strip()
+        if len(input) == 0:
+            return
+        if input[0] == '#':
+            return
+        if input[:4] == "goto":
+            self.exec_goto(input)
+            return
         # print("input", input)
         if self.checkkeyword(input):
             return
@@ -210,6 +218,20 @@ class interpreter:
         while self.checkOperation(condition):
             self.execstring(str)
 
+    def exec_goto(self, inp):
+        # input("masuk goto")
+        label_name = inp[4:].strip()
+        for e in self.label_list:
+            if e.name == label_name:
+                goto_line = e.line
+                str_to_exec = ""
+                # print("goto", goto_line)
+                for lin in self.line_done[goto_line:]:
+                    str_to_exec += lin + "\n"
+                # print("str_to_exec", str_to_exec)
+                self.execstring(str_to_exec)
+                break
+
     def def_fn(self, inp):
         # print("def fn")
         name = inp[0][inp[0].find("fn") + len('fn'):inp[0].find("(")].strip()
@@ -223,7 +245,7 @@ class interpreter:
         # print('content', content)
         self.funct_list.append(funct(name, content, arg))
 
-    def execstring(self, input):
+    def execstring(self, input, is_root=False):
         block_k = ["if", "while", "fn"]
         input = input.split("\n")
         # print("input ", input, '\n')
@@ -231,16 +253,22 @@ class interpreter:
         block_type = ""
         block_content = []
         # print("ib", in_block)
-        for l in input:
+        for i, l in enumerate(input):
             l = l.strip()
-            if l[:1] == "#":
+            if is_root:
+                self.line_done.append(l)
+            if len(l) == 0:
+                continue
+            if l[-1] == ':':
+                label_name = l[:-1].strip()
+                self.label_list.append(label(label_name, i))
                 continue
             for k in block_k:
                 if l[:len(k)] == k:
                     if in_block == 0:
                         block_type = k
                     in_block += 1
-            if l[:4] == "end":
+            if in_block > 0 and l[:4] == "end":
                 in_block -= 1
                 # print("ib", in_block)
                 if in_block == 0:
@@ -262,7 +290,7 @@ class interpreter:
 
     def execfile(self, path):
         file_in = open(path, "r")
-        self.execstring(file_in.read())
+        self.execstring(file_in.read(), True)
         file_in.close()
 
 
@@ -285,6 +313,10 @@ def main():
                 if line_input[0:len(e)] == e:
                     in_block = True
                     break
+            if line_input == "lab":
+                ls = [e.name for e in it.label_list]
+                print(ls)
+                continue
             if line_input == "var":
                 ls = [e.value for e in it.var_list]
                 print(ls)

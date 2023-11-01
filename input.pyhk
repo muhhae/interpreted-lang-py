@@ -60,4 +60,15 @@ out("a: ", a)
 out("b: ", b)
 out("a * b = ", a * b)
 
+i = 0
+
+
+tes:
+out("tes goto ", i)
+if i < 4
+    out("masuk if")
+    i = i + 1
+    goto tes
+end
+
 out("Demo Selesai")
