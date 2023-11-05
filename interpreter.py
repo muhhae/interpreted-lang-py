@@ -24,8 +24,9 @@ class funct:
     def exec(self, arg):
         for a, b in zip(self.arg, arg):
             self.local_interpreter.var_list.append(var(a, b))
-        self.local_interpreter.execstring(self.content)
+        ret = self.local_interpreter.execstring(self.content)
         self.local_interpreter.var_list.clear()
+        return ret
 
 
 class interpreter:
@@ -44,7 +45,16 @@ class interpreter:
         return -1
 
     def checkOperation(self, input: str):
-        # print("masuk chekOp", input)
+        ok, res = self.checkkeyword(input)
+        if ok:
+            return res
+
+        if input[0] == "[" and input[-1] == "]":
+            tmp = input[input.find("[") + 1:input.rfind("]")
+                        ].strip().split(",")
+            tmp = [self.checkOperation(e.strip()) for e in tmp]
+            return tmp
+
         cprOp = ["and", "or", "not", "!=", "==", "<=", ">=",
                  "<", ">", "+", "/", "*", "-", "^", "%", "(", ")"]
 
@@ -82,32 +92,82 @@ class interpreter:
         return ls
 
     def checkAssignment(self, input: str):
-        # print("checkAssignment", input)
-        if input.count('=') > 1:
-            return
+        bracketIndex = input.find('(')
         asgnIndex = input.find('=')
-        if asgnIndex == -1:
+        if asgnIndex == -1 or (bracketIndex != -1 and bracketIndex < asgnIndex):
+            self.checkkeyword(input)
             return
         tmpVar_name = input[0:asgnIndex].replace(" ", "").replace("\t", "")
         tmpVar_val = input[asgnIndex+1:].strip()
         if tmpVar_val.isdigit():
             tmpVar_val = float(tmpVar_val)
         else:
+            # print("not ok")
             tmpVar_val = self.checkOperation(tmpVar_val)
+
+        arr_index = -1
+        if tmpVar_name.find("[") != -1:
+            arr_index = tmpVar_name[tmpVar_name.find(
+                "[") + 1:tmpVar_name.rfind("]")].strip()
+            arr_index = self.checkOperation(arr_index)
+            tmpVar_name = tmpVar_name[:tmpVar_name.find("[")]
+
         old_var = self.findVar(tmpVar_name)
         if old_var == -1:
             self.var_list.append(var(tmpVar_name, tmpVar_val))
         else:
+            if arr_index != -1:
+                old_var.value[arr_index] = tmpVar_val
             old_var.value = tmpVar_val
 
-    def checkkeyword(self, inp: str):
+    def checkkeyword(self, inp: str) -> tuple[bool, any]:
+        # print("masuk checkKeyword", inp)
+        if inp.find("(") == -1:
+            return (False, None)
         key = inp[:inp.find("(")]
-        # print("key", key)
         arg = inp[inp.find("(") + 1:inp.rfind(")")].strip().split(",")
         # print("arg", arg)
+        arg_tmp = []
+        str_tmp = ""
+        bracket_level = 0
+
+        for e in arg:
+            if len(e) == 0:
+                continue
+            if e.count("(") != e.count(")"):
+                bracket_level += e.count("(") - e.count(")")
+            if bracket_level == 0:
+                arg_tmp.append(str_tmp + e)
+                str_tmp = ""
+            else:
+                str_tmp += e + ","
+        # print("arg_tmp", arg_tmp)
+        arg = arg_tmp
+
+        arg_tmp = []
+        str_tmp = ""
+        total_quote = 0
+
+        for e in arg:
+            if len(e) == 0:
+                continue
+            if e.count("\"") != 0:
+                total_quote += e.count("\"")
+            if total_quote % 2 == 0:
+                arg_tmp.append(str_tmp + e)
+                str_tmp = ""
+            else:
+                str_tmp += e + ","
+        arg = arg_tmp
+
+        str_to_print = ""
         if key == "out":
+            break_line = True
             for e in arg:
-                e.strip()
+                e = e.strip()
+                if e == "no_break":
+                    break_line = False
+                    continue
                 if len(e) == 0:
                     continue
                 if not isString(e):
@@ -118,13 +178,15 @@ class interpreter:
                 if e == None or e == 'None':
                     print("NULL", end="")
                     continue
-                print(e, end="")
-            print()
-            return True
+                str_to_print += str(e)
+            print(str_to_print, end="")
+            if break_line:
+                print()
+            return (True, None)
         if key == "in":
             if len(arg) == 0:
                 input()
-                return True
+                return (True, None)
             val = input()
             if val.isdigit():
                 val = float(val)
@@ -139,18 +201,17 @@ class interpreter:
                     self.var_list.append(var(e, val))
                 else:
                     old_var.value = val
+            return (True, None)
         for fun in self.funct_list:
             if fun.name == key:
                 for i, e in enumerate(arg):
                     e = e.strip()
                     e = self.checkOperation(e)
                     arg[i] = e
-                fun.exec(arg)
-                return True
-        return False
+                return (True, fun.exec(arg))
+        return (False, None)
 
     def execline(self, input: str):
-
         input = input.strip()
         if len(input) == 0:
             return
@@ -158,9 +219,6 @@ class interpreter:
             return
         if input[:4] == "goto":
             self.exec_goto(input)
-            return
-        # print("input", input)
-        if self.checkkeyword(input):
             return
         self.checkAssignment(input)
         return
@@ -246,7 +304,7 @@ class interpreter:
         self.funct_list.append(funct(name, content, arg))
 
     def execstring(self, input, is_root=False):
-        block_k = ["if", "while", "fn"]
+        block_k = ["if", "while", "fn", "execPy"]
         input = input.split("\n")
         # print("input ", input, '\n')
         in_block = 0
@@ -280,12 +338,19 @@ class interpreter:
                             self.exec_while(block_content)
                         case "fn":
                             self.def_fn(block_content)
+                        case "execPy":
+                            str_to_exec = ""
+                            for lin in block_content[1:]:
+                                str_to_exec += lin + "\n"
+                            exec(str_to_exec)
                     block_content.clear()
                     continue
             if in_block:
                 block_content.append(l)
             else:
                 # print("ln", l)
+                if l[:6] == "return":
+                    return self.checkOperation(l[6:])
                 self.execline(l)
 
     def execfile(self, path):
@@ -299,7 +364,7 @@ def main():
     line_input = ""
     input_tmp = ""
 
-    key_block = ["if", "while", "fn"]
+    key_block = ["if", "while", "fn", "execPy"]
     in_block = False
 
     if len(sys.argv) == 1:

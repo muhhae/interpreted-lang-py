@@ -1,6 +1,9 @@
 out("Assigning Variable")
+ln_break()
+
 a = 10
 out("a = ", a)
+ln_break()
 
 out("If Else Statement")
 
@@ -28,7 +31,7 @@ out("Hasil Akhir ", a)
 out("Tes Fungsi")
 
 fn tambah_dan_cetak(a,b)
-    out("hasil: ", a + b)
+    out(a," + ", b, " = ", a + b)
 end
 
 tambah_dan_cetak(2 + 5,3)
@@ -62,7 +65,6 @@ out("a * b = ", a * b)
 
 i = 0
 
-
 tes:
 out("tes goto ", i)
 if i < 4
@@ -70,5 +72,25 @@ if i < 4
     i = i + 1
     goto tes
 end
+
+fn kali_dan_tambah(a,b)
+    out("masuk fungsi a * b + b = ", a, " * ", b, " + ", b)
+    return a * b + b
+end
+
+z = kali_dan_tambah(2, 4)
+
+out("z = ", z)
+out("hasil kali dan tambah 3 * (2 + 1) dan 4 = ", kali_dan_tambah(3 * (2 + 1), 4))
+
+i = 0
+while i < 5
+    out("i = ", i, no_break)
+    i = i + 1
+    if i < 5
+        out(" , ", no_break)
+    end
+end
+out()
 
 out("Demo Selesai")
