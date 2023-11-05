@@ -1,0 +1,24 @@
+Arr = [1,2,3,4,5,6]
+out("Arr = ", Arr)
+out("Arr[2] = ", Arr[2])
+out("Tes operasi dalam index")
+out("Arr[1+1] = ", Arr[1 + 1])
+
+fn print_arr_index(arr, i)
+    out("arr = ", arr)
+    out("i = ", i)
+    out("arr[", i, "] = ", arr[i])
+end
+
+print_arr_index(Arr, 2)
+
+out()
+out("Array as return value")
+fn create_array(size)
+    tmp = []
+    tmp[size - 1] = None
+    return tmp
+end
+
+array_created = create_array(3)
+out("array_created", array_created)

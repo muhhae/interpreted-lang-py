@@ -48,10 +48,14 @@ class interpreter:
         ok, res = self.checkkeyword(input)
         if ok:
             return res
-
+        if input == "None":
+            return None
+        # print("input", input)
         if input[0] == "[" and input[-1] == "]":
             tmp = input[input.find("[") + 1:input.rfind("]")
                         ].strip().split(",")
+            if len(tmp) == 1 and tmp[0] == "":
+                return []
             tmp = [self.checkOperation(e.strip()) for e in tmp]
             return tmp
 
@@ -65,23 +69,60 @@ class interpreter:
                 tmp_2 = tmp_2.replace(e, f" op{i} ")
 
         tmp_ls = tmp_2.split(" ")
-        for i, e in enumerate(tmp_ls):
-            if e in ["", " "]:
+
+        ls_tmp = []
+        str_tmp = ""
+        bracket_level = 0
+        for e in tmp_ls:
+            if len(e) == 0:
                 continue
             if e[:2] == "op":
                 op_in = int(e[2:])
-                tmp_ls[i] = cprOp[op_in]
+                e = cprOp[op_in]
+            if e.count("[") != e.count("]"):
+                bracket_level += e.count("[") - e.count("]")
+            if bracket_level == 0:
+                ls_tmp.append(str_tmp + e)
+                str_tmp = ""
             else:
-                if type(e) == str:
-                    if e.isdigit() or isString(e):
-                        tmp_ls[i] = e
-                    else:
-                        find_var = self.findVar(e)
-                        if find_var != -1:
-                            # print("ketemu", find_var.name, find_var.value)
-                            tmp_ls[i] = find_var.value
+                str_tmp += e
+        tmp_ls = ls_tmp
+        # print("tmp_ls", tmp_ls)
+        for i, e in enumerate(tmp_ls):
+            if e in ["", " "]:
+                continue
+            if e in cprOp:
+                continue
+            if type(e) == str:
+                if e.isdigit() or isString(e):
+                    tmp_ls[i] = e
+                elif e.find("[") != -1:
+                    # print("e", e)
+                    arr_index = e[e.find("[") + 1:e.rfind("]")].strip()
+                    # print("arr_index", arr_index)
+                    arr_index = self.checkOperation(arr_index)
+                    # print("arr_index", arr_index)
+                    e = e[:e.find("[")]
+                    find_var = self.findVar(e)
+                    if find_var != -1:
+                        if arr_index + 1 > len(find_var.value):
+                            print("error: index out of range")
                         else:
-                            print("error:", e, "is not defined")
+                            # print("ketemu", find_var.name, find_var.value)
+                            tmp_ls[i] = find_var.value[arr_index]
+                    else:
+                        print("error:", e, "is not defined")
+                else:
+                    find_var = self.findVar(e)
+                    if find_var != -1:
+                        # print("ketemu", find_var.name, find_var.value)
+                        if type(find_var.value) == list:
+                            val = find_var.value
+                            return [e_arr for e_arr in val]
+                        else:
+                            tmp_ls[i] = find_var.value
+                    else:
+                        print("error:", e, "is not defined")
 
         ls = 0
         # print("tmp_ls", tmp_ls)
@@ -117,8 +158,11 @@ class interpreter:
             self.var_list.append(var(tmpVar_name, tmpVar_val))
         else:
             if arr_index != -1:
+                while len(old_var.value) < arr_index + 1:
+                    old_var.value.append(None)
                 old_var.value[arr_index] = tmpVar_val
-            old_var.value = tmpVar_val
+            else:
+                old_var.value = tmpVar_val
 
     def checkkeyword(self, inp: str) -> tuple[bool, any]:
         # print("masuk checkKeyword", inp)
