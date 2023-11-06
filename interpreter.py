@@ -29,12 +29,41 @@ class funct:
         return ret
 
 
+class class_def:
+    def __init__(self, name: str, content: str):
+        self.name = name
+        self.content = content
+
+
+class class_var:
+    def __init__(self, base: class_def, arg=[]):
+        self.class_interpreter = interpreter()
+        self.class_interpreter.execstring(base.content)
+        self.var_list = self.class_interpreter.var_list
+        self.funct_list = self.class_interpreter.funct_list
+        self.exec_funct("init", arg)
+
+    def exec_funct(self, name, arg):
+        for e in self.funct_list:
+            if e.name == name:
+                e.local_interpreter.var_list.append(var("this", self))
+                return e.exec(arg)
+        return None
+
+    def get_var(self, name):
+        for e in self.var_list:
+            if e.name == name:
+                return e
+        return None
+
+
 class interpreter:
     def __init__(self, parent=None):
         self.parent = parent
         self.var_list = []
         self.label_list = []
         self.funct_list = []
+        self.class_list = []
         self.line_done = []
         pass
 
@@ -48,7 +77,7 @@ class interpreter:
         ok, res = self.checkkeyword(input)
         if ok:
             return res
-        if input == "None":
+        if "NULL" in input:
             return None
         # print("input", input)
         if input[0] == "[" and input[-1] == "]":
@@ -96,6 +125,26 @@ class interpreter:
             if type(e) == str:
                 if e.isdigit() or isString(e):
                     tmp_ls[i] = e
+                elif e.find(".") != -1:
+                    obj = e[:e.find(".")]
+                    e = e[e.find(".") + 1:]
+                    # print("obj", obj)
+                    # print("e", e)
+                    find_var = self.findVar(obj)
+                    # print("find_var", find_var)
+                    # print("val", find_var.value)
+                    if find_var != -1:
+                        if type(find_var.value) != class_var:
+                            print("error:", obj, "is not a class")
+                            return None
+                        # print("find_var.value", find_var.value)
+                        var_val = find_var.value.get_var(e)
+                        if var_val == None:
+                            print("error:", e, "is not defined")
+                            return None
+                        tmp_ls[i] = var_val.value
+                    else:
+                        print("error:", obj, "is not defined")
                 elif e.find("[") != -1:
                     # print("e", e)
                     arr_index = e[e.find("[") + 1:e.rfind("]")].strip()
@@ -105,6 +154,9 @@ class interpreter:
                     e = e[:e.find("[")]
                     find_var = self.findVar(e)
                     if find_var != -1:
+                        if type(find_var.value) != list:
+                            print("error:", e, "is not an array")
+                            return None
                         if arr_index + 1 > len(find_var.value):
                             print("error: index out of range")
                         else:
@@ -129,7 +181,7 @@ class interpreter:
         try:
             ls = calculateLogic(logicPostfix(tmp_ls))
         except:
-            return 0
+            return None
         return ls
 
     def checkAssignment(self, input: str):
@@ -140,10 +192,9 @@ class interpreter:
             return
         tmpVar_name = input[0:asgnIndex].replace(" ", "").replace("\t", "")
         tmpVar_val = input[asgnIndex+1:].strip()
-        if tmpVar_val.isdigit():
+        try:
             tmpVar_val = float(tmpVar_val)
-        else:
-            # print("not ok")
+        except:
             tmpVar_val = self.checkOperation(tmpVar_val)
 
         arr_index = -1
@@ -153,6 +204,10 @@ class interpreter:
             arr_index = self.checkOperation(arr_index)
             tmpVar_name = tmpVar_name[:tmpVar_name.find("[")]
 
+        obj = None
+        if "." in tmpVar_name:
+            obj = tmpVar_name[tmpVar_name.find(".") + 1:]
+            tmpVar_name = tmpVar_name[:tmpVar_name.find(".")]
         old_var = self.findVar(tmpVar_name)
         if old_var == -1:
             self.var_list.append(var(tmpVar_name, tmpVar_val))
@@ -161,6 +216,15 @@ class interpreter:
                 while len(old_var.value) < arr_index + 1:
                     old_var.value.append(None)
                 old_var.value[arr_index] = tmpVar_val
+            elif obj != None:
+                if type(old_var.value) != class_var:
+                    print("error:", tmpVar_name, "is not a class")
+                    return
+                var_val = old_var.value.get_var(obj)
+                if var_val == None:
+                    old_var.value.var_list.append(var(obj, tmpVar_val))
+                else:
+                    var_val.value = tmpVar_val
             else:
                 old_var.value = tmpVar_val
 
@@ -168,9 +232,38 @@ class interpreter:
         # print("masuk checkKeyword", inp)
         if inp.find("(") == -1:
             return (False, None)
+
         key = inp[:inp.find("(")]
+        obj = None
+        if "." in key:
+            obj = key[:key.find(".")]
+            key = key[key.find(".") + 1:]
         arg = inp[inp.find("(") + 1:inp.rfind(")")].strip().split(",")
         # print("arg", arg)
+
+        if obj != None:
+            old_var = self.findVar(obj)
+            if old_var == -1:
+                print("error:", obj, "is not defined")
+                return (True, None)
+            else:
+                obj = old_var.value
+            if type(obj) != class_var:
+                print("error:", obj, "is not a class")
+                return (True, None)
+            match key:
+                case "var_list":
+                    tmp = []
+                    for e in obj.var_list:
+                        tmp.append((e.name, e.value))
+                    return (True, tmp)
+                case "funct_list":
+                    tmp = []
+                    for e in obj.funct_list:
+                        tmp.append((e.name, e.arg))
+                    return (True, tmp)
+            return (True, obj.exec_funct(key, arg))
+
         arg_tmp = []
         str_tmp = ""
         bracket_level = 0
@@ -204,8 +297,8 @@ class interpreter:
                 str_tmp += e + ","
         arg = arg_tmp
 
-        str_to_print = ""
         if key == "out":
+            str_to_print = ""
             break_line = True
             for e in arg:
                 e = e.strip()
@@ -218,11 +311,10 @@ class interpreter:
                     e = self.checkOperation(e)
                 if type(e) == str and isString(e):
                     e = e[1:-1]
-
-                if e == None or e == 'None':
-                    print("NULL", end="")
-                    continue
                 str_to_print += str(e)
+            str_to_print = str_to_print.replace("\\n", "\n")
+            str_to_print = str_to_print.replace("\\t", "\t")
+            str_to_print = str_to_print.replace("None", "NULL")
             print(str_to_print, end="")
             if break_line:
                 print()
@@ -246,6 +338,18 @@ class interpreter:
                 else:
                     old_var.value = val
             return (True, None)
+        if key == "size":
+            if len(arg) == 0:
+                return (True, None)
+            old_var = self.findVar(arg[0])
+            if old_var == -1:
+                print("error:", arg[0], "is not defined")
+                return (True, None)
+            if type(old_var.value) == list:
+                return (True, len(old_var.value))
+            else:
+                print("error:", arg[0], "is not an array")
+                return (True, None)
         for fun in self.funct_list:
             if fun.name == key:
                 for i, e in enumerate(arg):
@@ -253,6 +357,13 @@ class interpreter:
                     e = self.checkOperation(e)
                     arg[i] = e
                 return (True, fun.exec(arg))
+        for cls in self.class_list:
+            if cls.name == key:
+                for i, e in enumerate(arg):
+                    e = e.strip()
+                    e = self.checkOperation(e)
+                    arg[i] = e
+                return (True, class_var(cls, arg))
         return (False, None)
 
     def execline(self, input: str):
@@ -347,8 +458,15 @@ class interpreter:
         # print('content', content)
         self.funct_list.append(funct(name, content, arg))
 
+    def def_class(self, inp):
+        name = inp[0][inp[0].find("class") + len('class'):].strip()
+        content = ""
+        for e in inp[1:]:
+            content += e + "\n"
+        self.class_list.append(class_def(name, content))
+
     def execstring(self, input, is_root=False):
-        block_k = ["if", "while", "fn", "execPy"]
+        block_k = ["if", "while", "fn", "execPy", "class"]
         input = input.split("\n")
         # print("input ", input, '\n')
         in_block = 0
@@ -387,6 +505,8 @@ class interpreter:
                             for lin in block_content[1:]:
                                 str_to_exec += lin + "\n"
                             exec(str_to_exec)
+                        case "class":
+                            self.def_class(block_content)
                     block_content.clear()
                     continue
             if in_block:
@@ -408,8 +528,8 @@ def main():
     line_input = ""
     input_tmp = ""
 
-    key_block = ["if", "while", "fn", "execPy"]
-    in_block = False
+    key_block = ["if", "while", "fn", "execPy", "class"]
+    in_block = 0
 
     if len(sys.argv) == 1:
         while not line_input in ["/q", "/quit", "/exit"]:
@@ -420,7 +540,7 @@ def main():
             input_tmp += "\n" + line_input
             for e in key_block:
                 if line_input[0:len(e)] == e:
-                    in_block = True
+                    in_block += 1
                     break
             if line_input == "lab":
                 ls = [e.name for e in it.label_list]
@@ -431,10 +551,12 @@ def main():
                 print(ls)
                 continue
             if line_input == "end":
-                in_block = False
-            if not in_block:
+                in_block -= 1
+            if in_block == 0:
                 it.execstring(input_tmp)
+                print()
                 input_tmp = ""
+
     else:
         it.execfile(sys.argv[1])
 

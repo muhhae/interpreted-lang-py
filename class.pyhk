@@ -1,0 +1,36 @@
+class Tes
+    val = 1
+    A = 2
+    
+    fn init()
+        this.C = 3
+        out("Hello Init ", this.A)
+        out("C = ", this.C)
+    end
+    
+    fn hello(val)
+        out("Hello World ", this.val)
+        this.val = this.val + val
+    end
+end
+
+A = Tes()
+A.hello(2)
+
+B = Tes()
+B.hello(2)
+
+out("A.val = ", A.val)
+out("A.val = ", A.val)
+
+A.val = 9
+
+out("A.val = ", A.val)
+out("B.val = ", B.val)
+
+A.hello(4)
+B.hello(4)
+
+out("A.C = ", A.C)
+out("A.var_list() ", A.var_list())
+out("A.funct_list() ", A.funct_list())

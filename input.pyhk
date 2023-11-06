@@ -105,6 +105,8 @@ end
 out("Tes operasi dalam index")
 out("Arr[1+1] = ", Arr[1 + 1])
 
+out("\nArray as Arg")
+
 fn print_arr_index(arr, i)
     out("arr = ", arr)
     out("i = ", i)
@@ -117,12 +119,13 @@ out()
 out("Array as return value")
 fn create_array(size)
     tmp = []
-    tmp[size - 1] = None
+    tmp[size - 1] = NULL
     return tmp
 end
 
-array_created = create_array(3)
+array_created = create_array(4)
 out("array_created ", array_created)
+out("size(array_created) ", size(array_created))
 
 out()
 
@@ -162,6 +165,44 @@ in(step)
 
 Urut = sequence_array(start, stop, step)
 out("Urut ", Urut)
+
+out("\nDemo Class\n")
+class Tes
+    val = 1
+    A = 2
+    
+    fn init()
+        this.C = 100
+        out("Hello Init ", this.A)
+        out("C = ", this.C)
+    end
+    
+    fn hello(val)
+        out("Hello World ", this.val)
+        this.val = this.val + val
+    end
+end
+
+A = Tes()
+A.hello(2)
+
+B = Tes()
+B.hello(2)
+
+out("A.val = ", A.val)
+out("A.val = ", A.val)
+
+A.val = 9
+
+out("A.val = ", A.val)
+out("B.val = ", B.val)
+
+A.hello(4)
+B.hello(4)
+
+out("A.C = ", A.C)
+out("A.var_list() ", A.var_list())
+out("A.funct_list() ", A.funct_list())
 
 out()
 out("Demo Selesai")

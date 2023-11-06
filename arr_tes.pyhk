@@ -16,9 +16,10 @@ out()
 out("Array as return value")
 fn create_array(size)
     tmp = []
-    tmp[size - 1] = None
+    tmp[size - 1] = NULL
     return tmp
 end
 
-array_created = create_array(3)
-out("array_created", array_created)
+array_created = create_array(10)
+out("array_created ", array_created)
+out("size(array_created) ", size(array_created))
