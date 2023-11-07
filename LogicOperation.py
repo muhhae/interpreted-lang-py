@@ -1,5 +1,3 @@
-from InfixToPostfix import opVal
-
 
 def isString(n: str):
     return (n[0] == "\"" and n[-1] == "\"" and n.count('"') == 2)
@@ -12,7 +10,10 @@ def cprVal(n):
         return 1
     if n in ["!=", "==", "<=", ">=", "<", ">"]:
         return 3
-    return opVal(n)
+    match n:
+        case "+" | "-": return 4
+        case "*" | "/": return 5
+        case "^": return 6
 
 
 def checkBracketLs(n: list):

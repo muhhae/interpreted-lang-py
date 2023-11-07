@@ -559,6 +559,7 @@ def main():
 
     else:
         it.execfile(sys.argv[1])
+        input("\nPress Enter to continue...")
 
 
 if __name__ == "__main__":

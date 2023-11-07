@@ -1,0 +1,8 @@
+fn add(a,b)
+   return a + b
+end
+
+out(add(2,3))
+
+
+

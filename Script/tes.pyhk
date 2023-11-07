@@ -1,0 +1,10 @@
+fn add(a,b)
+    return a + b
+end
+
+fn mult(a,b
+    return a * b
+end
+
+out("add ", add(2,3))
+out("mult ", mult(2,3))

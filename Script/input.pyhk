@@ -1,9 +1,7 @@
 out("Assigning Variable")
-ln_break()
 
 a = 10
 out("a = ", a)
-ln_break()
 
 out("If Else Statement")
 
@@ -201,8 +199,13 @@ A.hello(4)
 B.hello(4)
 
 out("A.C = ", A.C)
-out("A.var_list() ", A.var_list())
+
+out("\nA.var_list() ", A.var_list())
 out("A.funct_list() ", A.funct_list())
 
 out()
 out("Demo Selesai")
+
+
+
+
