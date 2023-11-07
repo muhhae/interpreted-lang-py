@@ -205,7 +205,3 @@ out("A.funct_list() ", A.funct_list())
 
 out()
 out("Demo Selesai")
-
-
-
-

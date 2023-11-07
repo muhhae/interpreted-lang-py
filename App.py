@@ -1,6 +1,7 @@
 import customtkinter as ctk
 import tkinter as tk
 import subprocess
+import CTkMenuBar.CTkMenuBar as CTkMenuBar
 
 app = ctk.CTk()
 app.title("PyHaekal IDE")
@@ -8,10 +9,10 @@ app.geometry("1280x720")
 
 
 frame1 = ctk.CTkFrame(app)
-frame1.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+frame1.grid(row=0, column=0, padx=5, pady=10, sticky="nsew")
 
-frame2 = ctk.CTkFrame(app)
-frame2.grid(row=0, column=1, padx=0, pady=10, sticky="nsew")
+frame2 = ctk.CTkFrame(app, fg_color="transparent")
+frame2.grid(row=0, column=1, padx=0, pady=5, sticky="nsew")
 
 frame1.grid_columnconfigure(0, weight=1)
 
@@ -22,11 +23,20 @@ app.grid_rowconfigure(0, weight=1)
 text_box = ctk.CTkTextbox(frame2, activate_scrollbars=True)
 frame2.grid_columnconfigure(0, weight=1)
 frame2.grid_rowconfigure(0, weight=5)
-text_box.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+text_box.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
 
 text_box.cget("font").configure(size=18)
 text_box.cget("font").configure(family="fira code")
 text_box.configure(undo=True)
+
+
+def tab_pressed(event: tk.Event) -> str:
+    text_box.insert(tk.INSERT, "    ")
+    return "break"
+
+
+text_box.bind("<Tab>", tab_pressed)
+
 
 current_file = ""
 
@@ -43,7 +53,9 @@ def openFile():
 
 
 def saveFile():
+    global current_file
     directory = ctk.filedialog.asksaveasfilename()
+    current_file = directory
     file = open(directory, "w")
     file.write(text_box.get("1.0", "end"))
     file.close()
@@ -82,7 +94,6 @@ for e in [saveButton, runButton, saveFileButton, openfilebutton]:
     e.cget("font").configure(size=14)
     e.cget("font").configure(family="fira code")
 
-
 # menu_bar = tk.Menu(app, background="#242424", foreground="#ffffff",
 #                    activebackground="#242424", activeforeground="#ffffff")
 # FileMenu = tk.Menu(menu_bar, tearoff=0, background="#242424", foreground="#ffffff",
@@ -98,6 +109,7 @@ for e in [saveButton, runButton, saveFileButton, openfilebutton]:
 # menu_bar.config(bg="#242424")
 
 # app.config(menu=menu_bar)
+
 
 app.state("zoomed")
 app.mainloop()
