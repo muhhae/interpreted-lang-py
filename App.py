@@ -2,6 +2,8 @@ import customtkinter as ctk
 import tkinter as tk
 import subprocess
 import CTkMenuBar.CTkMenuBar as CTkMenuBar
+import tkterminal as tkterm
+import os
 
 app = ctk.CTk()
 app.title("PyHaekal IDE")
@@ -14,6 +16,10 @@ frame1.grid(row=0, column=0, padx=5, pady=10, sticky="nsew")
 frame2 = ctk.CTkFrame(app, fg_color="transparent")
 frame2.grid(row=0, column=1, padx=0, pady=5, sticky="nsew")
 
+folder_frame = ctk.CTkScrollableFrame(frame1)
+folder_frame.grid(row=10, column=0, padx=10, pady=10, sticky="nsew")
+frame1.grid_rowconfigure(10, weight=1)
+
 frame1.grid_columnconfigure(0, weight=1)
 
 # app.grid_columnconfigure(0, weight=1)
@@ -22,7 +28,7 @@ app.grid_rowconfigure(0, weight=1)
 
 text_box = ctk.CTkTextbox(frame2, activate_scrollbars=True)
 frame2.grid_columnconfigure(0, weight=1)
-frame2.grid_rowconfigure(0, weight=5)
+frame2.grid_rowconfigure(0, weight=3)
 text_box.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
 
 text_box.cget("font").configure(size=18)
@@ -39,6 +45,124 @@ text_box.bind("<Tab>", tab_pressed)
 
 
 current_file = ""
+current_folder = ""
+
+
+class index_counter:
+    def __init__(self):
+        self.index = 0
+
+    def reset(self):
+        self.index = 0
+
+    def get(self):
+        a = self.index
+        self.index += 1
+        return a
+
+
+class file_button:
+    def __init__(self, name, path, depth, index: index_counter):
+        self.label = os.path.basename(path)
+        self.path = path
+        self.button = ctk.CTkButton(
+            folder_frame, text="  " * depth + "  " + name, command=lambda: openFilePath(path))
+        self.button.grid(row=index.get(), column=0,
+                         padx=2, pady=2, sticky="ew")
+        self.button.grid_remove()
+        self.button.configure(anchor="w")
+        self.button.cget("font").configure(size=14)
+        self.button.cget("font").configure(family="fira code")
+        self.button.configure(fg_color="transparent")
+
+    def destroy(self):
+        self.button.destroy()
+
+
+class folder_button:
+    def __init__(self, name, path, depth, index: index_counter):
+        self.index = index
+        self.label = os.path.basename(path)
+        self.path = path
+        self.showed = False
+        self.depth = depth
+        self.files = []
+        self.button = ctk.CTkButton(
+            folder_frame, text="  " * depth + "⏵ " + name, command=self.toggle)
+        self.button.grid(row=self.index.get(), column=0,
+                         padx=2, pady=2, sticky="ew")
+        self.button.grid_remove()
+        self.listfiles()
+        if depth == 0:
+            self.button.grid()
+            self.show()
+        self.button.cget("font").configure(size=14)
+        self.button.cget("font").configure(family="fira code")
+        self.button.configure(anchor="w")
+        self.button.configure(fg_color="transparent")
+
+    def toggle(self):
+        if self.showed:
+            self.hide()
+        else:
+            self.show()
+
+    def show(self):
+        self.button.configure(text="  " * self.depth + "⏷ " + self.label)
+        self.showed = True
+        for e in self.files:
+            e.button.grid()
+
+    def hide(self):
+        self.button.configure(text="  " * self.depth + "⏵ " + self.label)
+        for e in self.files:
+            if isinstance(e, folder_button):
+                e.hide()
+            e.button.grid_remove()
+        self.showed = False
+
+    def destroy(self):
+        self.button.destroy()
+        for e in self.files:
+            e.destroy()
+
+    def listfiles(self):
+        tmp_files = []
+        for e in os.listdir(self.path):
+            if os.path.isdir(os.path.join(self.path, e)):
+                self.files.append(folder_button(
+                    e, os.path.join(self.path, e), self.depth + 1, self.index))
+            else:
+                tmp_files.append(e)
+        for e in tmp_files:
+            self.files.append(file_button(e, os.path.join(
+                self.path, e), self.depth + 1, self.index))
+        for e in self.files:
+            e.button.cget("font").configure(size=14)
+            e.button.cget("font").configure(family="fira code")
+
+
+current_folder_button = None
+
+
+def openFolder():
+    global current_folder, current_folder_button
+    if current_folder_button != None:
+        current_folder_button.destroy()
+    directory = ctk.filedialog.askdirectory()
+    current_folder = directory
+    print("current folder open", current_folder)
+    current_folder_button = folder_button(
+        os.path.basename(directory), directory, 0, index_counter())
+    current_folder_button.show()
+
+
+def openFilePath(path):
+    global current_file
+    current_file = path
+    file = open(path, "r")
+    text_box.delete("1.0", "end")
+    text_box.insert("1.0", file.read())
 
 
 def openFile():
@@ -79,37 +203,25 @@ def runCurrent():
 
 
 saveButton = ctk.CTkButton(frame1, text="Save", command=save)
-saveButton.grid(row=9, column=0, padx=10, pady=5, sticky="ew")
+saveButton.grid(row=2, column=0, padx=10, pady=5, sticky="ew")
 
 runButton = ctk.CTkButton(frame1, text="Run", command=runCurrent)
-runButton.grid(row=10, column=0, padx=10, pady=5, sticky="ew")
+runButton.grid(row=3, column=0, padx=10, pady=5, sticky="ew")
 
 saveFileButton = ctk.CTkButton(frame1, text="Save as", command=saveFile)
-saveFileButton.grid(row=8, column=0, padx=10, pady=5, sticky="ew")
+saveFileButton.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
 
 openfilebutton = ctk.CTkButton(frame1, text="Open", command=openFile)
-openfilebutton.grid(row=7, column=0, padx=10, pady=5, sticky="ew")
+openfilebutton.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
 
-for e in [saveButton, runButton, saveFileButton, openfilebutton]:
+openfolderbutton = ctk.CTkButton(
+    frame1, text="Open Folder", command=openFolder)
+openfolderbutton.grid(row=4, column=0, padx=10, pady=5, sticky="ew")
+
+
+for e in [saveButton, runButton, saveFileButton, openfilebutton, openfolderbutton]:
     e.cget("font").configure(size=14)
     e.cget("font").configure(family="fira code")
-
-# menu_bar = tk.Menu(app, background="#242424", foreground="#ffffff",
-#                    activebackground="#242424", activeforeground="#ffffff")
-# FileMenu = tk.Menu(menu_bar, tearoff=0, background="#242424", foreground="#ffffff",
-#                    activebackground="#242424", activeforeground="#ffffff")
-# FileMenu.add_command(label="Open", command=openFile)
-# FileMenu.add_command(label="Save", command=save)
-# FileMenu.add_command(label="Save as", command=saveFile)
-
-# menu_bar.add_cascade(label="File", menu=FileMenu)
-# menu_bar.add_command(label="Run", command=runCurrent)
-
-# menu_bar.config(font=("fira code", 18))
-# menu_bar.config(bg="#242424")
-
-# app.config(menu=menu_bar)
-
 
 app.state("zoomed")
 app.mainloop()

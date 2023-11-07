@@ -123,6 +123,12 @@ class interpreter:
             if e in cprOp:
                 continue
             if type(e) == str:
+                # print("e", e)
+                # ok, res = self.checkkeyword(e)
+                # if ok:
+                #     print("res", res)
+                #     tmp_ls[i] = res
+                #     continue
                 if e.isdigit() or isString(e):
                     tmp_ls[i] = e
                 elif e.find(".") != -1:
