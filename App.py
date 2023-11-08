@@ -11,25 +11,27 @@ app.geometry("1280x720")
 
 
 frame1 = ctk.CTkFrame(app)
-frame1.grid(row=0, column=0, padx=5, pady=10, sticky="nsew")
+frame1.grid(row=1, column=0, padx=10, pady=0, sticky="nsew")
 
 frame2 = ctk.CTkFrame(app, fg_color="transparent")
-frame2.grid(row=0, column=1, padx=0, pady=5, sticky="nsew")
+frame2.grid(row=1, column=1, padx=0, pady=0, sticky="nsew")
 
 folder_frame = ctk.CTkScrollableFrame(frame1)
 folder_frame.grid(row=10, column=0, padx=10, pady=10, sticky="nsew")
+folder_frame.grid_remove()
 frame1.grid_rowconfigure(10, weight=1)
+
 
 frame1.grid_columnconfigure(0, weight=1)
 
 # app.grid_columnconfigure(0, weight=1)
 app.grid_columnconfigure(1, weight=20)
-app.grid_rowconfigure(0, weight=1)
+app.grid_rowconfigure(1, weight=1)
 
 text_box = ctk.CTkTextbox(frame2, activate_scrollbars=True)
 frame2.grid_columnconfigure(0, weight=1)
 frame2.grid_rowconfigure(0, weight=3)
-text_box.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+text_box.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
 
 text_box.cget("font").configure(size=18)
 text_box.cget("font").configure(family="fira code")
@@ -147,13 +149,27 @@ current_folder_button = None
 
 def openFolder():
     global current_folder, current_folder_button
+    directory = ctk.filedialog.askdirectory()
+    if directory == "":
+        return
     if current_folder_button != None:
         current_folder_button.destroy()
-    directory = ctk.filedialog.askdirectory()
+    folder_frame.grid()
     current_folder = directory
-    print("current folder open", current_folder)
     current_folder_button = folder_button(
         os.path.basename(directory), directory, 0, index_counter())
+    current_folder_button.show()
+
+
+def refreshFolder():
+    global current_folder, current_folder_button
+    if current_folder == "":
+        return
+    if current_folder_button != None:
+        current_folder_button.destroy()
+    folder_frame.grid()
+    current_folder_button = folder_button(
+        os.path.basename(current_folder), current_folder, 0, index_counter())
     current_folder_button.show()
 
 
@@ -168,6 +184,8 @@ def openFilePath(path):
 def openFile():
     global current_file
     directory = ctk.filedialog.askopenfiles()
+    if len(directory) == 0:
+        return
     directory = directory[0].name
     current_file = directory
     # print("current file open", current_file)
@@ -179,10 +197,13 @@ def openFile():
 def saveFile():
     global current_file
     directory = ctk.filedialog.asksaveasfilename()
+    if directory == "":
+        return
     current_file = directory
     file = open(directory, "w")
     file.write(text_box.get("1.0", "end"))
     file.close()
+    refreshFolder()
 
 
 def save():
@@ -198,30 +219,59 @@ def save():
 def runCurrent():
     global current_file
     save()
-    subprocess.call('start /wait py ./interpreter.py ' +
-                    current_file, shell=True)
+    if current_file != "":
+        subprocess.call('start /wait py ./interpreter.py ' +
+                        current_file, shell=True)
 
 
-saveButton = ctk.CTkButton(frame1, text="Save", command=save)
-saveButton.grid(row=2, column=0, padx=10, pady=5, sticky="ew")
+# saveButton = ctk.CTkButton(frame1, text="Save", command=save)
+# saveButton.grid(row=2, column=0, padx=10, pady=5, sticky="ew")
 
-runButton = ctk.CTkButton(frame1, text="Run", command=runCurrent)
-runButton.grid(row=3, column=0, padx=10, pady=5, sticky="ew")
+runButton = ctk.CTkButton(app, text="Run", command=runCurrent)
+runButton.grid(row=0, column=1, padx=0, pady=10, sticky="w")
 
-saveFileButton = ctk.CTkButton(frame1, text="Save as", command=saveFile)
-saveFileButton.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
+# saveFileButton = ctk.CTkButton(frame1, text="Save as", command=saveFile)
+# saveFileButton.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
 
-openfilebutton = ctk.CTkButton(frame1, text="Open", command=openFile)
-openfilebutton.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
+# openfilebutton = ctk.CTkButton(frame1, text="Open", command=openFile)
+# openfilebutton.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
 
-openfolderbutton = ctk.CTkButton(
-    frame1, text="Open Folder", command=openFolder)
-openfolderbutton.grid(row=4, column=0, padx=10, pady=5, sticky="ew")
+# openfolderbutton = ctk.CTkButton(
+#     frame1, text="Open Folder", command=openFolder)
+# openfolderbutton.grid(row=4, column=0, padx=10, pady=5, sticky="ew")
 
 
-for e in [saveButton, runButton, saveFileButton, openfilebutton, openfolderbutton]:
-    e.cget("font").configure(size=14)
-    e.cget("font").configure(family="fira code")
+# for e in [saveButton, runButton, saveFileButton, openfilebutton, openfolderbutton]:
+#     e.cget("font").configure(size=14)
+#     e.cget("font").configure(family="fira code")
+
+runButton.cget("font").configure(size=14)
+runButton.cget("font").configure(family="fira code")
+
+
+def menu_action(action):
+    if action == "Open File":
+        openFile()
+    elif action == "Open Folder":
+        openFolder()
+    elif action == "Save":
+        save()
+    elif action == "Save as":
+        saveFile()
+    elif action == "Run":
+        runCurrent()
+    menubar.set("Menu")
+
+
+menubar = ctk.CTkOptionMenu(app, bg_color="transparent", values=[
+                            "Open File", "Open Folder", "Save", "Save as", "Run"], command=menu_action)
+menubar.set("Menu")
+menubar.configure(font=("fira code", 14))
+menubar.configure(dropdown_font=("fira code", 14))
+
+
+menubar.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
 
 app.state("zoomed")
 app.mainloop()

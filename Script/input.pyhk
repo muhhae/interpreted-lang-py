@@ -198,6 +198,12 @@ out("B.val = ", B.val)
 A.hello(4)
 B.hello(4)
 
+i = 0
+while i < 10
+    A.hello(1)
+    i = i + 1
+end
+
 out("A.C = ", A.C)
 
 out("\nA.var_list() ", A.var_list())
@@ -205,6 +211,7 @@ out("A.funct_list() ", A.funct_list())
 
 out()
 out("Demo Selesai")
+
 
 
 
