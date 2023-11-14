@@ -67,6 +67,12 @@ sizeof(a) # return the size of list a
 class.funct_list() # return the function list of class
 class.var_list() # return the variable list of class
 ```
+Text editor supports the following features:
+1.  Open folder and file
+2.  Save file
+3.  Run file
+4.  Syntax highlighting
+5.  Auto Save
 ## 2. How to use
 ### 2.1. Run the program
 To run the interpreter, you can use the following command:
