@@ -1,9 +1,9 @@
-a = 100
+a = 10
 
 if a == 10
-    out "hello if"
+    out("hello if")
 else_if a == 99
-    out "hello else_if
+    out("hello else_if")
 else
-    out "hello else"
+    out("hello else")
 end

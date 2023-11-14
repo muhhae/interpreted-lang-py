@@ -23,4 +23,3 @@ end
 array_created = create_array(10)
 out("array_created ", array_created)
 out("size(array_created) ", size(array_created))
-

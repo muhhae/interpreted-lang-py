@@ -65,7 +65,6 @@ class interpreter:
         self.funct_list = []
         self.class_list = []
         self.line_done = []
-        pass
 
     def findVar(self, var_name):
         for e in self.var_list:
@@ -116,7 +115,37 @@ class interpreter:
             else:
                 str_tmp += e
         tmp_ls = ls_tmp
+
+        ls_tmp = []
+        in_funct = 0
+        func_tmp = ""
+        funct_index = False
+        for i, e in enumerate(tmp_ls):
+            if e in ["", " "]:
+                continue
+            if i == 0:
+                ls_tmp.append(e)
+                continue
+            if e == "(":
+                if not tmp_ls[i - 1].isdigit():
+                    funct_index = True
+                    in_funct += 1
+                elif in_funct > 0:
+                    in_funct += 1
+            if e == ")" and in_funct:
+                in_funct -= 1
+            if in_funct > 0:
+                func_tmp += e
+            if in_funct == 0:
+                if funct_index:
+                    ls_tmp[-1] += func_tmp + e
+                    funct_index = False
+                else:
+                    ls_tmp.append(e)
+                func_tmp = ""
+        tmp_ls = ls_tmp
         # print("tmp_ls", tmp_ls)
+
         for i, e in enumerate(tmp_ls):
             if e in ["", " "]:
                 continue
@@ -124,11 +153,11 @@ class interpreter:
                 continue
             if type(e) == str:
                 # print("e", e)
-                # ok, res = self.checkkeyword(e)
-                # if ok:
-                #     print("res", res)
-                #     tmp_ls[i] = res
-                #     continue
+                ok, res = self.checkkeyword(e)
+                if ok:
+                    # print("res", res)
+                    tmp_ls[i] = res
+                    continue
                 if e.isdigit() or isString(e):
                     tmp_ls[i] = e
                 elif e.find(".") != -1:
@@ -344,7 +373,7 @@ class interpreter:
                 else:
                     old_var.value = val
             return (True, None)
-        if key == "size":
+        if key == "sizeof":
             if len(arg) == 0:
                 return (True, None)
             old_var = self.findVar(arg[0])
@@ -369,7 +398,8 @@ class interpreter:
                     e = e.strip()
                     e = self.checkOperation(e)
                     arg[i] = e
-                return (True, class_var(cls, arg))
+                class_var_tmp = class_var(cls, arg)
+                return (True, class_var_tmp)
         return (False, None)
 
     def execline(self, input: str):
@@ -462,7 +492,8 @@ class interpreter:
         # print('name', name)
         # print('arg', arg)
         # print('content', content)
-        self.funct_list.append(funct(name, content, arg))
+        fn_tmp = funct(name, content, arg)
+        self.funct_list.append(fn_tmp)
 
     def def_class(self, inp):
         name = inp[0][inp[0].find("class") + len('class'):].strip()

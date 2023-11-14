@@ -1,217 +1,235 @@
-out("Assigning Variable")
-
-a = 10
-out("a = ", a)
-
-out("If Else Statement")
-
-while a != 5
-    out("a = ", a)
-    if a == 10
-        out("hello if")
-        a = 99
-    else_if a == 99
-        out("hello else_if")
-        a = 100
-    else
-        out("hello else")
-        a = 5
-    end
-end
-
-while a > 0
-    out(a) 
-    a = a - 1
-end
-
-out("Hasil Akhir ", a)
-
-out("Tes Fungsi")
-
-fn tambah_dan_cetak(a,b)
-    out(a," + ", b, " = ", a + b)
-end
-
-tambah_dan_cetak(2 + 5,3)
-
-out("Fungsi dalam loop")
-i = 0
-j = 9
-while i < 9
-    tambah_dan_cetak(i, j)
-    i = i + 1
-    j = j - 1
-end
-
-out("Loop dalam fungsi")
-fn loop_and_print(start, end)
-    while start < end
-        out(start)
-        start = start + 1
-    end
-end
-loop_and_print(0, 10)
-
-out("Input Variabel")
-out("Masukkan nilai A : ", no_break)
-in(a)
-out("Masukkan nilai B : ", no_break)
-in(b)
-out("a: ", a)
-out("b: ", b)
-out("a * b = ", a * b)
-
-i = 0
-
-tes:
-out("tes goto ", i)
-if i < 4
-    out("masuk if")
-    i = i + 1
-    goto tes
-end
-
-fn kali_dan_tambah(a,b)
-    out("masuk fungsi a * b + b = ", a, " * ", b, " + ", b)
-    return a * b + b
-end
-
-z = kali_dan_tambah(2, 4)
-
-out("z = ", z)
-out("hasil kali dan tambah 3 * (2 + 1) dan 4 = ", kali_dan_tambah(3 * (2 + 1), 4))
-
-i = 0
-while i < 5
-    out("i = ", i, no_break)
-    i = i + 1
-    if i < 5
-        out(" , ", no_break)
-    end
-end
-out()
-
-Arr = [1,2,3,4]
-out("Arr = ", Arr)
-
-i = 0
-while i < 4
-    out("Arr[", i, "] = ", Arr[i])
-    i = i + 1
-end
-
-out("Tes operasi dalam index")
-out("Arr[1+1] = ", Arr[1 + 1])
-
-out("\nArray as Arg")
-
-fn print_arr_index(arr, i)
-    out("arr = ", arr)
-    out("i = ", i)
-    out("arr[", i, "] = ", arr[i])
-end
-
-print_arr_index(Arr, 2)
-
-out()
-out("Array as return value")
-fn create_array(size)
-    tmp = []
-    tmp[size - 1] = NULL
-    return tmp
-end
-
-array_created = create_array(4)
-out("array_created ", array_created)
-out("size(array_created) ", size(array_created))
-
-out()
-
-A = [1,2,3]
-out("A ", A)
-
-B = A
-out("B ", B)
-
-B[2] = 9
-
-out("A ", A)
-out("B ", B)
-
-out()
-fn sequence_array(start, stop, step)
-    tmp = []
-    i = 0
-    while start <= stop 
-        tmp[i] = start
-        i = i + 1
-        start = start + step
-    end
-    return tmp
-end
-
-Urut = sequence_array(0, 10, 1)
-out("Urut ", Urut)
-out()
-
-out("start: ", no_break)
-in(start)
-out("stop: ", no_break)
-in(stop)
-out("step: ", no_break)
-in(step)
-
-Urut = sequence_array(start, stop, step)
-out("Urut ", Urut)
-
-out("\nDemo Class\n")
-class Tes
-    val = 1
-    A = 2
-    
-    fn init()
-        this.C = 100
-        out("Hello Init ", this.A)
-        out("C = ", this.C)
-    end
-    
-    fn hello(val)
-        out("Hello World ", this.val)
-        this.val = this.val + val
-    end
-end
-
-A = Tes()
-A.hello(2)
-
-B = Tes()
-B.hello(2)
-
-out("A.val = ", A.val)
-out("A.val = ", A.val)
-
-A.val = 9
-
-out("A.val = ", A.val)
-out("B.val = ", B.val)
-
-A.hello(4)
-B.hello(4)
-
-i = 0
-while i < 10
-    A.hello(1)
-    i = i + 1
-end
-
-out("A.C = ", A.C)
-
-out("\nA.var_list() ", A.var_list())
-out("A.funct_list() ", A.funct_list())
-
-out()
-out("Demo Selesai")
-
-
-
+out("Assigning Variable")  
+  
+a = 10  
+out("a = ", a)  
+  
+out("If Else Statement")  
+  
+while a != 5  
+    out("a = ", a)  
+    if a == 10  
+        out("hello if")  
+        a = 99  
+    else_if a == 99  
+        out("hello else_if")  
+        a = 100  
+    else  
+        out("hello else")  
+        a = 5  
+    end  
+end  
+  
+out("loop")  
+out("a = ", a)  
+  
+while a > 0  
+    out(a)   
+    a = a - 1  
+end  
+  
+out("Hasil Akhir ", a)  
+  
+out("Tes Fungsi")  
+  
+fn tambah_dan_cetak(a,b)  
+    out(a," + ", b, " = ", a + b)  
+end  
+  
+tambah_dan_cetak(2 + 5,3)  
+  
+out("Fungsi dalam loop")  
+i = 0  
+j = 9  
+while i < 9  
+    tambah_dan_cetak(i, j)  
+    i = i + 1  
+    j = j - 1  
+end  
+  
+out("Loop dalam fungsi")  
+fn loop_and_print(start, stop)  
+    while start < stop  
+        out(start)  
+        start = start + 1  
+    end  
+end  
+loop_and_print(0, 10)  
+  
+out("Input Variabel")  
+out("Masukkan nilai A : ", no_break)  
+in(a)  
+out("Masukkan nilai B : ", no_break)  
+in(b)  
+out("a: ", a)  
+out("b: ", b)  
+out("a * b = ", a * b)  
+  
+i = 0  
+  
+tes:  
+out("tes goto ", i)  
+if i < 4  
+    out("masuk if")  
+    i = i + 1  
+    goto tes  
+end  
+  
+fn kali_dan_tambah(a,b)  
+    out("masuk fungsi a * b + b = ", a, " * ", b, " + ", b)  
+    return a * b + b  
+end  
+  
+z = kali_dan_tambah(2, 4)  
+  
+out("z = ", z)  
+out("hasil kali dan tambah 3 * (2 + 1) dan 4 = ", kali_dan_tambah(3 * (2 + 1), 4))  
+  
+i = 0  
+while i < 5  
+    out("i = ", i, no_break)  
+    i = i + 1  
+    if i < 5  
+        out(" , ", no_break)  
+    end  
+end  
+out()  
+  
+Arr = [1,2,3,4]  
+out("Arr = ", Arr)  
+  
+i = 0  
+while i < 4  
+    out("Arr[", i, "] = ", Arr[i])  
+    i = i + 1  
+end  
+  
+out("Tes operasi dalam index")  
+out("Arr[1+1] = ", Arr[1 + 1])  
+  
+out("\nArray as Arg")  
+  
+fn print_arr_index(arr, i)  
+    out("arr = ", arr)  
+    out("i = ", i)  
+    out("arr[", i, "] = ", arr[i])  
+end  
+  
+print_arr_index(Arr, 2)  
+  
+out()  
+out("Array as return value")  
+fn create_array(size)  
+    tmp = []  
+    tmp[size - 1] = NULL  
+    return tmp  
+end  
+  
+array_created = create_array(4)  
+out("array_created ", array_created)  
+out("sizeof(array_created) ", sizeof(array_created))  
+  
+out()  
+  
+A = [1,2,3]  
+out("A ", A)  
+  
+B = A  
+out("B ", B)  
+  
+B[2] = 9  
+  
+out("A ", A)  
+out("B ", B)  
+  
+out()  
+fn sequence_array(start, stop, step)  
+    tmp = []  
+    i = 0  
+    while start <= stop   
+        tmp[i] = start  
+        i = i + 1  
+        start = start + step  
+    end  
+    return tmp  
+end  
+  
+Urut = sequence_array(0, 10, 1)  
+out("Urut ", Urut)  
+out()  
+  
+out("start: ", no_break)  
+in(start)  
+out("stop: ", no_break)  
+in(stop)  
+out("step: ", no_break)  
+in(step)  
+  
+Urut = sequence_array(start, stop, step)  
+out("Urut ", Urut)  
+  
+out("\nDemo Class\n")  
+class Tes  
+    val = 1  
+    A = 2  
+      
+    fn init()  
+        this.C = 100  
+        out("Hello Init ", this.A)  
+        out("C = ", this.C)  
+    end  
+      
+    fn hello(val)  
+        out("Hello World ", this.val)  
+        this.val = this.val + val  
+    end  
+end  
+  
+A = Tes()  
+A.hello(2)  
+  
+B = Tes()  
+B.hello(2)  
+  
+out("A.val = ", A.val)  
+out("A.val = ", A.val)  
+  
+A.val = 9  
+  
+out("A.val = ", A.val)  
+out("B.val = ", B.val)  
+  
+A.hello(4)  
+B.hello(4)  
+  
+i = 0  
+while i < 10  
+    A.hello(1)  
+    i = i + 1  
+end  
+  
+out("A.C = ", A.C)  
+  
+out("\nA.var_list() ", A.var_list())  
+out("A.funct_list() ", A.funct_list())  
+  
+out()  
+out("Demo Selesai")  
+  
+fn add(a, b)  
+   return a + b  
+end  
+  
+a = 10 * add(3,add(2,add(1,1)))  
+  
+b = add(1,1)  
+c = add(2,b)  
+d = add(3,c)  
+e = 10 * d  
+  
+out("a ", a)  
+out("e ", e)  
+out("x ", 10 * add(3,add(2,add(1,1))))  
+  
+ 
+ 
 

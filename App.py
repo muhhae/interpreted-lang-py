@@ -1,32 +1,33 @@
 import customtkinter as ctk
 import tkinter as tk
 import subprocess
-import CTkMenuBar.CTkMenuBar as CTkMenuBar
-import tkterminal as tkterm
 import os
+from syntax_identifier import syntax_identifier
+from LogicOperation import isOpLgc
 
 app = ctk.CTk()
 app.title("PyHaekal IDE")
 app.geometry("1280x720")
 
+main_frame = ctk.CTkFrame(app)
 
-frame1 = ctk.CTkFrame(app)
-frame1.grid(row=1, column=0, padx=10, pady=0, sticky="nsew")
+frame1 = ctk.CTkFrame(main_frame)
+frame1.grid(row=2, column=0, padx=(10, 0), pady=(0, 10), sticky="nsew")
+frame1.grid_remove()
 
-frame2 = ctk.CTkFrame(app, fg_color="transparent")
-frame2.grid(row=1, column=1, padx=0, pady=0, sticky="nsew")
+frame2 = ctk.CTkFrame(main_frame, fg_color="transparent")
+frame2.grid(row=2, column=1, padx=(10, 10), pady=(0, 10), sticky="nsew")
 
 folder_frame = ctk.CTkScrollableFrame(frame1)
 folder_frame.grid(row=10, column=0, padx=10, pady=10, sticky="nsew")
 folder_frame.grid_remove()
 frame1.grid_rowconfigure(10, weight=1)
 
-
 frame1.grid_columnconfigure(0, weight=1)
 
 # app.grid_columnconfigure(0, weight=1)
-app.grid_columnconfigure(1, weight=20)
-app.grid_rowconfigure(1, weight=1)
+main_frame.grid_columnconfigure(1, weight=20)
+main_frame.grid_rowconfigure(2, weight=1)
 
 text_box = ctk.CTkTextbox(frame2, activate_scrollbars=True)
 frame2.grid_columnconfigure(0, weight=1)
@@ -44,7 +45,6 @@ def tab_pressed(event: tk.Event) -> str:
 
 
 text_box.bind("<Tab>", tab_pressed)
-
 
 current_file = ""
 current_folder = ""
@@ -131,17 +131,17 @@ class folder_button:
     def listfiles(self):
         tmp_files = []
         for e in os.listdir(self.path):
-            if os.path.isdir(os.path.join(self.path, e)):
-                self.files.append(folder_button(
-                    e, os.path.join(self.path, e), self.depth + 1, self.index))
-            else:
-                tmp_files.append(e)
+            try:
+                if os.path.isdir(os.path.join(self.path, e)):
+                    self.files.append(folder_button(
+                        e, os.path.join(self.path, e), self.depth + 1, self.index))
+                else:
+                    tmp_files.append(e)
+            except:
+                continue
         for e in tmp_files:
             self.files.append(file_button(e, os.path.join(
                 self.path, e), self.depth + 1, self.index))
-        for e in self.files:
-            e.button.cget("font").configure(size=14)
-            e.button.cget("font").configure(family="fira code")
 
 
 current_folder_button = None
@@ -154,11 +154,11 @@ def openFolder():
         return
     if current_folder_button != None:
         current_folder_button.destroy()
-    folder_frame.grid()
     current_folder = directory
     current_folder_button = folder_button(
         os.path.basename(directory), directory, 0, index_counter())
-    current_folder_button.show()
+    frame1.grid()
+    folder_frame.grid()
 
 
 def refreshFolder():
@@ -173,12 +173,67 @@ def refreshFolder():
     current_folder_button.show()
 
 
+def refreshCode():
+    current_code = text_box.get('1.0', 'end')
+    text_box.delete("1.0", "end")
+    word_color = {}
+    block = ['fn', 'if', 'while', 'else',
+             'else_if', 'end', 'return', 'class', ':']
+    for e in block:
+        word_color.update({e: 'block'})
+
+    identifier = syntax_identifier()
+    identifier.identify_string(current_code)
+    for e in identifier.var_list:
+        word_color.update({e: 'var'}) if e not in word_color else None
+    for e in identifier.funct_list:
+        word_color.update({e: 'funct'}) if e not in word_color else None
+    for e in identifier.class_list:
+        word_color.update({e: 'class'}) if e not in word_color else None
+    for e in identifier.label_list:
+        word_color.update({e: 'label'}) if e not in word_color else None
+
+    for line in current_code.split('\n'):
+        stripped = line.lstrip()
+        text_box.insert('end', ' ' * (len(line) - len(stripped)))
+        quoted = 0
+        tmp = ''
+        for char in stripped:
+            if char == '"':
+                quoted += 1
+            if quoted % 2 == 1:
+                tmp += char
+                continue
+            if char in [' ', '\t', ',', '(', ')', '[', ']', ':', '.', '=', '+', '/', '*', '-', '^', '%', '<', '>']:
+                if tmp in word_color:
+                    text_box.insert('end', tmp, word_color[tmp])
+                elif tmp.isdigit():
+                    text_box.insert('end', tmp, 'digit')
+                elif isOpLgc(tmp):
+                    text_box.insert('end', tmp, 'operator')
+                else:
+                    text_box.insert('end', tmp)
+                tmp = ''
+                if char in word_color:
+                    text_box.insert('end', char, word_color[char])
+                elif isOpLgc(char):
+                    text_box.insert('end', char, 'operator')
+                elif char in ['[', ']', '=', '.']:
+                    text_box.insert('end', char, 'operator')
+                else:
+                    text_box.insert('end', char)
+            else:
+                tmp += char
+        text_box.insert('end', '\n')
+
+
 def openFilePath(path):
     global current_file
     current_file = path
     file = open(path, "r")
     text_box.delete("1.0", "end")
-    text_box.insert("1.0", file.read())
+    text_box.insert('1.0', file.read())
+    refreshCode()
 
 
 def openFile():
@@ -186,12 +241,8 @@ def openFile():
     directory = ctk.filedialog.askopenfiles()
     if len(directory) == 0:
         return
-    directory = directory[0].name
-    current_file = directory
-    # print("current file open", current_file)
-    file = open(directory, "r")
-    text_box.delete("1.0", "end")
-    text_box.insert("1.0", file.read())
+    current_file = directory[0].name
+    openFilePath(current_file)
 
 
 def saveFile():
@@ -218,35 +269,21 @@ def save():
 
 def runCurrent():
     global current_file
+    if current_file == "":
+        openFile()
+    if current_file == "":
+        return
     save()
     if current_file != "":
-        subprocess.call('start /wait py ./interpreter.py ' +
+        subprocess.call('start ipython ./interpreter.py ' +
                         current_file, shell=True)
 
 
-# saveButton = ctk.CTkButton(frame1, text="Save", command=save)
-# saveButton.grid(row=2, column=0, padx=10, pady=5, sticky="ew")
-
-runButton = ctk.CTkButton(app, text="Run", command=runCurrent)
-runButton.grid(row=0, column=1, padx=0, pady=10, sticky="w")
-
-# saveFileButton = ctk.CTkButton(frame1, text="Save as", command=saveFile)
-# saveFileButton.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
-
-# openfilebutton = ctk.CTkButton(frame1, text="Open", command=openFile)
-# openfilebutton.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
-
-# openfolderbutton = ctk.CTkButton(
-#     frame1, text="Open Folder", command=openFolder)
-# openfolderbutton.grid(row=4, column=0, padx=10, pady=5, sticky="ew")
+top_level = None
 
 
-# for e in [saveButton, runButton, saveFileButton, openfilebutton, openfolderbutton]:
-#     e.cget("font").configure(size=14)
-#     e.cget("font").configure(family="fira code")
-
-runButton.cget("font").configure(size=14)
-runButton.cget("font").configure(family="fira code")
+def tes():
+    refreshCode()
 
 
 def menu_action(action):
@@ -260,18 +297,40 @@ def menu_action(action):
         saveFile()
     elif action == "Run":
         runCurrent()
+    elif action == "Tes":
+        tes()
     menubar.set("Menu")
 
 
-menubar = ctk.CTkOptionMenu(app, bg_color="transparent", values=[
-                            "Open File", "Open Folder", "Save", "Save as", "Run"], command=menu_action)
+menu_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
+menu_frame.grid(row=0, column=0, padx=0, pady=0, sticky="nsew", columnspan=2)
+
+runButton = ctk.CTkButton(menu_frame, text="Run", command=runCurrent)
+runButton.grid(row=0, column=1, padx=0, pady=10, sticky="w")
+
+runButton.cget("font").configure(size=14)
+runButton.cget("font").configure(family="fira code")
+
+menubar = ctk.CTkOptionMenu(menu_frame, bg_color="transparent", values=[
+                            "Open File", "Open Folder", "Save", "Save as", "Run", "Tes"], command=menu_action)
 menubar.set("Menu")
 menubar.configure(font=("fira code", 14))
 menubar.configure(dropdown_font=("fira code", 14))
-
+# menubar._dropdown_menu.configure()
 
 menubar.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
+text_box.tag_config("block", foreground="brown1")
+text_box.tag_config("class", foreground="yellow")
+text_box.tag_config("funct", foreground="aqua")
+text_box.tag_config("var", foreground='orange')
+text_box.tag_config("digit", foreground='yellow')
+text_box.tag_config("operator", foreground='cadetblue')
+text_box.tag_config("label", foreground='brown1')
+# text_box.configure(state="disabled")
+# text_box.insert("end", "testes", "block")
 
-app.state("zoomed")
+
+main_frame.pack(fill=ctk.BOTH, expand=1)
+app.after(0, lambda: app.state('zoomed'))
 app.mainloop()
