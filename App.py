@@ -180,6 +180,7 @@ def refreshCode():
     if current_code.strip() == '':
         return
     insert_cursor = text_box.index(tk.INSERT)
+    scroll_pos = text_box.yview()
     text_box.delete("1.0", "end")
     word_color = {}
     block = ['fn', 'if', 'while', 'else',
@@ -248,6 +249,7 @@ def refreshCode():
         if l < len(current_code.split('\n')) - 2:
             text_box.insert('end', '\n')
     text_box.mark_set(tk.INSERT, insert_cursor)
+    text_box.yview_moveto(scroll_pos[0])
 
 
 def openFilePath(path):
@@ -384,6 +386,8 @@ delay_label.configure(font=("fira code", 14))
 delay_input = ctk.CTkOptionMenu(
     menu_frame, values=['100 ms', '500 ms', '1000 ms', '2000 ms', '3000 ms', '4000 ms', '5000 ms'], command=set_refresh_cycle_delay)
 delay_input.grid(row=0, column=3, padx=10, pady=10, sticky="nsew")
+delay_input.configure(font=("fira code", 14))
+delay_input.set('1000 ms')
 
 is_auto_save = False
 auto_save_delay = 1000
@@ -410,12 +414,13 @@ def set_auto_save():
     # print(is_auto_save)
 
 
-auto_save_label = ctk.CTkLabel(menu_frame, text="Auto save :")
+auto_save_label = ctk.CTkLabel(menu_frame, text="Auto save")
 auto_save_label.grid(row=0, column=4, padx=(10, 0), pady=10, sticky="nsew")
 auto_save_label.configure(font=("fira code", 14))
 
-auto_save_input = ctk.CTkSwitch(menu_frame, text='', command=set_auto_save)
-auto_save_input.grid(row=0, column=5, padx=10, pady=10,
+auto_save_input = ctk.CTkSwitch(
+    menu_frame, text='', command=set_auto_save, width=20)
+auto_save_input.grid(row=0, column=5, padx=(10, 0), pady=10,
                      sticky="nsew")
 auto_save_input.configure(font=("fira code", 14))
 
