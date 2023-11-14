@@ -1,5 +1,7 @@
 import customtkinter as ctk
 import tkinter as tk
+import tkinter.messagebox as tkmessagebox
+
 import subprocess
 import os
 from syntax_identifier import syntax_identifier
@@ -175,6 +177,9 @@ def refreshFolder():
 
 def refreshCode():
     current_code = text_box.get('1.0', 'end')
+    if current_code.strip() == '':
+        return
+    insert_cursor = text_box.index(tk.INSERT)
     text_box.delete("1.0", "end")
     word_color = {}
     block = ['fn', 'if', 'while', 'else',
@@ -193,18 +198,28 @@ def refreshCode():
     for e in identifier.label_list:
         word_color.update({e: 'label'}) if e not in word_color else None
 
-    for line in current_code.split('\n'):
+    for l, line in enumerate(current_code.split('\n')):
+        # print('line', line)
         # stripped = line.lstrip()
         # text_box.insert('end', ' ' * (len(line) - len(stripped)))
         quoted = 0
         tmp = ''
-        for char in line:
+        for i, char in enumerate(line):
+            # print('char', char)
+            # print('end', line[-1])
             if char == '"':
                 quoted += 1
             if quoted % 2 == 1:
                 tmp += char
                 continue
-            if char in [' ', '\t', ',', '(', ')', '[', ']', ':', '.', '=', '+', '/', '*', '-', '^', '%', '<', '>']:
+            separator = [' ', '\t', ',', '(', ')', '[', ']', ':',
+                         '.', '=', '+', '/', '*', '-', '^', '%', '<', '>']
+            if char in separator or i == len(line) - 1:
+                char_in_tmp = False
+
+                if i == len(line) - 1 and char not in separator:
+                    char_in_tmp = True
+                    tmp += char
                 if tmp in word_color:
                     text_box.insert('end', tmp, word_color[tmp])
                 elif tmp.isdigit() or tmp == 'NULL':
@@ -214,6 +229,10 @@ def refreshCode():
                 else:
                     text_box.insert('end', tmp)
                 tmp = ''
+
+                if char_in_tmp:
+                    continue
+
                 if char in word_color:
                     text_box.insert('end', char, word_color[char])
                 elif isOpLgc(char):
@@ -224,7 +243,11 @@ def refreshCode():
                     text_box.insert('end', char)
             else:
                 tmp += char
-        text_box.insert('end', '\n')
+        # print('l', l)
+        # print('len', len(current_code.split('\n')) - 2)
+        if l < len(current_code.split('\n')) - 2:
+            text_box.insert('end', '\n')
+    text_box.mark_set(tk.INSERT, insert_cursor)
 
 
 def openFilePath(path):
@@ -333,4 +356,42 @@ text_box.tag_config("label", foreground='brown1')
 
 main_frame.pack(fill=ctk.BOTH, expand=1)
 app.after(0, lambda: app.state('zoomed'))
+
+
+def on_closing():
+    if not text_box.get("1.0", "end").strip() == '':
+        if tkmessagebox.askokcancel("Save", "Do you want to save your document?"):
+            save()
+    if tkmessagebox.askokcancel("Quit", "Do you want to quit?"):
+        app.destroy()
+
+
+app.protocol("WM_DELETE_WINDOW", on_closing)
+
+refresh_cycle_delay = 1000
+
+
+def set_refresh_cycle_delay(x):
+    global refresh_cycle_delay
+    x = x.replace(' ms', '')
+    refresh_cycle_delay = int(x)
+
+
+delay_label = ctk.CTkLabel(menu_frame, text="Refresh delay :")
+delay_label.grid(row=0, column=2, padx=(10, 0), pady=10, sticky="nsew")
+delay_label.configure(font=("fira code", 14))
+
+
+delay_input = ctk.CTkOptionMenu(
+    menu_frame, values=['100 ms', '500 ms', '1000 ms', '2000 ms', '3000 ms', '4000 ms', '5000 ms'], command=set_refresh_cycle_delay)
+delay_input.grid(row=0, column=3, padx=10, pady=10, sticky="nsew")
+
+
+def refresh_cycle():
+    print('refresh', refresh_cycle_delay)
+    refreshCode()
+    app.after(refresh_cycle_delay, refresh_cycle)
+
+
+app.after(refresh_cycle_delay, refresh_cycle)
 app.mainloop()

@@ -4,7 +4,7 @@ end
      
 a = 10 * add(3,add(2,add(1,1)))     
      
-b = add (1,1)     
+b = add(1,1)     
 c = add(2,b)     
 d = add(3,c)     
 e = 10 * d     
@@ -12,3 +12,5 @@ e = 10 * d
 out("a ", a)     
 out("e ", e)     
 out("x ", 10 * add(3,add(2,add(1,1))))     
+
+
