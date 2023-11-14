@@ -381,17 +381,60 @@ delay_label = ctk.CTkLabel(menu_frame, text="Refresh delay :")
 delay_label.grid(row=0, column=2, padx=(10, 0), pady=10, sticky="nsew")
 delay_label.configure(font=("fira code", 14))
 
-
 delay_input = ctk.CTkOptionMenu(
     menu_frame, values=['100 ms', '500 ms', '1000 ms', '2000 ms', '3000 ms', '4000 ms', '5000 ms'], command=set_refresh_cycle_delay)
 delay_input.grid(row=0, column=3, padx=10, pady=10, sticky="nsew")
 
+is_auto_save = False
+auto_save_delay = 1000
+
+
+def set_auto_save_delay(x):
+    global auto_save_delay
+    x = x.replace(' ms', '')
+    auto_save_delay = int(x)
+
+
+auto_save_delay_input = ctk.CTkOptionMenu(menu_frame, values=[
+                                          '100 ms', '500 ms', '1000 ms', '2000 ms', '3000 ms', '4000 ms', '5000 ms'], command=set_auto_save_delay)
+auto_save_delay_input.grid(row=0, column=6, padx=10, pady=10, sticky="nsew")
+auto_save_delay_input.configure(font=("fira code", 14))
+auto_save_delay_input.set('1000 ms')
+auto_save_delay_input.grid_remove() if not is_auto_save else None
+
+
+def set_auto_save():
+    global is_auto_save
+    is_auto_save = auto_save_input.get()
+    auto_save_delay_input.grid() if is_auto_save else auto_save_delay_input.grid_remove()
+    # print(is_auto_save)
+
+
+auto_save_label = ctk.CTkLabel(menu_frame, text="Auto save :")
+auto_save_label.grid(row=0, column=4, padx=(10, 0), pady=10, sticky="nsew")
+auto_save_label.configure(font=("fira code", 14))
+
+auto_save_input = ctk.CTkSwitch(menu_frame, text='', command=set_auto_save)
+auto_save_input.grid(row=0, column=5, padx=10, pady=10,
+                     sticky="nsew")
+auto_save_input.configure(font=("fira code", 14))
+
 
 def refresh_cycle():
-    print('refresh', refresh_cycle_delay)
+    # print('refresh', refresh_cycle_delay)
     refreshCode()
     app.after(refresh_cycle_delay, refresh_cycle)
 
 
+def auto_save_cycle():
+    # print('auto save cycle')
+    # print('auto save', is_auto_save)
+    if is_auto_save and current_file != "" and text_box.get("1.0", "end").strip() != '':
+        print('auto save')
+        save()
+    app.after(auto_save_delay, auto_save_cycle)
+
+
+app.after(auto_save_delay, auto_save_cycle)
 app.after(refresh_cycle_delay, refresh_cycle)
 app.mainloop()
