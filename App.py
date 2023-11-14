@@ -194,11 +194,11 @@ def refreshCode():
         word_color.update({e: 'label'}) if e not in word_color else None
 
     for line in current_code.split('\n'):
-        stripped = line.lstrip()
-        text_box.insert('end', ' ' * (len(line) - len(stripped)))
+        # stripped = line.lstrip()
+        # text_box.insert('end', ' ' * (len(line) - len(stripped)))
         quoted = 0
         tmp = ''
-        for char in stripped:
+        for char in line:
             if char == '"':
                 quoted += 1
             if quoted % 2 == 1:
@@ -207,7 +207,7 @@ def refreshCode():
             if char in [' ', '\t', ',', '(', ')', '[', ']', ':', '.', '=', '+', '/', '*', '-', '^', '%', '<', '>']:
                 if tmp in word_color:
                     text_box.insert('end', tmp, word_color[tmp])
-                elif tmp.isdigit():
+                elif tmp.isdigit() or tmp == 'NULL':
                     text_box.insert('end', tmp, 'digit')
                 elif isOpLgc(tmp):
                     text_box.insert('end', tmp, 'operator')

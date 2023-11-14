@@ -9,10 +9,6 @@ class syntax_identifier:
         lines = str.split('\n')
         for line in lines:
             self.identify_line(line)
-        # print(self.var_list)
-        # print(self.funct_list)
-        # print(self.class_list)
-        # print(self.label_list)
 
     def identify_line(self, line: str):
         line = line.strip()
@@ -41,9 +37,7 @@ class syntax_identifier:
             case 'fn':
                 self.funct_list.append(
                     tokens[1]) if tokens[1] not in self.funct_list else None
-                # print(tokens[3:tokens.index(')')])
-                # print(tokens[4:tokens.index(')')])
-                for e in tokens[3:tokens.index(')')]:
+                for e in tokens[3:tokens.index(')') if ')' in tokens else None]:
                     self.var_list.append(
                         e) if e not in self.var_list else None
             case 'class':
