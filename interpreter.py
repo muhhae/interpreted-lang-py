@@ -83,9 +83,9 @@ class interpreter:
         return -1
 
     def checkOperation(self, input: str):
-        ok, res = self.checkkeyword(input)
-        if ok:
-            return res
+        # ok, res = self.checkkeyword(input)
+        # if ok:
+        #     return res
         # if "NULL" in input:
         #     return None
         # print("input", input)
@@ -107,6 +107,7 @@ class interpreter:
                 tmp_2 = tmp_2.replace(e, f" op{i} ")
 
         tmp_ls = tmp_2.split(" ")
+        # print("tmp_ls", tmp_ls)
 
         ls_tmp = []
         str_tmp = ""
@@ -155,7 +156,6 @@ class interpreter:
                 func_tmp = ""
         tmp_ls = ls_tmp
         # print("tmp_ls", tmp_ls)
-
         for i, e in enumerate(tmp_ls):
             if e in ["", " "]:
                 continue
@@ -284,7 +284,6 @@ class interpreter:
             obj = key[:key.find(".")]
             key = key[key.find(".") + 1:]
         arg = inp[inp.find("(") + 1:inp.rfind(")")].strip().split(",")
-        # print("arg", arg)
 
         if obj != None:
             old_var = self.findVar(obj)
@@ -397,6 +396,8 @@ class interpreter:
                 return (True, None)
         for fun in self.funct_list:
             if fun.name == key:
+                # print("fun.name", fun.name)
+                # print("inp", inp)
                 for i, e in enumerate(arg):
                     e = e.strip()
                     e = self.checkOperation(e)
