@@ -1,0 +1,6 @@
+import Add.pyhk
+
+a = 10
+b = 21
+
+out(add(a,b))

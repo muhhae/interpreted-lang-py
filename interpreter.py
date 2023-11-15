@@ -1,4 +1,5 @@
 from LogicOperation import logicPostfix, calculateLogic, isString
+import os
 import sys
 
 
@@ -406,10 +407,14 @@ class interpreter:
         input = input.strip()
         if len(input) == 0:
             return
-        if input[0] == '#':
-            return
+        cmt_index = input.find("#")
+        if cmt_index != -1:
+            input = input[:cmt_index]
         if input[:4] == "goto":
             self.exec_goto(input)
+            return
+        if input[:len('import')] == "import":
+            self.execfile(input[len('import'):].strip())
             return
         self.checkAssignment(input)
         return
@@ -554,7 +559,9 @@ class interpreter:
                     return self.checkOperation(l[6:])
                 self.execline(l)
 
-    def execfile(self, path):
+    def execfile(self, path, chdir=False):
+        # print('os.path.dirname(path)', os.path.dirname(path))
+        os.chdir(os.path.dirname(path)) if chdir else None
         file_in = open(path, "r")
         self.execstring(file_in.read(), True)
         file_in.close()
@@ -568,7 +575,10 @@ def main():
     key_block = ["if", "while", "fn", "execPy", "class"]
     in_block = 0
 
-    if len(sys.argv) == 1:
+    if len(sys.argv) == 1 or sys.argv[1] == "-i":
+        if len(sys.argv) == 3:
+            print(">> import", sys.argv[2])
+            it.execline("import " + sys.argv[2])
         while not line_input in ["/q", "/quit", "/exit"]:
             if in_block:
                 line_input = input(".. ").strip()
@@ -591,11 +601,10 @@ def main():
                 in_block -= 1
             if in_block == 0:
                 it.execstring(input_tmp)
-                print()
                 input_tmp = ""
 
     else:
-        it.execfile(sys.argv[1])
+        it.execfile(sys.argv[1], True)
         input("\nPress Enter to continue...")
 
 

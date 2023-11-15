@@ -77,6 +77,7 @@ class file_button:
         self.button.configure(anchor="w")
         self.button.cget("font").configure(size=14)
         self.button.cget("font").configure(family="fira code")
+        self.button.configure(text_color=("black", "white"))
         self.button.configure(fg_color="transparent")
 
     def destroy(self):
@@ -103,6 +104,7 @@ class folder_button:
         self.button.cget("font").configure(size=14)
         self.button.cget("font").configure(family="fira code")
         self.button.configure(anchor="w")
+        self.button.configure(text_color=("black", "white"))
         self.button.configure(fg_color="transparent")
 
     def toggle(self):
@@ -184,11 +186,11 @@ def refreshCode():
     text_box.delete("1.0", "end")
     word_color = {}
     block = ['fn', 'if', 'while', 'else',
-             'else_if', 'end', 'return', 'class', ':']
+             'else_if', 'end', 'return', 'class', ':', 'import', 'goto']
     for e in block:
         word_color.update({e: 'block'})
 
-    identifier = syntax_identifier()
+    identifier = syntax_identifier(current_folder)
     identifier.identify_string(current_code)
     for e in identifier.var_list:
         word_color.update({e: 'var'}) if e not in word_color else None
@@ -205,16 +207,22 @@ def refreshCode():
         # text_box.insert('end', ' ' * (len(line) - len(stripped)))
         quoted = 0
         tmp = ''
+        in_comment = False
         for i, char in enumerate(line):
-            # print('char', char)
-            # print('end', line[-1])
-            if char == '"':
-                quoted += 1
-            if quoted % 2 == 1:
-                tmp += char
-                continue
             separator = [' ', '\t', ',', '(', ')', '[', ']', ':',
                          '.', '=', '+', '/', '*', '-', '^', '%', '<', '>']
+            if char == '"':
+                text_box.insert('end', char, 'quote')
+                quoted += 1
+                continue
+            if quoted % 2 != 0:
+                text_box.insert('end', char, 'string')
+                continue
+            if char == '#':
+                in_comment = True
+            if in_comment:
+                text_box.insert('end', char, 'comment')
+                continue
             if char in separator or i == len(line) - 1:
                 char_in_tmp = False
 
@@ -253,6 +261,7 @@ def refreshCode():
 
 
 def openFilePath(path):
+    save()
     global current_file
     current_file = path
     file = open(path, "r")
@@ -282,10 +291,21 @@ def saveFile():
     refreshFolder()
 
 
-def save():
+def save(confirmed=False):
+    current_doc = text_box.get("1.0", "end")
+    current_doc = current_doc.strip()
+    if current_doc == '' and not confirmed:
+        return
     global current_file
     if current_file == "":
         saveFile()
+        return
+    if not os.path.exists(current_file):
+        saveFile()
+        return
+    if open(current_file, "r").read().strip() == current_doc:
+        return
+    if not confirmed and not tkmessagebox.askyesno("Save", "Do you want to save your code?"):
         return
     file = open(current_file, "w")
     file.write(text_box.get("1.0", "end"))
@@ -299,12 +319,35 @@ def runCurrent():
     if current_file == "":
         return
     save()
-    if current_file != "":
-        subprocess.call('start ipython ./interpreter.py ' +
-                        current_file, shell=True)
+    subprocess.call('start py ./interpreter.py ' +
+                    current_file, shell=True)
 
 
-top_level = None
+def run_interactive():
+    global current_file
+    if current_file == "":
+        openFile()
+    if current_file == "":
+        return
+    save()
+    subprocess.call('start py ./interpreter.py -i ' +
+                    current_file, shell=True)
+
+
+def new_file():
+    save()
+    global current_file
+    current_file = ""
+    text_box.delete("1.0", "end")
+    refreshCode()
+
+
+def new_folder():
+    new_dir = ctk.filedialog.askdirectory()
+    if new_dir == "":
+        return
+    os.mkdir(new_dir)
+    refreshFolder()
 
 
 def tes():
@@ -317,27 +360,37 @@ def menu_action(action):
     elif action == "Open Folder":
         openFolder()
     elif action == "Save":
-        save()
+        save(True)
     elif action == "Save as":
         saveFile()
     elif action == "Run":
         runCurrent()
     elif action == "Tes":
         tes()
+    elif action == "New File":
+        new_file()
+    # elif action == "New Folder":
+    #     new_folder()
     menubar.set("Menu")
 
 
 menu_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
 menu_frame.grid(row=0, column=0, padx=0, pady=0, sticky="nsew", columnspan=2)
 
-runButton = ctk.CTkButton(menu_frame, text="Run", command=runCurrent)
-runButton.grid(row=0, column=1, padx=0, pady=10, sticky="w")
+run_menu = ctk.CTkOptionMenu(menu_frame, values=['Run', 'Run in interactive mode'],
+                             command=lambda x: (run_interactive() if x == 'Run in interactive mode'
+                                                else runCurrent(), run_menu.set('Run')), width=100)
+run_menu.configure(font=("fira code", 14))
+run_menu.configure(dropdown_font=("fira code", 14))
+run_menu.grid(row=0, column=1, padx=0, pady=10, sticky="nsew")
 
-runButton.cget("font").configure(size=14)
-runButton.cget("font").configure(family="fira code")
+
+# runButton = ctk.CTkButton(menu_frame, text="Run", command=runCurrent, width=10)
+# runButton.grid(row=0, column=1, padx=0, pady=10, sticky="w")
+
 
 menubar = ctk.CTkOptionMenu(menu_frame, bg_color="transparent", values=[
-                            "Open File", "Open Folder", "Save", "Save as", "Run", "Tes"], command=menu_action)
+                            'New File', "Open File", "Open Folder", "Save", "Save as", "Run", "Tes"], command=menu_action, width=100)
 menubar.set("Menu")
 menubar.configure(font=("fira code", 14))
 menubar.configure(dropdown_font=("fira code", 14))
@@ -352,8 +405,22 @@ text_box.tag_config("var", foreground='orange')
 text_box.tag_config("digit", foreground='yellow')
 text_box.tag_config("operator", foreground='cadetblue')
 text_box.tag_config("label", foreground='brown1')
+text_box.tag_config("comment", foreground='gray')
+text_box.tag_config("string", foreground='white')
+text_box.tag_config("quote", foreground='orange')
 # text_box.configure(state="disabled")
 # text_box.insert("end", "testes", "block")
+
+# text_box.tag_config("block", foreground=('brown4', "brown1"))
+# text_box.tag_config("class", foreground=('yellow4', "yellow"))
+# text_box.tag_config("funct", foreground=('azure', "aqua"))
+# text_box.tag_config("var", foreground=('orange4', 'orange'))
+# text_box.tag_config("digit", foreground=('yellow4', 'yellow'))
+# text_box.tag_config("operator", foreground=('cadetblue4', 'cadetblue'))
+# text_box.tag_config("label", foreground=('brown4', 'brown1'))
+# text_box.tag_config("comment", foreground=('gray20', 'gray'))
+# text_box.tag_config("string", foreground=('black', 'white'))
+# text_box.tag_config("quote", foreground=('orange4', 'orange'))
 
 
 main_frame.pack(fill=ctk.BOTH, expand=1)
@@ -361,10 +428,8 @@ app.after(0, lambda: app.state('zoomed'))
 
 
 def on_closing():
-    if not text_box.get("1.0", "end").strip() == '':
-        if tkmessagebox.askokcancel("Save", "Do you want to save your document?"):
-            save()
-    if tkmessagebox.askokcancel("Quit", "Do you want to quit?"):
+    save()
+    if tkmessagebox.askyesno("Quit", "Do you want to quit?"):
         app.destroy()
 
 
@@ -384,7 +449,7 @@ delay_label.grid(row=0, column=2, padx=(10, 0), pady=10, sticky="nsew")
 delay_label.configure(font=("fira code", 14))
 
 delay_input = ctk.CTkOptionMenu(
-    menu_frame, values=['100 ms', '500 ms', '1000 ms', '2000 ms', '3000 ms', '4000 ms', '5000 ms'], command=set_refresh_cycle_delay)
+    menu_frame, values=['100 ms', '500 ms', '1000 ms', '2000 ms', '3000 ms', '4000 ms', '5000 ms'], command=set_refresh_cycle_delay, width=100)
 delay_input.grid(row=0, column=3, padx=10, pady=10, sticky="nsew")
 delay_input.configure(font=("fira code", 14))
 delay_input.set('1000 ms')
@@ -400,7 +465,7 @@ def set_auto_save_delay(x):
 
 
 auto_save_delay_input = ctk.CTkOptionMenu(menu_frame, values=[
-                                          '100 ms', '500 ms', '1000 ms', '2000 ms', '3000 ms', '4000 ms', '5000 ms'], command=set_auto_save_delay)
+                                          '100 ms', '500 ms', '1000 ms', '2000 ms', '3000 ms', '4000 ms', '5000 ms'], command=set_auto_save_delay, width=100)
 auto_save_delay_input.grid(row=0, column=6, padx=10, pady=10, sticky="nsew")
 auto_save_delay_input.configure(font=("fira code", 14))
 auto_save_delay_input.set('1000 ms')
@@ -436,9 +501,41 @@ def auto_save_cycle():
     # print('auto save', is_auto_save)
     if is_auto_save and current_file != "" and text_box.get("1.0", "end").strip() != '':
         print('auto save')
-        save()
+        save(True)
     app.after(auto_save_delay, auto_save_cycle)
 
+
+def switch_mode():
+    ctk.set_appearance_mode('dark' if mode_switch.get() else 'light')
+    if mode_switch.get():
+        text_box.tag_config("block", foreground="brown1")
+        text_box.tag_config("class", foreground="yellow")
+        text_box.tag_config("funct", foreground="aqua")
+        text_box.tag_config("var", foreground='orange')
+        text_box.tag_config("digit", foreground='yellow')
+        text_box.tag_config("operator", foreground='cadetblue')
+        text_box.tag_config("label", foreground='brown1')
+        text_box.tag_config("comment", foreground='gray')
+        text_box.tag_config("string", foreground='white')
+        text_box.tag_config("quote", foreground='orange')
+    else:
+        text_box.tag_config("block", foreground='brown4')
+        text_box.tag_config("class", foreground='yellow4')
+        text_box.tag_config("funct", foreground='blue4')
+        text_box.tag_config("var", foreground='orange4')
+        text_box.tag_config("digit", foreground='yellow4')
+        text_box.tag_config("operator", foreground='cadetblue4')
+        text_box.tag_config("label", foreground='brown4')
+        text_box.tag_config("comment", foreground='gray20')
+        text_box.tag_config("string", foreground='black')
+        text_box.tag_config("quote", foreground='orange4')
+
+
+mode_switch = ctk.CTkSwitch(menu_frame, text='Dark mode', width=20)
+mode_switch.grid(row=0, column=7, padx=(10, 0), pady=10, sticky="nsew")
+mode_switch.configure(font=("fira code", 14))
+mode_switch.configure(command=switch_mode)
+mode_switch.toggle()
 
 app.after(auto_save_delay, auto_save_cycle)
 app.after(refresh_cycle_delay, refresh_cycle)

@@ -1,5 +1,10 @@
+import os
+
+
 class syntax_identifier:
-    def __init__(self):
+    def __init__(self, work_dir: str = None):
+        if work_dir is not None and os.path.exists(work_dir):
+            os.chdir(work_dir)
         self.var_list = []
         self.funct_list = ['out', 'in', 'sizeof', 'funct_list', 'var_list']
         self.class_list = ['this']
@@ -9,6 +14,9 @@ class syntax_identifier:
         lines = str.split('\n')
         for line in lines:
             self.identify_line(line)
+
+    def identify_file(self, file):
+        self.identify_string(file.read())
 
     def identify_line(self, line: str):
         line = line.strip()
@@ -34,13 +42,32 @@ class syntax_identifier:
             tokens[i] = tokens[i].strip()
         key = tokens[0]
         match key:
+            case 'import':
+                if len(tokens) < 2:
+                    return
+                path = ''
+                for i in tokens[1:]:
+                    path += i
+                # print('import', path)
+                try:
+                    # print('current working directory:', os.getcwd())
+                    # print('import', path)
+                    file = open(path, 'r')
+                    self.identify_file(file)
+                    file.close()
+                except:
+                    pass
             case 'fn':
+                if len(tokens) < 2:
+                    return
                 self.funct_list.append(
                     tokens[1]) if tokens[1] not in self.funct_list else None
                 for e in tokens[3:tokens.index(')') if ')' in tokens else None]:
                     self.var_list.append(
                         e) if e not in self.var_list else None
             case 'class':
+                if len(tokens) < 2:
+                    return
                 self.class_list.append(
                     tokens[1]) if tokens[1] not in self.class_list else None
         if len(tokens) < 2:

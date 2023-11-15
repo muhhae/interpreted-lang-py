@@ -1,0 +1,5 @@
+import lib/mult.pyhk
+
+out(multiply(3,12))
+
+
