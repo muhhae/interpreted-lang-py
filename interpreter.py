@@ -563,7 +563,7 @@ class interpreter:
     def execfile(self, path, chdir=False):
         # print('os.path.dirname(path)', os.path.dirname(path))
         os.chdir(os.path.dirname(path)) if chdir else None
-        file_in = open(os.path.basename(path), "r")
+        file_in = open(os.path.basename(path) if chdir else path, "r")
         self.execstring(file_in.read(), True)
         file_in.close()
 

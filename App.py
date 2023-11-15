@@ -319,6 +319,7 @@ def runCurrent():
     if current_file == "":
         return
     save()
+    print('current working directory:', os.getcwd())
     subprocess.call('start py ./interpreter.py ' +
                     current_file, shell=True)
 

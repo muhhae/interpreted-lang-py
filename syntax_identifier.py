@@ -4,7 +4,7 @@ import os
 class syntax_identifier:
     def __init__(self, work_dir: str = None):
         if work_dir is not None and os.path.exists(work_dir):
-            os.chdir(work_dir)
+            self.work_dir = work_dir
         self.var_list = []
         self.funct_list = ['out', 'in', 'sizeof', 'funct_list', 'var_list']
         self.class_list = ['this']
@@ -52,7 +52,7 @@ class syntax_identifier:
                 try:
                     # print('current working directory:', os.getcwd())
                     # print('import', path)
-                    file = open(path, 'r')
+                    file = open(os.path.join(self.work_dir, path), 'r')
                     self.identify_file(file)
                     file.close()
                 except:
