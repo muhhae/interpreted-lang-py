@@ -1,0 +1,19 @@
+fn fib(n)
+    # out("n : ", n)
+    # in(x)
+    if n <= 0
+        return 0
+    else_if n == 1
+        return 1
+    else
+        a = fib(n-1)
+        b = fib(n-2)
+        return a + b
+    end
+end
+
+i = 0
+while i < 10
+    out(fib(i)," ", no_break)
+    i = i + 1
+end

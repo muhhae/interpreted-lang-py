@@ -20,14 +20,20 @@ class funct:
         self.name = name
         self.content = content
         self.arg = arg
-        self.local_interpreter = interpreter()
 
-    def exec(self, arg):
+    def exec(self, arg, parent=None, *args):
+        local_interpreter = interpreter()
         for a, b in zip(self.arg, arg):
-            self.local_interpreter.var_list.append(var(a, b))
-        ret = self.local_interpreter.execstring(self.content)
-        self.local_interpreter.var_list.clear()
-        return ret
+            local_interpreter.var_list.append(var(a, b))
+        if parent != None:
+            local_interpreter.class_list += parent.class_list
+            local_interpreter.funct_list += parent.funct_list
+        for e in args:
+            local_interpreter.var_list.append(e)
+        ok, ret = local_interpreter.execstring(self.content)
+        if ok:
+            return ret
+        return None
 
 
 class class_def:
@@ -37,18 +43,21 @@ class class_def:
 
 
 class class_var:
-    def __init__(self, base: class_def, arg=[]):
+    def __init__(self, base: class_def, arg=[], parent=None):
         self.class_interpreter = interpreter()
         self.class_interpreter.execstring(base.content)
+        self.class_list = self.class_interpreter.class_list
         self.var_list = self.class_interpreter.var_list
         self.funct_list = self.class_interpreter.funct_list
+        if parent != None:
+            self.class_list += parent.class_list
+            self.funct_list += parent.funct_list
         self.exec_funct("init", arg)
 
     def exec_funct(self, name, arg):
         for e in self.funct_list:
             if e.name == name:
-                e.local_interpreter.var_list.append(var("this", self))
-                return e.exec(arg)
+                return e.exec(arg, self.class_interpreter, var("this", self))
         return None
 
     def get_var(self, name):
@@ -77,8 +86,8 @@ class interpreter:
         ok, res = self.checkkeyword(input)
         if ok:
             return res
-        if "NULL" in input:
-            return None
+        # if "NULL" in input:
+        #     return None
         # print("input", input)
         if input[0] == "[" and input[-1] == "]":
             tmp = input[input.find("[") + 1:input.rfind("]")
@@ -116,7 +125,7 @@ class interpreter:
             else:
                 str_tmp += e
         tmp_ls = ls_tmp
-
+        # print("tmp_ls", tmp_ls)
         ls_tmp = []
         in_funct = 0
         func_tmp = ""
@@ -128,7 +137,7 @@ class interpreter:
                 ls_tmp.append(e)
                 continue
             if e == "(":
-                if not tmp_ls[i - 1].isdigit():
+                if tmp_ls[i - 1].isalpha():
                     funct_index = True
                     in_funct += 1
                 elif in_funct > 0:
@@ -392,7 +401,7 @@ class interpreter:
                     e = e.strip()
                     e = self.checkOperation(e)
                     arg[i] = e
-                return (True, fun.exec(arg))
+                return (True, fun.exec(arg, self))
         for cls in self.class_list:
             if cls.name == key:
                 for i, e in enumerate(arg):
@@ -454,15 +463,11 @@ class interpreter:
             else:
                 tmp += es + '\n'
         ls_task.append(tmp)
-        print("cond", ls_cond)
-        print("task", ls_task)
 
         for condition, task in zip(ls_cond, ls_task):
-            # print("condition", condition)
-            # print("task", task)
             if self.checkOperation(condition):
-                self.execstring(task)
-                break
+                return self.execstring(task)
+        return (False, None)
 
     def exec_while(self, inp):
         condition = inp[0][inp[0].find("while") + len('while'):]
@@ -471,7 +476,10 @@ class interpreter:
         for e in inp[1:]:
             str += e + "\n"
         while self.checkOperation(condition):
-            self.execstring(str)
+            ok, ret = self.execstring(str)
+            if ok:
+                return (True, ret)
+        return (False, None)
 
     def exec_goto(self, inp):
         # input("masuk goto")
@@ -484,8 +492,11 @@ class interpreter:
                 for lin in self.line_done[goto_line:]:
                     str_to_exec += lin + "\n"
                 # print("str_to_exec", str_to_exec)
-                self.execstring(str_to_exec)
-                break
+                ok, ret = self.execstring(str_to_exec)
+                if ok:
+                    return (True, ret)
+                return (False, None)
+        return (False, None)
 
     def def_fn(self, inp):
         # print("def fn")
@@ -538,9 +549,13 @@ class interpreter:
                     # print("bc", block_content)
                     match block_type:
                         case "if":
-                            self.exec_if(block_content)
+                            ok, ret = self.exec_if(block_content)
+                            if ok:
+                                return (True, ret)
                         case "while":
-                            self.exec_while(block_content)
+                            ok, ret = self.exec_while(block_content)
+                            if ok:
+                                return (True, ret)
                         case "fn":
                             self.def_fn(block_content)
                         case "execPy":
@@ -557,8 +572,9 @@ class interpreter:
             else:
                 # print("ln", l)
                 if l[:6] == "return":
-                    return self.checkOperation(l[6:])
+                    return (True, self.checkOperation(l[6:]))
                 self.execline(l)
+        return (False, None)
 
     def execfile(self, path, chdir=False):
         # print('os.path.dirname(path)', os.path.dirname(path))
@@ -598,6 +614,10 @@ def main():
             if line_input == "var":
                 ls = [e.value for e in it.var_list]
                 print(ls)
+                continue
+            if line_input == "funct":
+                for e in it.funct_list:
+                    print(e.name, e.arg)
                 continue
             if line_input == "end":
                 in_block -= 1
