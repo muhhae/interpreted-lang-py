@@ -454,7 +454,8 @@ class interpreter:
             else:
                 tmp += es + '\n'
         ls_task.append(tmp)
-        # print("cond", ls_cond)
+        print("cond", ls_cond)
+        print("task", ls_task)
 
         for condition, task in zip(ls_cond, ls_task):
             # print("condition", condition)
@@ -562,7 +563,7 @@ class interpreter:
     def execfile(self, path, chdir=False):
         # print('os.path.dirname(path)', os.path.dirname(path))
         os.chdir(os.path.dirname(path)) if chdir else None
-        file_in = open(path, "r")
+        file_in = open(os.path.basename(path), "r")
         self.execstring(file_in.read(), True)
         file_in.close()
 
