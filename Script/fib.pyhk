@@ -1,0 +1,14 @@
+fn fib(n)
+    if n <= 0
+        tmp = 0
+    else_if n == 1
+        tmp = 1
+    else
+        a = fib(n - 1)
+        b = fib(n - 2)
+        tmp = a + b
+    end
+    return tmp
+end
+
+out(fib(3))

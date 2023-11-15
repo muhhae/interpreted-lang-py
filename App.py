@@ -320,7 +320,7 @@ def runCurrent():
         return
     save()
     print('current working directory:', os.getcwd())
-    subprocess.call('start py ./interpreter.py ' +
+    subprocess.call('start ipython -- ./interpreter.py ' +
                     current_file, shell=True)
 
 
@@ -331,7 +331,7 @@ def run_interactive():
     if current_file == "":
         return
     save()
-    subprocess.call('start py ./interpreter.py -i ' +
+    subprocess.call('start ipython -- ./interpreter.py -i ' +
                     current_file, shell=True)
 
 
