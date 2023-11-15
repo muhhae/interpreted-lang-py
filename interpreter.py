@@ -562,6 +562,7 @@ class interpreter:
 
     def execfile(self, path, chdir=False):
         # print('os.path.dirname(path)', os.path.dirname(path))
+        # print("Cwd", os.getcwd())
         os.chdir(os.path.dirname(path)) if chdir else None
         file_in = open(os.path.basename(path) if chdir else path, "r")
         self.execstring(file_in.read(), True)
@@ -579,7 +580,7 @@ def main():
     if len(sys.argv) == 1 or sys.argv[1] == "-i":
         if len(sys.argv) == 3:
             print(">> import", sys.argv[2])
-            it.execline("import " + sys.argv[2])
+            it.execfile(sys.argv[2], True)
         while not line_input in ["/q", "/quit", "/exit"]:
             if in_block:
                 line_input = input(".. ").strip()
