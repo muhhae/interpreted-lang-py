@@ -242,6 +242,7 @@ class interpreter:
             ls = calculateLogic(logicPostfix(tmp_ls))
             return ls
         except:
+            debug_log("error in calculateLogic")
             return tmp_ls[0] if len(tmp_ls) == 1 else None
 
     def checkAssignment(self, input: str):

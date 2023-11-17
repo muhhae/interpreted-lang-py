@@ -62,8 +62,27 @@ def logicPostfix(ls: list):
 
 def calculateLogic(n: list):
     # print("calculateLogic", n)
+    OPERATION = {
+        "and": lambda a, b: int(a and b),
+        "or": lambda a, b: int(a or b),
+        "not": lambda a: int(not a),
+        "!=": lambda a, b: int(a != b),
+        "==": lambda a, b: int(a == b),
+        "<=": lambda a, b: int(a <= b),
+        ">=": lambda a, b: int(a >= b),
+        "<": lambda a, b: int(a < b),
+        ">": lambda a, b: int(a > b),
+        "+": lambda a, b: a + b,
+        "/": lambda a, b: a / b,
+        "*": lambda a, b: a * b,
+        "-": lambda a, b: a - b,
+        "^": lambda a, b: a ** b,
+        "%": lambda a, b: a % b
+    }
     result = []
     for c in n:
+        # print("c", c)
+        # print("result", result)
         if type(c) == float or type(c) == int:
             result.append(c)
             continue
@@ -73,45 +92,22 @@ def calculateLogic(n: list):
             else:
                 result.append(float(c))
             continue
-
         b = result.pop()
         if c != "not":
             if len(result) == 0 or isOpLgc(result[-1]):
                 a = 0
             else:
                 a = result.pop()
+        a = int(a) if type(a) == float and type(b) == str else a
+        b = int(b) if type(b) == float and type(a) == str else b
+        try:
+            tmp = OPERATION[c](a, b)
+            result.append(tmp)
+        except Exception as e:
+            # #print("ERROR", e)
+            return None
 
-        match c:
-            case "*":
-                result.append(a*b)
-            case "+":
-                result.append(a+b)
-            case "-":
-                result.append(a-b)
-            case "/":
-                result.append(a/b)
-            case "^":
-                result.append(a**b)
-            case "%":
-                result.append(a % b)
-            case "and":
-                result.append(int(a and b))
-            case "or":
-                result.append(int(a or b))
-            case "not":
-                result.append(int(not b))
-            case "==":
-                result.append(int(a == b))
-            case "!=":
-                result.append(int(a != b))
-            case "<=":
-                result.append(int(a <= b))
-            case ">=":
-                result.append(int(a >= b))
-            case "<":
-                result.append(int(a < b))
-            case ">":
-                result.append(int(a > b))
+    # #print("result after op", result)
     res = result.pop()
     if type(res) == float:
         if res.is_integer():
