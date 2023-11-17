@@ -112,6 +112,7 @@ class interpreter:
 
         tmp_ls = tmp_2.split("$")
 
+        # Check for list/array
         ls_tmp = []
         str_tmp = ""
         bracket_level = 0
@@ -130,10 +131,10 @@ class interpreter:
                 str_tmp += e
         tmp_ls = ls_tmp
 
+        # check for string
         ls_tmp = []
         str_tmp = ""
         quote_level = 0
-
         for e in tmp_ls:
             if len(e) == 0:
                 continue
@@ -146,6 +147,7 @@ class interpreter:
 
         tmp_ls = ls_tmp
 
+        # Check for function
         ls_tmp = []
         in_funct = 0
         func_tmp = ""
@@ -177,6 +179,8 @@ class interpreter:
                     ls_tmp.append(e)
                 func_tmp = ""
         tmp_ls = ls_tmp
+
+        # Operation after formatting
         debug_log("tmp_ls after \t\t-->", tmp_ls)
         for i, e in enumerate(tmp_ls):
             e = e.strip()
@@ -184,59 +188,64 @@ class interpreter:
                 continue
             if e in cprOp:
                 continue
-            if type(e) == str:
-                ok, res = self.checkkeyword(e)
-                if ok:
-                    debug_log("res from keyword -->", res)
-                    tmp_ls[i] = res
-                elif e == "NULL":
-                    tmp_ls[i] = None
-                elif e.isdigit() or isString(e):
-                    tmp_ls[i] = e
-                elif e.find(".") != -1:
-                    obj = e[:e.find(".")]
-                    e = e[e.find(".") + 1:]
-                    find_var = self.findVar(obj)
-                    if find_var != -1:
-                        if type(find_var.value) != class_var:
-                            print("error:", obj, "is not a class")
-                            return None
-                        var_val = find_var.value.get_var(e)
-                        if var_val == None:
-                            print("error:", e, "is not defined")
-                            return None
-                        tmp_ls[i] = var_val.value
-                    else:
-                        print("error:", obj, "is not defined")
-                        return
-                elif e.find("[") != -1:
-                    arr_index = e[e.find("[") + 1:e.rfind("]")].strip()
-                    arr_index = self.checkOperation(arr_index)
-                    e = e[:e.find("[")]
-                    find_var = self.findVar(e)
-                    if find_var != -1:
-                        if type(find_var.value) != list:
-                            print("error:", e, "is not an array")
-                            return None
-                        if arr_index + 1 > len(find_var.value):
-                            print("error: index out of range")
-                            return None
-                        else:
-                            tmp_ls[i] = find_var.value[arr_index]
-                    else:
+            try:
+                tmp_ls[i] = float(e)
+                continue
+            except:
+                pass
+
+            ok, res = self.checkkeyword(e)
+            if ok:
+                debug_log("res from keyword -->", res)
+                tmp_ls[i] = res
+            elif e == "NULL":
+                tmp_ls[i] = None
+            elif e.isdigit() or isString(e):
+                tmp_ls[i] = e
+            elif e.find(".") != -1:
+                obj = e[:e.find(".")]
+                e = e[e.find(".") + 1:]
+                find_var = self.findVar(obj)
+                if find_var != -1:
+                    if type(find_var.value) != class_var:
+                        print("error:", obj, "is not a class")
+                        return None
+                    var_val = find_var.value.get_var(e)
+                    if var_val == None:
                         print("error:", e, "is not defined")
                         return None
+                    tmp_ls[i] = var_val.value
                 else:
-                    find_var = self.findVar(e)
-                    if find_var != -1:
-                        if type(find_var.value) == list:
-                            val = find_var.value
-                            return [e_arr for e_arr in val]
-                        else:
-                            tmp_ls[i] = find_var.value
-                    else:
-                        print("error:", e, "is not defined")
+                    print("error:", obj, "is not defined")
+                    return
+            elif e.find("[") != -1:
+                arr_index = e[e.find("[") + 1:e.rfind("]")].strip()
+                arr_index = self.checkOperation(arr_index)
+                e = e[:e.find("[")]
+                find_var = self.findVar(e)
+                if find_var != -1:
+                    if type(find_var.value) != list:
+                        print("error:", e, "is not an array")
                         return None
+                    if arr_index + 1 > len(find_var.value):
+                        print("error: index out of range")
+                        return None
+                    else:
+                        tmp_ls[i] = find_var.value[arr_index]
+                else:
+                    print("error:", e, "is not defined")
+                    return None
+            else:
+                find_var = self.findVar(e)
+                if find_var != -1:
+                    if type(find_var.value) == list:
+                        val = find_var.value
+                        return [e_arr for e_arr in val]
+                    else:
+                        tmp_ls[i] = find_var.value
+                else:
+                    print("error:", e, "is not defined")
+                    return None
         debug_log("tmp_ls operation \t\t -->", tmp_ls)
         try:
             ls = calculateLogic(logicPostfix(tmp_ls))

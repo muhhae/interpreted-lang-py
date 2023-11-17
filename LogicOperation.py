@@ -83,28 +83,36 @@ def calculateLogic(n: list):
     for c in n:
         # print("c", c)
         # print("result", result)
-        if type(c) == float or type(c) == int:
-            result.append(c)
+        try:
+            result.append(float(c))
             continue
-        if not isOpLgc(c):
-            if isString(c):
-                result.append(c[1:-1])
-            else:
-                result.append(float(c))
+        except:
+            pass
+
+        if isString(c):
+            result.append(c[1:-1])
             continue
+
         b = result.pop()
         if c != "not":
             if len(result) == 0 or isOpLgc(result[-1]):
                 a = 0
             else:
                 a = result.pop()
-        a = int(a) if type(a) == float and type(b) == str else a
-        b = int(b) if type(b) == float and type(a) == str else b
+        # print("a", a)
+        # print("b", b)
+        a = int(a) if type(a) == float and a % 1 == 0 else a
+        b = int(b) if type(b) == float and b % 1 == 0 else b
+        # print("1 a", a)
+        # print("1 b", b)
         try:
-            tmp = OPERATION[c](a, b)
+            if c == "not":
+                tmp = OPERATION[c](b)
+            else:
+                tmp = OPERATION[c](a, b)
             result.append(tmp)
         except Exception as e:
-            # #print("ERROR", e)
+            print("error:", e)
             return None
 
     # #print("result after op", result)
