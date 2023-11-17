@@ -233,8 +233,23 @@ out("x ", 10 * add(3,add(2,add(1,1))))
 a = 100
 b = 200
 
-fn tes_mult(a,b)
-    return a * b 
+import lib/mult.pyhk
+
+out("mult ", multiply(a,b))
+
+out("Recursion")
+fn fib(n)
+    if n <= 0
+        return 0
+    else_if n == 1
+        return 1
+    else
+        return fib(n-1) + fib(n-2)
+    end
 end
 
-out(tes_mult(2, 3))
+i = 0
+while i < 10
+    out(fib(i)," ", no_break)
+    i = i + 1
+end

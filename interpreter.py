@@ -2,6 +2,12 @@ from LogicOperation import logicPostfix, calculateLogic, isString
 import os
 import sys
 
+DEBUG = 0
+
+
+def debug_log(*args):
+    print(*args) if DEBUG else None
+
 
 class var:
     def __init__(self, name: str, value):
@@ -83,31 +89,28 @@ class interpreter:
         return -1
 
     def checkOperation(self, input: str):
-        # ok, res = self.checkkeyword(input)
-        # if ok:
-        #     return res
-        # if "NULL" in input:
-        #     return None
-        # print("input", input)
+        debug_log("input operation \t-->", input)
+        if len(input) == 0:
+            return None
         if input[0] == "[" and input[-1] == "]":
             tmp = input[input.find("[") + 1:input.rfind("]")
                         ].strip().split(",")
             if len(tmp) == 1 and tmp[0] == "":
+                debug_log("Returning []")
                 return []
             tmp = [self.checkOperation(e.strip()) for e in tmp]
             return tmp
-
         cprOp = ["and", "or", "not", "!=", "==", "<=", ">=",
                  "<", ">", "+", "/", "*", "-", "^", "%", "(", ")"]
 
-        tmp_2 = input.replace(" ", "")
+        tmp_2 = input.strip()
+        debug_log("tmp_2 \t\t\t-->", tmp_2)
 
         for i, e in enumerate(cprOp):
             while tmp_2.count(e):
-                tmp_2 = tmp_2.replace(e, f" op{i} ")
+                tmp_2 = tmp_2.replace(e, f"$op{i}$")
 
-        tmp_ls = tmp_2.split(" ")
-        # print("tmp_ls", tmp_ls)
+        tmp_ls = tmp_2.split("$")
 
         ls_tmp = []
         str_tmp = ""
@@ -126,19 +129,38 @@ class interpreter:
             else:
                 str_tmp += e
         tmp_ls = ls_tmp
-        # print("tmp_ls", tmp_ls)
+
+        ls_tmp = []
+        str_tmp = ""
+        quote_level = 0
+
+        for e in tmp_ls:
+            if len(e) == 0:
+                continue
+            quote_level += e.count("\"")
+            if quote_level % 2 == 0:
+                ls_tmp.append(str_tmp + e)
+                str_tmp = ""
+            else:
+                str_tmp += e
+
+        tmp_ls = ls_tmp
+
         ls_tmp = []
         in_funct = 0
         func_tmp = ""
         funct_index = False
+        debug_log("tmp_ls operation \t-->", tmp_ls)
         for i, e in enumerate(tmp_ls):
+            e = e.strip()
             if e in ["", " "]:
                 continue
             if i == 0:
                 ls_tmp.append(e)
                 continue
             if e == "(":
-                if tmp_ls[i - 1].isalpha():
+                debug_log("ls_tmp[- 1] \t\t-->", ls_tmp[-1])
+                if ls_tmp[-1][0].isalpha() and not ls_tmp[-1] in cprOp:
                     funct_index = True
                     in_funct += 1
                 elif in_funct > 0:
@@ -155,34 +177,30 @@ class interpreter:
                     ls_tmp.append(e)
                 func_tmp = ""
         tmp_ls = ls_tmp
-        # print("tmp_ls", tmp_ls)
+        debug_log("tmp_ls after \t\t-->", tmp_ls)
         for i, e in enumerate(tmp_ls):
+            e = e.strip()
             if e in ["", " "]:
                 continue
             if e in cprOp:
                 continue
             if type(e) == str:
-                # print("e", e)
                 ok, res = self.checkkeyword(e)
                 if ok:
-                    # print("res", res)
+                    debug_log("res from keyword -->", res)
                     tmp_ls[i] = res
-                    continue
-                if e.isdigit() or isString(e):
+                elif e == "NULL":
+                    tmp_ls[i] = None
+                elif e.isdigit() or isString(e):
                     tmp_ls[i] = e
                 elif e.find(".") != -1:
                     obj = e[:e.find(".")]
                     e = e[e.find(".") + 1:]
-                    # print("obj", obj)
-                    # print("e", e)
                     find_var = self.findVar(obj)
-                    # print("find_var", find_var)
-                    # print("val", find_var.value)
                     if find_var != -1:
                         if type(find_var.value) != class_var:
                             print("error:", obj, "is not a class")
                             return None
-                        # print("find_var.value", find_var.value)
                         var_val = find_var.value.get_var(e)
                         if var_val == None:
                             print("error:", e, "is not defined")
@@ -190,12 +208,10 @@ class interpreter:
                         tmp_ls[i] = var_val.value
                     else:
                         print("error:", obj, "is not defined")
+                        return
                 elif e.find("[") != -1:
-                    # print("e", e)
                     arr_index = e[e.find("[") + 1:e.rfind("]")].strip()
-                    # print("arr_index", arr_index)
                     arr_index = self.checkOperation(arr_index)
-                    # print("arr_index", arr_index)
                     e = e[:e.find("[")]
                     find_var = self.findVar(e)
                     if find_var != -1:
@@ -204,15 +220,15 @@ class interpreter:
                             return None
                         if arr_index + 1 > len(find_var.value):
                             print("error: index out of range")
+                            return None
                         else:
-                            # print("ketemu", find_var.name, find_var.value)
                             tmp_ls[i] = find_var.value[arr_index]
                     else:
                         print("error:", e, "is not defined")
+                        return None
                 else:
                     find_var = self.findVar(e)
                     if find_var != -1:
-                        # print("ketemu", find_var.name, find_var.value)
                         if type(find_var.value) == list:
                             val = find_var.value
                             return [e_arr for e_arr in val]
@@ -220,28 +236,29 @@ class interpreter:
                             tmp_ls[i] = find_var.value
                     else:
                         print("error:", e, "is not defined")
-
-        ls = 0
-        # print("tmp_ls", tmp_ls)
+                        return None
+        debug_log("tmp_ls operation \t\t -->", tmp_ls)
         try:
             ls = calculateLogic(logicPostfix(tmp_ls))
+            return ls
         except:
-            return None
-        return ls
+            return tmp_ls[0] if len(tmp_ls) == 1 else None
 
     def checkAssignment(self, input: str):
+        debug_log("input assign \t\t-->", input)
         bracketIndex = input.find('(')
         asgnIndex = input.find('=')
         if asgnIndex == -1 or (bracketIndex != -1 and bracketIndex < asgnIndex):
-            self.checkkeyword(input)
-            return
+            return self.checkkeyword(input)
         tmpVar_name = input[0:asgnIndex].replace(" ", "").replace("\t", "")
         tmpVar_val = input[asgnIndex+1:].strip()
         try:
             tmpVar_val = float(tmpVar_val)
         except:
+            debug_log("Masuk check Operation")
             tmpVar_val = self.checkOperation(tmpVar_val)
-
+            debug_log("tmpVar_val \t\t-->", tmpVar_val)
+        debug_log("val \t\t\t-->", tmpVar_val)
         arr_index = -1
         if tmpVar_name.find("[") != -1:
             arr_index = tmpVar_name[tmpVar_name.find(
@@ -274,7 +291,7 @@ class interpreter:
                 old_var.value = tmpVar_val
 
     def checkkeyword(self, inp: str) -> tuple[bool, any]:
-        # print("masuk checkKeyword", inp)
+        debug_log("input keyword \t\t-->", inp)
         if inp.find("(") == -1:
             return (False, None)
 
@@ -284,7 +301,8 @@ class interpreter:
             obj = key[:key.find(".")]
             key = key[key.find(".") + 1:]
         arg = inp[inp.find("(") + 1:inp.rfind(")")].strip().split(",")
-
+        debug_log("key \t\t\t-->", key)
+        debug_log("obj \t\t\t-->", obj)
         if obj != None:
             old_var = self.findVar(obj)
             if old_var == -1:
@@ -322,7 +340,6 @@ class interpreter:
                 str_tmp = ""
             else:
                 str_tmp += e + ","
-        # print("arg_tmp", arg_tmp)
         arg = arg_tmp
 
         arg_tmp = []
@@ -396,13 +413,13 @@ class interpreter:
                 return (True, None)
         for fun in self.funct_list:
             if fun.name == key:
-                # print("fun.name", fun.name)
-                # print("inp", inp)
                 for i, e in enumerate(arg):
                     e = e.strip()
                     e = self.checkOperation(e)
                     arg[i] = e
-                return (True, fun.exec(arg, self))
+                ret = fun.exec(arg, self)
+                debug_log("return value from ", fun.name, '-->', ret)
+                return (True, ret)
         for cls in self.class_list:
             if cls.name == key:
                 for i, e in enumerate(arg):
@@ -426,11 +443,10 @@ class interpreter:
         if input[:len('import')] == "import":
             self.execfile(input[len('import'):].strip())
             return
-        self.checkAssignment(input)
-        return
+        res = self.checkAssignment(input)
+        return res
 
     def exec_if(self, inp: list[str]):
-        # print("exec_if", inp, "\n")
         block_k = ["if", "while", "fn"]
 
         ls_cond = []
@@ -489,10 +505,8 @@ class interpreter:
             if e.name == label_name:
                 goto_line = e.line
                 str_to_exec = ""
-                # print("goto", goto_line)
                 for lin in self.line_done[goto_line:]:
                     str_to_exec += lin + "\n"
-                # print("str_to_exec", str_to_exec)
                 ok, ret = self.execstring(str_to_exec)
                 if ok:
                     return (True, ret)
@@ -507,9 +521,6 @@ class interpreter:
         content = ""
         for e in inp[1:]:
             content += e + "\n"
-        # print('name', name)
-        # print('arg', arg)
-        # print('content', content)
         fn_tmp = funct(name, content, arg)
         self.funct_list.append(fn_tmp)
 
@@ -523,11 +534,9 @@ class interpreter:
     def execstring(self, input, is_root=False):
         block_k = ["if", "while", "fn", "execPy", "class"]
         input = input.split("\n")
-        # print("input ", input, '\n')
         in_block = 0
         block_type = ""
         block_content = []
-        # print("ib", in_block)
         for i, l in enumerate(input):
             l = l.strip()
             if is_root:
@@ -545,9 +554,7 @@ class interpreter:
                     in_block += 1
             if in_block > 0 and l[:4] == "end":
                 in_block -= 1
-                # print("ib", in_block)
                 if in_block == 0:
-                    # print("bc", block_content)
                     match block_type:
                         case "if":
                             ok, ret = self.exec_if(block_content)
@@ -571,15 +578,13 @@ class interpreter:
             if in_block:
                 block_content.append(l)
             else:
-                # print("ln", l)
                 if l[:6] == "return":
-                    return (True, self.checkOperation(l[6:]))
+                    ret = self.checkOperation(l[6:].strip())
+                    return (True, ret)
                 self.execline(l)
         return (False, None)
 
     def execfile(self, path, chdir=False):
-        # print('os.path.dirname(path)', os.path.dirname(path))
-        # print("Cwd", os.getcwd())
         os.chdir(os.path.dirname(path)) if chdir else None
         file_in = open(os.path.basename(path) if chdir else path, "r")
         self.execstring(file_in.read(), True)
@@ -598,6 +603,7 @@ def main():
         if len(sys.argv) == 3:
             print(">> import", sys.argv[2])
             it.execfile(sys.argv[2], True)
+            print()
         while not line_input in ["/q", "/quit", "/exit"]:
             if in_block:
                 line_input = input(".. ").strip()
@@ -613,17 +619,18 @@ def main():
                 print(ls)
                 continue
             if line_input == "var":
-                ls = [e.value for e in it.var_list]
+                ls = [(e.name, e.value) for e in it.var_list]
                 print(ls)
                 continue
             if line_input == "funct":
-                for e in it.funct_list:
-                    print(e.name, e.arg)
+                ls = [(e.name, e.arg) for e in it.funct_list]
+                print(ls)
                 continue
             if line_input == "end":
                 in_block -= 1
             if in_block == 0:
-                it.execstring(input_tmp)
+                ok, ret = it.execstring(input_tmp)
+                print(ret) if ret != None else None
                 input_tmp = ""
 
     else:
