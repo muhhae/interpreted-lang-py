@@ -1,0 +1,28 @@
+fn sort(list)
+    n = sizeof(list)
+    i = 0
+    while i < n
+        swapped = 0
+        j = 0
+        while j < n - i - 1
+            if list[j] > list[j+1]
+                tmp = list[j]
+                list[j] = list[j+1]
+                list[j+1] = tmp
+                swapped = 1
+            end
+            j = j + 1
+        end
+        if not swapped
+            out("sorted in ", i, " iterations")
+            return list
+        end
+        i = i + 1
+    end
+end
+
+list_example = [23, 56, -99, -3, 0.1, 45.6, 100, 23, 45, 45, 45]
+sorted_list = sort(list_example)
+
+out("list_example : ", list_example)
+out("sorted_list : ", sorted_list)

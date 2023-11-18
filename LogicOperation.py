@@ -92,12 +92,10 @@ def calculateLogic(n: list):
         if isString(c):
             result.append(c[1:-1])
             continue
-
+        a = 0
         b = result.pop()
         if c != "not":
-            if len(result) == 0 or isOpLgc(result[-1]):
-                a = 0
-            else:
+            if not (len(result) == 0 or isOpLgc(result[-1])):
                 a = result.pop()
         # print("a", a)
         # print("b", b)
@@ -115,7 +113,7 @@ def calculateLogic(n: list):
             print("error:", e)
             return None
 
-    # #print("result after op", result)
+    # print("result after op", result)
     res = result.pop()
     if type(res) == float:
         if res.is_integer():

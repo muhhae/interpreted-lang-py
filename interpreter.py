@@ -2,11 +2,11 @@ from LogicOperation import logicPostfix, calculateLogic, isString
 import os
 import sys
 
-DEBUG = 0
+DEBUG = 1
 
 
-def debug_log(*args):
-    print(*args) if DEBUG else None
+def debug_log(*args, sep=" ", end="\n", file=sys.stdout, flush=False):
+    print(*args, sep=sep, end=end, file=file, flush=flush) if DEBUG else None
 
 
 class var:
@@ -100,15 +100,50 @@ class interpreter:
                 return []
             tmp = [self.checkOperation(e.strip()) for e in tmp]
             return tmp
-        cprOp = ["and", "or", "not", "!=", "==", "<=", ">=",
+
+        cprOp = ["!=", "==", "<=", ">=",
                  "<", ">", "+", "/", "*", "-", "^", "%", "(", ")"]
+        word_op = ["and", "or", "not"]
 
         tmp_2 = input.strip()
-        debug_log("tmp_2 \t\t\t-->", tmp_2)
 
+        str_tmp = ""
+        list_str = []
+        in_quote = False
+        for c in tmp_2:
+            if c == "\"":
+                if in_quote:
+                    list_str.append(str_tmp)
+                    str_tmp = ""
+                    in_quote = False
+                else:
+                    in_quote = True
+                continue
+            if in_quote:
+                str_tmp += c
+                continue
+
+        debug_log("list_str \t\t-->", list_str)
+        for i, e in enumerate(list_str):
+            while tmp_2.count(f"\"{e}\""):
+                tmp_2 = tmp_2.replace(f"\"{e}\"", f"$str{i}$")
+
+        debug_log("tmp_2 \t\t\t-->", tmp_2)
         for i, e in enumerate(cprOp):
             while tmp_2.count(e):
                 tmp_2 = tmp_2.replace(e, f"$op{i}$")
+
+        for i, e in enumerate(word_op):
+            prob_case = [f" {e} ",
+                         f"){e}(",
+                         f"){e} ",
+                         f" {e}("]
+            for a in prob_case:
+                while tmp_2.count(a):
+                    tmp_2 = tmp_2.replace(a, f"$w_op{i}$")
+
+        if tmp_2.find("not ") == 0:
+            tmp_2 = tmp_2.replace("not ", "$w_op2$")
 
         tmp_ls = tmp_2.split("$")
 
@@ -119,7 +154,13 @@ class interpreter:
         for e in tmp_ls:
             if len(e) == 0:
                 continue
-            if e[:2] == "op":
+            if e[:3] == "str":
+                str_in = int(e[3:])
+                e = f"\"{list_str[str_in]}\""
+            elif e[:4] == "w_op":
+                w_op_in = int(e[4:])
+                e = word_op[w_op_in]
+            elif e[:2] == "op":
                 op_in = int(e[2:])
                 e = cprOp[op_in]
             if e.count("[") != e.count("]"):
@@ -129,22 +170,6 @@ class interpreter:
                 str_tmp = ""
             else:
                 str_tmp += e
-        tmp_ls = ls_tmp
-
-        # check for string
-        ls_tmp = []
-        str_tmp = ""
-        quote_level = 0
-        for e in tmp_ls:
-            if len(e) == 0:
-                continue
-            quote_level += e.count("\"")
-            if quote_level % 2 == 0:
-                ls_tmp.append(str_tmp + e)
-                str_tmp = ""
-            else:
-                str_tmp += e
-
         tmp_ls = ls_tmp
 
         # Check for function
@@ -186,7 +211,7 @@ class interpreter:
             e = e.strip()
             if e in ["", " "]:
                 continue
-            if e in cprOp:
+            if e in cprOp or e in word_op:
                 continue
             try:
                 tmp_ls[i] = float(e)
@@ -246,7 +271,7 @@ class interpreter:
                 else:
                     print("error:", e, "is not defined")
                     return None
-        debug_log("tmp_ls operation \t\t -->", tmp_ls)
+        debug_log("tmp_ls operation \t-->", tmp_ls)
         try:
             ls = calculateLogic(logicPostfix(tmp_ls))
             return ls
@@ -477,13 +502,16 @@ class interpreter:
                 tmp += es + '\n'
                 continue
 
-            if es[:2] == 'if':
+            cond_key = es[:es.find(" ")]
+            debug_log("conditional key \t-->", cond_key)
+
+            if cond_key == 'if':
                 ls_cond.append(e[2:].strip())
-            elif es[:7] == 'else_if':
+            elif cond_key == 'else_if':
                 ls_cond.append(e[7:].strip())
                 ls_task.append(tmp)
                 tmp = ""
-            elif es[:4] == 'else':
+            elif cond_key == 'else':
                 ls_cond.append('1')
                 ls_task.append(tmp)
                 tmp = ""
