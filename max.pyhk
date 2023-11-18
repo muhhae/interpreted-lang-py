@@ -1,0 +1,115 @@
+# Variable Assignment
+out("Variable Assignment")
+num1 = 10
+num2 = num1 
+num3 = num2
+
+out("num1 : ", num1)
+out("num2 : ", num2)
+out("num3 : ", num3)
+
+out()
+
+# Arithmethic
+out("Arithmethic")
+num1 = num1 + 10
+num2 = num2 * num1 / 3
+num3 = num1 + num2 - num3
+num4 = (num1 % 3) / num2 * (num1 + 100)
+
+out("num1 : ", num1)
+out("num2 : ", num2)
+out("num3 : ", num3)
+out("num4 : ", num4)
+
+out()
+
+# String
+hello = "Hello World"
+gbye = "Good Bye World"
+c = hello + " and " + gbye
+d = (c + ", ") * 3
+
+out("hello : ", hello)
+out("gbye : ", gbye)
+out("c : ", c)
+out("d : ", d)
+
+out()
+
+#Comparison
+out("num1 : ", num1)
+out("num2 : ", num2)
+out("num3 : ", num3)
+out("num4 : ", num4)
+
+out()
+
+out("num1 > num2 : ",num1 > num2)
+out("num2 > num3 : ",num2 > num3)
+out("num3 > num4 : ",num3 > num4)
+
+out()
+
+# Conditional Statement
+
+out("Conditional Statement")
+if num1 > num2 and num2 > num3
+    out("This statement is True: num1 > num2 and num2 > num3")
+else_if num1 < num2 and num2 > num3
+    out("This statement is True: num1 < num2 and num2 > num3")
+else_if num1 < num2 and num2 < num3
+    out("This statement is True: num1 < num2 and num2 < num3")
+else_if num1 > num2 and num2 < num3
+    out("This statement is True: num1 > num2 and num2 < num3")
+else
+    out("None of the statement above is True")
+end
+
+out()
+
+# Loop
+
+out("Loop")
+i = 0
+while i < 10
+    out(i, " ", no_break)
+    i = i + 1
+end
+out()
+
+out()
+
+# List
+out("List")
+
+ls_A = [-3, -2, -99, 3,1,7,6,4]
+
+ls_B = []
+ls_B[10] = NULL
+
+out("ls_A : ", ls_A)
+out("ls_B : ", ls_B)
+out("sizeof ls_A : ", sizeof(ls_A))
+out("sizeof ls_B : ", sizeof(ls_B))
+
+out("\nSorting")
+n = sizeof(ls_A)
+i = 0
+while i < n
+    j = 0
+    while j < n - i - 1
+        if ls_A[j] > ls_A[j+1]
+            tmp = ls_A[j]
+            ls_A[j] = ls_A[j+1]
+            ls_A[j+1] = tmp
+        end
+        j = j + 1
+    end
+    i = i + 1
+end
+
+out("ls_A : ", ls_A)
+
+out()
+

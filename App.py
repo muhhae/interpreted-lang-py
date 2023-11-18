@@ -65,12 +65,17 @@ class index_counter:
         return a
 
 
+current_file_selected = None
+
+
 class file_button:
     def __init__(self, name, path, depth, index: index_counter):
         self.label = os.path.basename(path)
         self.path = path
+
         self.button = ctk.CTkButton(
-            folder_frame, text="  " * depth + "  " + name, command=lambda: openFilePath(path))
+            folder_frame, text="  " * depth + "  " + name, command=lambda: (self.select(), openFilePath(self.path)))
+
         self.button.grid(row=index.get(), column=0,
                          padx=2, pady=2, sticky="ew")
         self.button.grid_remove()
@@ -78,6 +83,16 @@ class file_button:
         self.button.cget("font").configure(size=14)
         self.button.cget("font").configure(family="fira code")
         self.button.configure(text_color=("black", "white"))
+        self.button.configure(fg_color="transparent")
+
+    def select(self):
+        global current_file_selected
+        if current_file_selected != None:
+            current_file_selected.unselect()
+        current_file_selected = self
+        self.button.configure(fg_color="gray")
+
+    def unselect(self):
         self.button.configure(fg_color="transparent")
 
     def destroy(self):
@@ -152,7 +167,10 @@ current_folder_button = None
 
 
 def openFolder():
-    global current_folder, current_folder_button
+    global current_folder, current_folder_button, current_file_selected
+
+    current_file_selected = None
+
     directory = ctk.filedialog.askdirectory()
     if directory == "":
         return
@@ -189,8 +207,9 @@ def refreshCode():
              'else_if', 'end', 'return', 'class', ':', 'import', 'goto']
     for e in block:
         word_color.update({e: 'block'})
-
-    identifier = syntax_identifier(current_folder)
+    # print('current_file ', current_file)
+    # print('current_folder ', os.path.dirname(current_file))
+    identifier = syntax_identifier(os.path.dirname(current_file))
     identifier.identify_string(current_code)
     for e in identifier.var_list:
         word_color.update({e: 'var'}) if e not in word_color else None
@@ -297,15 +316,15 @@ def save(confirmed=False):
     if current_doc == '' and not confirmed:
         return
     global current_file
+    if open(current_file, "r").read().strip() == current_doc:
+        return
+    if not confirmed and not tkmessagebox.askyesno("Save", "Do you want to save your code?"):
+        return
     if current_file == "":
         saveFile()
         return
     if not os.path.exists(current_file):
         saveFile()
-        return
-    if open(current_file, "r").read().strip() == current_doc:
-        return
-    if not confirmed and not tkmessagebox.askyesno("Save", "Do you want to save your code?"):
         return
     file = open(current_file, "w")
     file.write(text_box.get("1.0", "end"))
@@ -344,10 +363,13 @@ def new_file():
 
 
 def new_folder():
-    new_dir = ctk.filedialog.askdirectory()
+    if current_folder == "":
+        return
+    input_dialog = ctk.CTkInputDialog(title="New Folder", text="Folder name:")
+    new_dir = input_dialog.get_input()
     if new_dir == "":
         return
-    os.mkdir(new_dir)
+    os.mkdir(os.path.join(current_folder, new_dir))
     refreshFolder()
 
 
@@ -370,8 +392,8 @@ def menu_action(action):
         tes()
     elif action == "New File":
         new_file()
-    # elif action == "New Folder":
-    #     new_folder()
+    elif action == "New Folder":
+        new_folder()
     menubar.set("Menu")
 
 
@@ -391,7 +413,7 @@ run_menu.grid(row=0, column=1, padx=0, pady=10, sticky="nsew")
 
 
 menubar = ctk.CTkOptionMenu(menu_frame, bg_color="transparent", values=[
-                            'New File', "Open File", "Open Folder", "Save", "Save as", "Run", "Tes"], command=menu_action, width=100)
+                            'New File', "Open File", 'New Folder', "Open Folder", "Save", "Save as", "Run", "Tes"], command=menu_action, width=100)
 menubar.set("Menu")
 menubar.configure(font=("fira code", 14))
 menubar.configure(dropdown_font=("fira code", 14))
@@ -409,20 +431,6 @@ text_box.tag_config("label", foreground='brown1')
 text_box.tag_config("comment", foreground='gray')
 text_box.tag_config("string", foreground='white')
 text_box.tag_config("quote", foreground='orange')
-# text_box.configure(state="disabled")
-# text_box.insert("end", "testes", "block")
-
-# text_box.tag_config("block", foreground=('brown4', "brown1"))
-# text_box.tag_config("class", foreground=('yellow4', "yellow"))
-# text_box.tag_config("funct", foreground=('azure', "aqua"))
-# text_box.tag_config("var", foreground=('orange4', 'orange'))
-# text_box.tag_config("digit", foreground=('yellow4', 'yellow'))
-# text_box.tag_config("operator", foreground=('cadetblue4', 'cadetblue'))
-# text_box.tag_config("label", foreground=('brown4', 'brown1'))
-# text_box.tag_config("comment", foreground=('gray20', 'gray'))
-# text_box.tag_config("string", foreground=('black', 'white'))
-# text_box.tag_config("quote", foreground=('orange4', 'orange'))
-
 
 main_frame.pack(fill=ctk.BOTH, expand=1)
 app.after(0, lambda: app.state('zoomed'))
@@ -540,4 +548,7 @@ mode_switch.toggle()
 
 app.after(auto_save_delay, auto_save_cycle)
 app.after(refresh_cycle_delay, refresh_cycle)
+
+os.chdir(os.path.dirname(os.path.realpath(__file__)))
+# print('current working directory:', os.getcwd())
 app.mainloop()

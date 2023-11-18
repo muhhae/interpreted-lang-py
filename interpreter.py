@@ -509,7 +509,6 @@ class interpreter:
         return (False, None)
 
     def exec_goto(self, inp):
-        # input("masuk goto")
         label_name = inp[4:].strip()
         for e in self.label_list:
             if e.name == label_name:
@@ -524,7 +523,6 @@ class interpreter:
         return (False, None)
 
     def def_fn(self, inp):
-        # print("def fn")
         name = inp[0][inp[0].find("fn") + len('fn'):inp[0].find("(")].strip()
         arg = inp[0][inp[0].find("(") + 1:inp[0].rfind(")")].strip().split(",")
         arg = [e.strip() for e in arg]
