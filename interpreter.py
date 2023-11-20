@@ -2,7 +2,7 @@ from LogicOperation import logicPostfix, calculateLogic, isString
 import os
 import sys
 
-DEBUG = 1
+DEBUG = 0
 
 
 def debug_log(*args, sep=" ", end="\n", file=sys.stdout, flush=False):
@@ -28,12 +28,9 @@ class funct:
         self.arg = arg
 
     def exec(self, arg, parent=None, *args):
-        local_interpreter = interpreter()
+        local_interpreter = interpreter(parent)
         for a, b in zip(self.arg, arg):
             local_interpreter.var_list.append(var(a, b))
-        if parent != None:
-            local_interpreter.class_list += parent.class_list
-            local_interpreter.funct_list += parent.funct_list
         for e in args:
             local_interpreter.var_list.append(e)
         ok, ret = local_interpreter.execstring(self.content)
@@ -50,15 +47,15 @@ class class_def:
 
 class class_var:
     def __init__(self, base: class_def, arg=[], parent=None):
-        self.class_interpreter = interpreter()
+        self.class_interpreter = interpreter(parent)
         self.class_interpreter.execstring(base.content)
         self.class_list = self.class_interpreter.class_list
         self.var_list = self.class_interpreter.var_list
         self.funct_list = self.class_interpreter.funct_list
-        if parent != None:
-            self.class_list += parent.class_list
-            self.funct_list += parent.funct_list
+        self.parent = parent
         self.exec_funct("init", arg)
+        debug_log("Init Self = ", self)
+        debug_log("Init Self.parent = ", self.parent)
 
     def exec_funct(self, name, arg):
         for e in self.funct_list:
@@ -86,6 +83,31 @@ class interpreter:
         for e in self.var_list:
             if e.name == var_name:
                 return e
+        if self.parent != None:
+            return self.parent.findVar(var_name)
+        return -1
+
+    def findClass(self, class_name):
+        debug_log("class_name \t\t-->", class_name)
+        debug_log("self.class_list \t-->", [i.name for i in self.class_list])
+        debug_log("self.parent \t\t-->", self.parent)
+        for e in self.class_list:
+            if e.name == class_name:
+                debug_log("return e", e.name)
+                return e
+        if self.parent != None:
+            return self.parent.findClass(class_name)
+        return -1
+
+    def findFunct(self, funct_name):
+        debug_log("funct_name \t\t-->", funct_name)
+        debug_log("self.funct_list \t-->", [i.name for i in self.funct_list])
+        debug_log("self.parent \t\t-->", self.parent)
+        for e in self.funct_list:
+            if e.name == funct_name:
+                return e
+        if self.parent != None:
+            return self.parent.findFunct(funct_name)
         return -1
 
     def checkOperation(self, input: str):
@@ -330,24 +352,56 @@ class interpreter:
         if inp.find("(") == -1:
             return (False, None)
 
-        key = inp[:inp.find("(")]
         obj = None
-        if "." in key:
-            obj = key[:key.find(".")]
-            key = key[key.find(".") + 1:]
-        arg = inp[inp.find("(") + 1:inp.rfind(")")].strip().split(",")
+        key = None
+        arg = None
+
+        def splitting(ch, str):
+            bracket_level = 0
+            # print("str", str)
+            for i, c in enumerate(reversed(str)):
+                # print("c", c)
+                # print("bracket_level", bracket_level)
+                if c == "(":
+                    bracket_level += 1
+                if c == ")":
+                    bracket_level -= 1
+                if bracket_level == 0 and c == ch:
+                    return (str[:len(str) - i - 1], str[len(str) - i:])
+            # print("return None")
+            return None
+
+        if "." in inp:
+            if splitting(".", inp) != None:
+                obj, key = splitting(".", inp)
+                arg = key[key.find("(") + 1:key.rfind(")")].strip().split(",")
+                key = key[:key.find("(")]
+
+        key = inp[:inp.find("(")] if key == None else key
+        arg = inp[inp.find("(") + 1:inp.rfind(")")
+                  ].strip().split(",") if arg == None else arg
+
+        debug_log("inp_key \t\t-->", key)
         debug_log("key \t\t\t-->", key)
         debug_log("obj \t\t\t-->", obj)
         if obj != None:
-            old_var = self.findVar(obj)
-            if old_var == -1:
-                print("error:", obj, "is not defined")
-                return (True, None)
+            old_var = None
+            if obj.find("(") != -1:
+                ok, obj = self.checkkeyword(obj)
+                if not ok:
+                    print("error:", obj, "is not defined")
+                    return (False, None)
             else:
-                obj = old_var.value
-            if type(obj) != class_var:
-                print("error:", obj, "is not a class")
-                return (True, None)
+                old_var = self.findVar(obj)
+                if old_var == -1:
+                    print("error:", obj, "is not defined")
+                    return (True, None)
+                else:
+                    obj = old_var.value
+                if type(obj) != class_var:
+                    print("error:", obj, "is not a class")
+                    return (True, None)
+
             match key:
                 case "var_list":
                     tmp = []
@@ -359,6 +413,7 @@ class interpreter:
                     for e in obj.funct_list:
                         tmp.append((e.name, e.arg))
                     return (True, tmp)
+
             return (True, obj.exec_funct(key, arg))
 
         arg_tmp = []
@@ -392,6 +447,9 @@ class interpreter:
             else:
                 str_tmp += e + ","
         arg = arg_tmp
+
+        debug_log("key \t\t\t-->", key)
+        debug_log("arg \t\t\t-->", arg)
 
         if key == "out":
             str_to_print = ""
@@ -446,23 +504,21 @@ class interpreter:
             else:
                 print("error:", arg[0], "is not an array")
                 return (True, None)
-        for fun in self.funct_list:
-            if fun.name == key:
-                for i, e in enumerate(arg):
-                    e = e.strip()
-                    e = self.checkOperation(e)
-                    arg[i] = e
-                ret = fun.exec(arg, self)
-                debug_log("return value from ", fun.name, '-->', ret)
-                return (True, ret)
-        for cls in self.class_list:
-            if cls.name == key:
-                for i, e in enumerate(arg):
-                    e = e.strip()
-                    e = self.checkOperation(e)
-                    arg[i] = e
-                class_var_tmp = class_var(cls, arg)
-                return (True, class_var_tmp)
+        func = self.findFunct(key)
+        if func != -1:
+            for i, e in enumerate(arg):
+                e = e.strip()
+                e = self.checkOperation(e)
+                arg[i] = e
+            return (True, func.exec(arg, self))
+        cls = self.findClass(key)
+        if cls != -1:
+            for i, e in enumerate(arg):
+                e = e.strip()
+                e = self.checkOperation(e)
+                arg[i] = e
+            # print("arg", arg)
+            return (True, class_var(cls, arg, self))
         return (False, None)
 
     def execline(self, input: str):
@@ -502,8 +558,9 @@ class interpreter:
                 tmp += es + '\n'
                 continue
 
-            cond_key = es[:es.find(" ")]
-            debug_log("conditional key \t-->", cond_key)
+            cond_key = es if es == "else" else es[:es.find(" ")]
+            # debug_log("es \t\t\t-->", es)
+            # debug_log("conditional key \t-->", cond_key)
 
             if cond_key == 'if':
                 ls_cond.append(e[2:].strip())
@@ -518,6 +575,7 @@ class interpreter:
             else:
                 tmp += es + '\n'
         ls_task.append(tmp)
+        debug_log("condition \t\t-->", ls_cond)
 
         for condition, task in zip(ls_cond, ls_task):
             if self.checkOperation(condition):
@@ -656,11 +714,15 @@ def main():
                 continue
             if line_input == "var":
                 ls = [(e.name, e.value) for e in it.var_list]
-                print(ls)
+                for e in ls:
+                    print(e, sep="\n")
                 continue
             if line_input == "funct":
                 ls = [(e.name, e.arg) for e in it.funct_list]
                 print(ls)
+                continue
+            if line_input == "it":
+                print("interpreter", it)
                 continue
             if line_input == "end":
                 in_block -= 1

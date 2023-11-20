@@ -124,7 +124,8 @@ out("ls_A : ", ls_A)
 
 out()
 
-#Function
+# Function
+out("Function")
 
 fn sort(list)
     n = sizeof(list)
@@ -156,4 +157,76 @@ sorted_list = sort(list_example)
 
 out("list_example : ", list_example)
 out("sorted_list : ", sorted_list)
+
+# Function Support Recursion
+out("Recursion")
+fn fib(n)
+    if n <= 0
+        return 0
+    else_if n == 1
+        return 1
+    else
+        return fib(n-1) + fib(n-2)
+    end
+end
+
+i = 0
+while i < 10
+    out(fib(i)," ", no_break)
+    i = i + 1
+end
+
+out()
+
+# Class
+out("\nClass")
+
+class tes
+    fn init(a,b,c)
+        this.a = a
+        this.b = b
+        this.c = c
+    end
+    
+    fn print()
+        out(this.a)
+        out(this.b)
+        out(this.c)
+        out()
+    end
+    
+    fn get()
+        return this
+    end
+    
+    fn copy_add()
+        return tes(this.a + 1, this.b + 1, this.c + 1)
+    end
+end
+
+fn createTes(a,b,c)
+    return tes(a,b,c)
+end
+
+createTes(1,2,3).print()
+createTes(1,2,3).copy_add().print()
+createTes(1,2,3).copy_add().copy_add().print()
+createTes(1,2,3).copy_add().copy_add().copy_add().print()
+createTes(3,2,7).get().print()
+
+tes(1,2,3).print()
+tes(1,2,3).copy_add().print()
+tes(1,2,3).copy_add().copy_add().print()
+tes(1,2,3).copy_add().copy_add().copy_add().print()
+
+objA = tes(34,21,90)
+objB = tes(34,21,90)
+objC = objA
+objD = objA.get()
+
+fn copy_tes(obj)
+    return tes(obj.a, obj.b, obj.c)
+end
+
+copy_cls = copy_tes(objA)
 
