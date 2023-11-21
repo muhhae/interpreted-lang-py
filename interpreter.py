@@ -78,16 +78,17 @@ class interpreter:
         self.funct_list = []
         self.class_list = []
         self.line_done = []
+        self.in_goto = False
 
-    def findVar(self, var_name):
+    def find_var(self, var_name, recursive=False):
         for e in self.var_list:
             if e.name == var_name:
                 return e
-        if self.parent != None:
-            return self.parent.findVar(var_name)
+        if recursive and self.parent != None:
+            return self.parent.find_var(var_name, True)
         return -1
 
-    def findClass(self, class_name):
+    def find_class(self, class_name):
         debug_log("class_name \t\t-->", class_name)
         debug_log("self.class_list \t-->", [i.name for i in self.class_list])
         debug_log("self.parent \t\t-->", self.parent)
@@ -96,10 +97,10 @@ class interpreter:
                 debug_log("return e", e.name)
                 return e
         if self.parent != None:
-            return self.parent.findClass(class_name)
+            return self.parent.find_class(class_name)
         return -1
 
-    def findFunct(self, funct_name):
+    def find_funct(self, funct_name):
         debug_log("funct_name \t\t-->", funct_name)
         debug_log("self.funct_list \t-->", [i.name for i in self.funct_list])
         debug_log("self.parent \t\t-->", self.parent)
@@ -107,10 +108,10 @@ class interpreter:
             if e.name == funct_name:
                 return e
         if self.parent != None:
-            return self.parent.findFunct(funct_name)
+            return self.parent.find_funct(funct_name)
         return -1
 
-    def checkOperation(self, input: str):
+    def check_operation(self, input: str):
         debug_log("input operation \t-->", input)
         if len(input) == 0:
             return None
@@ -120,7 +121,7 @@ class interpreter:
             if len(tmp) == 1 and tmp[0] == "":
                 debug_log("Returning []")
                 return []
-            tmp = [self.checkOperation(e.strip()) for e in tmp]
+            tmp = [self.check_operation(e.strip()) for e in tmp]
             return tmp
 
         cprOp = ["!=", "==", "<=", ">=",
@@ -148,12 +149,12 @@ class interpreter:
         debug_log("list_str \t\t-->", list_str)
         for i, e in enumerate(list_str):
             while tmp_2.count(f"\"{e}\""):
-                tmp_2 = tmp_2.replace(f"\"{e}\"", f"$str{i}$")
+                tmp_2 = tmp_2.replace(f"\"{e}\"", f"$__str__{i}$")
 
         debug_log("tmp_2 \t\t\t-->", tmp_2)
         for i, e in enumerate(cprOp):
             while tmp_2.count(e):
-                tmp_2 = tmp_2.replace(e, f"$op{i}$")
+                tmp_2 = tmp_2.replace(e, f"$__op__{i}$")
 
         for i, e in enumerate(word_op):
             prob_case = [f" {e} ",
@@ -162,10 +163,10 @@ class interpreter:
                          f" {e}("]
             for a in prob_case:
                 while tmp_2.count(a):
-                    tmp_2 = tmp_2.replace(a, f"$w_op{i}$")
+                    tmp_2 = tmp_2.replace(a, f"$__w_op__{i}$")
 
         if tmp_2.find("not ") == 0:
-            tmp_2 = tmp_2.replace("not ", "$w_op2$")
+            tmp_2 = tmp_2.replace("not ", "$__w_op__2$")
 
         tmp_ls = tmp_2.split("$")
 
@@ -176,14 +177,14 @@ class interpreter:
         for e in tmp_ls:
             if len(e) == 0:
                 continue
-            if e[:3] == "str":
-                str_in = int(e[3:])
+            if e[:7] == "__str__":
+                str_in = int(e[7:])
                 e = f"\"{list_str[str_in]}\""
-            elif e[:4] == "w_op":
-                w_op_in = int(e[4:])
+            elif e[:8] == "__w_op__":
+                w_op_in = int(e[8:])
                 e = word_op[w_op_in]
-            elif e[:2] == "op":
-                op_in = int(e[2:])
+            elif e[:6] == "__op__":
+                op_in = int(e[6:])
                 e = cprOp[op_in]
             if e.count("[") != e.count("]"):
                 bracket_level += e.count("[") - e.count("]")
@@ -252,12 +253,12 @@ class interpreter:
             elif e.find(".") != -1:
                 obj = e[:e.find(".")]
                 e = e[e.find(".") + 1:]
-                find_var = self.findVar(obj)
-                if find_var != -1:
-                    if type(find_var.value) != class_var:
+                found_var = self.find_var(obj, True)
+                if found_var != -1:
+                    if type(found_var.value) != class_var:
                         print("error:", obj, "is not a class")
                         return None
-                    var_val = find_var.value.get_var(e)
+                    var_val = found_var.value.get_var(e)
                     if var_val == None:
                         print("error:", e, "is not defined")
                         return None
@@ -267,29 +268,29 @@ class interpreter:
                     return
             elif e.find("[") != -1:
                 arr_index = e[e.find("[") + 1:e.rfind("]")].strip()
-                arr_index = self.checkOperation(arr_index)
+                arr_index = self.check_operation(arr_index)
                 e = e[:e.find("[")]
-                find_var = self.findVar(e)
-                if find_var != -1:
-                    if type(find_var.value) != list:
+                found_var = self.find_var(e, True)
+                if found_var != -1:
+                    if type(found_var.value) != list:
                         print("error:", e, "is not an array")
                         return None
-                    if arr_index + 1 > len(find_var.value):
+                    if arr_index + 1 > len(found_var.value):
                         print("error: index out of range")
                         return None
                     else:
-                        tmp_ls[i] = find_var.value[arr_index]
+                        tmp_ls[i] = found_var.value[arr_index]
                 else:
                     print("error:", e, "is not defined")
                     return None
             else:
-                find_var = self.findVar(e)
-                if find_var != -1:
-                    if type(find_var.value) == list:
-                        val = find_var.value
+                found_var = self.find_var(e, True)
+                if found_var != -1:
+                    if type(found_var.value) == list:
+                        val = found_var.value
                         return [e_arr for e_arr in val]
                     else:
-                        tmp_ls[i] = find_var.value
+                        tmp_ls[i] = found_var.value
                 else:
                     print("error:", e, "is not defined")
                     return None
@@ -301,33 +302,44 @@ class interpreter:
             debug_log("error in calculateLogic")
             return tmp_ls[0] if len(tmp_ls) == 1 else None
 
-    def checkAssignment(self, input: str):
+    def check_assigment(self, input: str):
         debug_log("input assign \t\t-->", input)
         bracketIndex = input.find('(')
         asgnIndex = input.find('=')
         if asgnIndex == -1 or (bracketIndex != -1 and bracketIndex < asgnIndex):
             return self.checkkeyword(input)
-        tmpVar_name = input[0:asgnIndex].replace(" ", "").replace("\t", "")
+        tmpVar_name = input[0:asgnIndex].strip()
         tmpVar_val = input[asgnIndex+1:].strip()
+        tmpVar_scope = "local"
+
+        if tmpVar_name.find(" ") != -1:
+            splt = tmpVar_name.split(" ")
+            tmpVar_name = splt[-1]
+            for e in splt[:-1]:
+                if e == "global":
+                    tmpVar_scope = "global"
+
         try:
             tmpVar_val = float(tmpVar_val)
         except:
             debug_log("Masuk check Operation")
-            tmpVar_val = self.checkOperation(tmpVar_val)
+            tmpVar_val = self.check_operation(tmpVar_val)
             debug_log("tmpVar_val \t\t-->", tmpVar_val)
         debug_log("val \t\t\t-->", tmpVar_val)
         arr_index = -1
         if tmpVar_name.find("[") != -1:
             arr_index = tmpVar_name[tmpVar_name.find(
                 "[") + 1:tmpVar_name.rfind("]")].strip()
-            arr_index = self.checkOperation(arr_index)
+            arr_index = self.check_operation(arr_index)
             tmpVar_name = tmpVar_name[:tmpVar_name.find("[")]
 
         obj = None
         if "." in tmpVar_name:
             obj = tmpVar_name[tmpVar_name.find(".") + 1:]
             tmpVar_name = tmpVar_name[:tmpVar_name.find(".")]
-        old_var = self.findVar(tmpVar_name)
+
+        old_var = self.find_var(
+            tmpVar_name, True if tmpVar_scope == "global" else False)
         if old_var == -1:
             self.var_list.append(var(tmpVar_name, tmpVar_val))
         else:
@@ -392,7 +404,7 @@ class interpreter:
                     print("error:", obj, "is not defined")
                     return (False, None)
             else:
-                old_var = self.findVar(obj)
+                old_var = self.find_var(obj, True)
                 if old_var == -1:
                     print("error:", obj, "is not defined")
                     return (True, None)
@@ -462,7 +474,7 @@ class interpreter:
                 if len(e) == 0:
                     continue
                 if not isString(e):
-                    e = self.checkOperation(e)
+                    e = self.check_operation(e)
                 if type(e) == str and isString(e):
                     e = e[1:-1]
                 str_to_print += str(e)
@@ -486,7 +498,7 @@ class interpreter:
                 e.strip()
                 if len(e) == 0:
                     continue
-                old_var = self.findVar(e)
+                old_var = self.find_var(e, True)
                 if old_var == -1:
                     self.var_list.append(var(e, val))
                 else:
@@ -495,7 +507,7 @@ class interpreter:
         if key == "sizeof":
             if len(arg) == 0:
                 return (True, None)
-            old_var = self.findVar(arg[0])
+            old_var = self.find_var(arg[0], True)
             if old_var == -1:
                 print("error:", arg[0], "is not defined")
                 return (True, None)
@@ -504,18 +516,18 @@ class interpreter:
             else:
                 print("error:", arg[0], "is not an array")
                 return (True, None)
-        func = self.findFunct(key)
+        func = self.find_funct(key)
         if func != -1:
             for i, e in enumerate(arg):
                 e = e.strip()
-                e = self.checkOperation(e)
+                e = self.check_operation(e)
                 arg[i] = e
             return (True, func.exec(arg, self))
-        cls = self.findClass(key)
+        cls = self.find_class(key)
         if cls != -1:
             for i, e in enumerate(arg):
                 e = e.strip()
-                e = self.checkOperation(e)
+                e = self.check_operation(e)
                 arg[i] = e
             # print("arg", arg)
             return (True, class_var(cls, arg, self))
@@ -534,7 +546,7 @@ class interpreter:
         if input[:len('import')] == "import":
             self.execfile(input[len('import'):].strip())
             return
-        res = self.checkAssignment(input)
+        res = self.check_assigment(input)
         return res
 
     def exec_if(self, inp: list[str]):
@@ -578,8 +590,9 @@ class interpreter:
         debug_log("condition \t\t-->", ls_cond)
 
         for condition, task in zip(ls_cond, ls_task):
-            if self.checkOperation(condition):
+            if self.check_operation(condition):
                 return self.execstring(task)
+                # return interpreter(self).execstring(task)
         return (False, None)
 
     def exec_while(self, inp):
@@ -588,8 +601,9 @@ class interpreter:
         str = ""
         for e in inp[1:]:
             str += e + "\n"
-        while self.checkOperation(condition):
+        while self.check_operation(condition):
             ok, ret = self.execstring(str)
+            # ok, ret = interpreter(self).execstring(str)
             if ok:
                 return (True, ret)
         return (False, None)
@@ -598,11 +612,13 @@ class interpreter:
         label_name = inp[4:].strip()
         for e in self.label_list:
             if e.name == label_name:
+                in_goto = True
                 goto_line = e.line
                 str_to_exec = ""
                 for lin in self.line_done[goto_line:]:
                     str_to_exec += lin + "\n"
                 ok, ret = self.execstring(str_to_exec)
+                in_goto = False
                 if ok:
                     return (True, ret)
                 return (False, None)
@@ -633,7 +649,7 @@ class interpreter:
         block_content = []
         for i, l in enumerate(input):
             l = l.strip()
-            if is_root:
+            if is_root and not self.in_goto:
                 self.line_done.append(l)
             if len(l) == 0:
                 continue
@@ -641,12 +657,13 @@ class interpreter:
                 label_name = l[:-1].strip()
                 self.label_list.append(label(label_name, i))
                 continue
-            for k in block_k:
-                if l[:len(k)] == k:
-                    if in_block == 0:
-                        block_type = k
-                    in_block += 1
-            if in_block > 0 and l[:4] == "end":
+
+            key = l[:l.find(" ")] if l.find(" ") != -1 else l
+            if key in block_k:
+                if not in_block:
+                    block_type = key
+                in_block += 1
+            if in_block > 0 and key == "end":
                 in_block -= 1
                 if in_block == 0:
                     match block_type:
@@ -672,8 +689,8 @@ class interpreter:
             if in_block:
                 block_content.append(l)
             else:
-                if l[:6] == "return":
-                    ret = self.checkOperation(l[6:].strip())
+                if key == "return":
+                    ret = self.check_operation(l[6:].strip())
                     return (True, ret)
                 self.execline(l)
         return (False, None)
@@ -704,13 +721,18 @@ def main():
             else:
                 line_input = input(">> ").strip()
             input_tmp += "\n" + line_input
-            for e in key_block:
-                if line_input[0:len(e)] == e:
-                    in_block += 1
-                    break
+
+            key = line_input[:line_input.find(" ")] if line_input.find(
+                " ") != -1 else line_input
+            debug_log("key \t\t\t-->", key)
+            if key in key_block:
+                in_block += 1
             if line_input == "lab":
                 ls = [e.name for e in it.label_list]
                 print(ls)
+                continue
+            if line_input == "cls":
+                os.system("cls")
                 continue
             if line_input == "var":
                 ls = [(e.name, e.value) for e in it.var_list]

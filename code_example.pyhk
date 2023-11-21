@@ -159,6 +159,8 @@ out("list_example : ", list_example)
 out("sorted_list : ", sorted_list)
 
 # Function Support Recursion
+
+back_to_recursion:
 out("Recursion")
 fn fib(n)
     if n <= 0
@@ -229,4 +231,14 @@ fn copy_tes(obj)
 end
 
 copy_cls = copy_tes(objA)
+
+conf = ""
+while conf != "y" and conf != "n"
+    out("Back to recursion ? y / n : ", no_break)
+    in(conf)
+    if conf == "y"
+        goto back_to_recursion
+    end
+end
+
 

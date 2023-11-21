@@ -1,0 +1,7 @@
+var_a = 10
+fn tes()
+    var_a = 99
+    out(var_a)
+end
+tes()
+out(var_a)
