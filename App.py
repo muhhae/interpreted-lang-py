@@ -19,7 +19,7 @@ frame1.grid(row=2, column=0, padx=(10, 0), pady=(0, 10), sticky="nsew")
 frame1.grid_remove()
 
 frame2 = ctk.CTkFrame(main_frame, fg_color="transparent")
-frame2.grid(row=2, column=1, padx=(10, 10), pady=(0, 10), sticky="nsew")
+frame2.grid(row=2, column=1, padx=(10, 5), pady=(0, 10), sticky="nsew")
 
 folder_frame = ctk.CTkScrollableFrame(frame1)
 folder_frame.grid(row=10, column=0, padx=10, pady=10, sticky="nsew")
@@ -113,15 +113,16 @@ class folder_button:
         self.button.grid(row=self.index.get(), column=0,
                          padx=2, pady=2, sticky="ew")
         self.button.grid_remove()
+        self.depth = depth
         self.listfiles()
-        if depth == 0:
-            self.button.grid()
-            self.show()
         self.button.cget("font").configure(size=14)
         self.button.cget("font").configure(family="fira code")
         self.button.configure(anchor="w")
         self.button.configure(text_color=("black", "white"))
         self.button.configure(fg_color="transparent")
+        if self.depth == 0:
+            self.button.grid()
+            self.show()
 
     def toggle(self):
         if self.showed:
@@ -163,8 +164,11 @@ class folder_button:
             for e in tmp_files:
                 self.files.append(file_button(e, os.path.join(
                     self.path, e), self.depth + 1, self.index))
-        thread = threading.Thread(target=list_f)
-        thread.start()
+        if self.depth == 0:
+            thread = threading.Thread(target=list_f)
+            thread.start()
+        else:
+            list_f()
 
 
 current_folder_button = None
@@ -181,6 +185,9 @@ def openFolder():
     if current_folder_button != None:
         current_folder_button.destroy()
     current_folder = directory
+    proc.stdin.write("cd " + current_folder + '\n')
+    proc.stdin.flush()
+
     current_folder_button = folder_button(
         os.path.basename(directory), directory, 0, index_counter())
     frame1.grid()
@@ -345,19 +352,22 @@ def runCurrent():
     print('current working directory:', os.getcwd())
     print('current file:', current_file)
 
-    text_box_console.configure(state='normal')
-    text_box_console.insert('end', "import " + current_file + '\n')
-    text_box_console.configure(state='disabled')
+    # text_box_console.configure(state='normal')
+    # text_box_console.insert('end', "import " + current_file + '\n')
+    # text_box_console.configure(state='disabled')
+
+    proc.stdin.write("cd " + os.path.dirname(current_file) + '\n')
+    proc.stdin.flush()
 
     proc.stdin.write("import " + current_file + '\n')
     proc.stdin.flush()
 
-    text_box_console.configure(state='normal')
-    text_box_console.insert('end', '\n')
-    text_box_console.configure(state='disabled')
+    proc.stdin.write("cd " + current_folder + '\n')
+    proc.stdin.flush()
 
-    # subprocess.call('start ipython -- ./interpreter.py ' +
-    #                 current_file, shell=True)
+    text_box_console.configure(state='normal')
+    # text_box_console.insert('end', '\n')
+    text_box_console.configure(state='disabled')
 
 
 def run_interactive_separate():
@@ -371,14 +381,14 @@ def run_interactive_separate():
                     current_file, shell=True)
 
 
-def run_interactive():
+def run_separate():
     global current_file
     if current_file == "":
         openFile()
     if current_file == "":
         return
     save()
-    subprocess.call('start ipython -- ./interpreter.py -i ' +
+    subprocess.call('start ipython -- ./interpreter.py ' +
                     current_file, shell=True)
 
 
@@ -428,9 +438,23 @@ def menu_action(action):
 menu_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
 menu_frame.grid(row=0, column=0, padx=0, pady=0, sticky="nsew", columnspan=2)
 
-run_menu = ctk.CTkOptionMenu(menu_frame, values=['Run', 'Run in dedicated terminal'],
-                             command=lambda x: (run_interactive() if x == 'Run in dedicated terminal'
-                                                else runCurrent(), run_menu.set('Run')), width=100)
+
+def run_on_choice(choice):
+    global run_menu
+    match choice:
+        case 'Run':
+            runCurrent()
+        case 'Run in external terminal':
+            run_separate()
+        case 'Run interactive in external terminal':
+            run_interactive_separate()
+        case 'Restart':
+            restart()
+    run_menu.set('Run')
+
+
+run_menu = ctk.CTkOptionMenu(menu_frame, values=['Run', 'Run in external terminal', 'Run interactive in external terminal', 'Restart Terminal'],
+                             command=run_on_choice, width=100)
 run_menu.configure(font=("fira code", 14))
 run_menu.configure(dropdown_font=("fira code", 14))
 run_menu.grid(row=0, column=1, padx=0, pady=10, sticky="nsew")
@@ -463,17 +487,18 @@ text_box.tag_config("quote", foreground='orange')
 main_frame.pack(fill=ctk.BOTH, expand=1)
 app.after(0, lambda: app.state('zoomed'))
 
-console_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
-console_frame.grid(row=2, column=2, padx=10, pady=(0, 10), sticky="nsew")
+console_frame = ctk.CTkFrame(main_frame, fg_color="gray20")
+console_frame.grid(row=2, column=2, padx=0, pady=(0, 10), sticky="nsew")
 main_frame.grid_columnconfigure(2, weight=2)
 
 text_box_console = ctk.CTkTextbox(console_frame, activate_scrollbars=True)
-text_box_console.pack(fill=ctk.BOTH, expand=8)
+text_box_console.pack(fill=ctk.BOTH, expand=8, padx=5,
+                      pady=(5, 0))
 text_box_console.configure(font=("fira code", 14))
 
 console_input = ctk.CTkEntry(
     console_frame, border_width=0, fg_color="#1e1e1e", height=40)
-console_input.pack(fill=ctk.X, pady=(10, 0))
+console_input.pack(fill=ctk.X, pady=(10, 5), padx=5)
 console_input.configure(font=("fira code", 14))
 
 
@@ -484,6 +509,8 @@ def console_on_enter(event):
     text_box_console.insert('end', data)
     text_box_console.configure(state='disabled')
 
+    if proc.poll():
+        restart()
     proc.stdin.write(data)
     proc.stdin.flush()
     console_input.delete(0, 'end')
@@ -491,12 +518,39 @@ def console_on_enter(event):
 
 console_input.bind('<Return>', console_on_enter)
 proc = subprocess.Popen('python ./interpreter.py', text=True,
-                        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+bef = ''
 
 
 def read_proc():
     while proc.poll() is None:
         data = os.read(proc.stdout.fileno(), 1 << 20)
+        data = data.replace(b"\r\n", b"\n")
+        decoded = data.decode('utf-8')
+        if data:
+            if data == b'\x0c':
+                text_box_console.configure(state='normal')
+                text_box_console.delete('1.0', 'end')
+                text_box_console.configure(state='disabled')
+                continue
+            global bef
+            if bef != '':
+                decoded = decoded.replace(">>", "\n>>")
+
+            text_box_console.configure(state='normal')
+            text_box_console.insert(
+                'end', decoded)
+            text_box_console.configure(state='disabled')
+            text_box_console.see('end')
+            bef = decoded.strip()
+        else:
+            return None
+
+
+def read_err():
+    while proc.poll() is None:
+        data = os.read(proc.stderr.fileno(), 1 << 20)
         data = data.replace(b"\r\n", b"\n")
         decoded = data.decode('utf-8')
         if data:
@@ -515,6 +569,20 @@ def read_proc():
 
 thread = threading.Thread(target=read_proc)
 thread.start()
+
+thread_err = threading.Thread(target=read_err)
+thread_err.start()
+
+
+def restart():
+    global proc, thread, thread_err
+    proc = subprocess.Popen('python ./interpreter.py', text=True,
+                            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    thread = threading.Thread(target=read_proc)
+    thread.start()
+
+    thread_err = threading.Thread(target=read_err)
+    thread_err.start()
 
 
 def on_closing():

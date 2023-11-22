@@ -544,7 +544,11 @@ class interpreter:
             self.exec_goto(input)
             return
         if input[:len('import')] == "import":
-            self.execfile(input[len('import'):].strip())
+            mod = input[len('import'):].strip()
+            if not os.path.exists(mod):
+                print("error :", mod, "does not exist")
+                return
+            self.execfile(mod)
             return
         res = self.check_assigment(input)
         return res
@@ -715,18 +719,34 @@ def main():
             print(">> import", sys.argv[2])
             it.execfile(sys.argv[2], True)
             print()
+        no_print = False
         while not line_input in ["/q", "/quit", "/exit"]:
-            if in_block:
-                line_input = input(".. ").strip()
+            if not no_print:
+                if in_block:
+                    line_input = input(".. ").strip()
+                else:
+                    line_input = input(">> ").strip()
             else:
-                line_input = input(">> ").strip()
+                no_print = False
+                line_input = input().strip()
             input_tmp += "\n" + line_input
 
             key = line_input[:line_input.find(" ")] if line_input.find(
                 " ") != -1 else line_input
+            arg = line_input[line_input.find(" "):]
+
             debug_log("key \t\t\t-->", key)
             if key in key_block:
                 in_block += 1
+            if key == "cd":
+                arg = arg.strip()
+                # print('cd', arg)
+                no_print = True
+                debug_log(f"is {arg} path ?",
+                          "Yes" if os.path.isdir(arg) else "No")
+                if os.path.isdir(arg):
+                    os.chdir(arg)
+                continue
             if line_input == "lab":
                 ls = [e.name for e in it.label_list]
                 print(ls)
