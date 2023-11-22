@@ -734,6 +734,9 @@ def main():
             if line_input == "cls":
                 os.system("cls")
                 continue
+            if line_input == "wd":
+                print(os.getcwd())
+                continue
             if line_input == "var":
                 ls = [(e.name, e.value) for e in it.var_list]
                 for e in ls:

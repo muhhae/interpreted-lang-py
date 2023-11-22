@@ -6,6 +6,7 @@ import subprocess
 import os
 from syntax_identifier import syntax_identifier
 from LogicOperation import isOpLgc
+import threading
 
 app = ctk.CTk()
 app.title("PyHaekal IDE")
@@ -28,7 +29,7 @@ frame1.grid_rowconfigure(10, weight=1)
 frame1.grid_columnconfigure(0, weight=1)
 
 # app.grid_columnconfigure(0, weight=1)
-main_frame.grid_columnconfigure(1, weight=20)
+main_frame.grid_columnconfigure(1, weight=3)
 main_frame.grid_rowconfigure(2, weight=1)
 
 text_box = ctk.CTkTextbox(frame2, activate_scrollbars=True)
@@ -148,19 +149,22 @@ class folder_button:
             e.destroy()
 
     def listfiles(self):
-        tmp_files = []
-        for e in os.listdir(self.path):
-            try:
-                if os.path.isdir(os.path.join(self.path, e)):
-                    self.files.append(folder_button(
-                        e, os.path.join(self.path, e), self.depth + 1, self.index))
-                else:
-                    tmp_files.append(e)
-            except:
-                continue
-        for e in tmp_files:
-            self.files.append(file_button(e, os.path.join(
-                self.path, e), self.depth + 1, self.index))
+        def list_f():
+            tmp_files = []
+            for e in os.listdir(self.path):
+                try:
+                    if os.path.isdir(os.path.join(self.path, e)):
+                        self.files.append(folder_button(
+                            e, os.path.join(self.path, e), self.depth + 1, self.index))
+                    else:
+                        tmp_files.append(e)
+                except:
+                    continue
+            for e in tmp_files:
+                self.files.append(file_button(e, os.path.join(
+                    self.path, e), self.depth + 1, self.index))
+        thread = threading.Thread(target=list_f)
+        thread.start()
 
 
 current_folder_button = None
@@ -339,7 +343,31 @@ def runCurrent():
         return
     save()
     print('current working directory:', os.getcwd())
-    subprocess.call('start ipython -- ./interpreter.py ' +
+    print('current file:', current_file)
+
+    text_box_console.configure(state='normal')
+    text_box_console.insert('end', "import " + current_file + '\n')
+    text_box_console.configure(state='disabled')
+
+    proc.stdin.write("import " + current_file + '\n')
+    proc.stdin.flush()
+
+    text_box_console.configure(state='normal')
+    text_box_console.insert('end', '\n')
+    text_box_console.configure(state='disabled')
+
+    # subprocess.call('start ipython -- ./interpreter.py ' +
+    #                 current_file, shell=True)
+
+
+def run_interactive_separate():
+    global current_file
+    if current_file == "":
+        openFile()
+    if current_file == "":
+        return
+    save()
+    subprocess.call('start ipython -- ./interpreter.py -i ' +
                     current_file, shell=True)
 
 
@@ -400,8 +428,8 @@ def menu_action(action):
 menu_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
 menu_frame.grid(row=0, column=0, padx=0, pady=0, sticky="nsew", columnspan=2)
 
-run_menu = ctk.CTkOptionMenu(menu_frame, values=['Run', 'Run in interactive mode'],
-                             command=lambda x: (run_interactive() if x == 'Run in interactive mode'
+run_menu = ctk.CTkOptionMenu(menu_frame, values=['Run', 'Run in dedicated terminal'],
+                             command=lambda x: (run_interactive() if x == 'Run in dedicated terminal'
                                                 else runCurrent(), run_menu.set('Run')), width=100)
 run_menu.configure(font=("fira code", 14))
 run_menu.configure(dropdown_font=("fira code", 14))
@@ -435,8 +463,62 @@ text_box.tag_config("quote", foreground='orange')
 main_frame.pack(fill=ctk.BOTH, expand=1)
 app.after(0, lambda: app.state('zoomed'))
 
+console_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
+console_frame.grid(row=2, column=2, padx=10, pady=(0, 10), sticky="nsew")
+main_frame.grid_columnconfigure(2, weight=2)
+
+text_box_console = ctk.CTkTextbox(console_frame, activate_scrollbars=True)
+text_box_console.pack(fill=ctk.BOTH, expand=8)
+text_box_console.configure(font=("fira code", 14))
+
+console_input = ctk.CTkEntry(
+    console_frame, border_width=0, fg_color="#1e1e1e", height=40)
+console_input.pack(fill=ctk.X, pady=(10, 0))
+console_input.configure(font=("fira code", 14))
+
+
+def console_on_enter(event):
+    data = console_input.get() + '\n'
+
+    text_box_console.configure(state='normal')
+    text_box_console.insert('end', data)
+    text_box_console.configure(state='disabled')
+
+    proc.stdin.write(data)
+    proc.stdin.flush()
+    console_input.delete(0, 'end')
+
+
+console_input.bind('<Return>', console_on_enter)
+proc = subprocess.Popen('python ./interpreter.py', text=True,
+                        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+
+def read_proc():
+    while proc.poll() is None:
+        data = os.read(proc.stdout.fileno(), 1 << 20)
+        data = data.replace(b"\r\n", b"\n")
+        decoded = data.decode('utf-8')
+        if data:
+            if data == b'\x0c':
+                text_box_console.configure(state='normal')
+                text_box_console.delete('1.0', 'end')
+                text_box_console.configure(state='disabled')
+                continue
+            text_box_console.configure(state='normal')
+            text_box_console.insert('end', decoded)
+            text_box_console.configure(state='disabled')
+            text_box_console.see('end')
+        else:
+            return None
+
+
+thread = threading.Thread(target=read_proc)
+thread.start()
+
 
 def on_closing():
+    proc.terminate()
     save()
     if tkmessagebox.askyesno("Quit", "Do you want to quit?"):
         app.destroy()
