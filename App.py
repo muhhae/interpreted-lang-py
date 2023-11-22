@@ -122,7 +122,6 @@ class folder_button:
         self.button.configure(fg_color="transparent")
         if self.depth == 0:
             self.button.grid()
-            self.show()
 
     def toggle(self):
         if self.showed:
@@ -164,6 +163,8 @@ class folder_button:
             for e in tmp_files:
                 self.files.append(file_button(e, os.path.join(
                     self.path, e), self.depth + 1, self.index))
+            if self.depth == 0:
+                self.show()
         if self.depth == 0:
             thread = threading.Thread(target=list_f)
             thread.start()
@@ -535,15 +536,12 @@ def read_proc():
                 text_box_console.configure(state='disabled')
                 continue
             global bef
-            if bef != '':
-                decoded = decoded.replace(">>", "\n>>")
-
             text_box_console.configure(state='normal')
             text_box_console.insert(
                 'end', decoded)
             text_box_console.configure(state='disabled')
             text_box_console.see('end')
-            bef = decoded.strip()
+            bef = decoded
         else:
             return None
 

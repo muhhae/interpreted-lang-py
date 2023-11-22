@@ -13,4 +13,6 @@ while i < 10
     out(fib(i)," ", no_break)
     i = i + 1
 end
+out()
+
 
