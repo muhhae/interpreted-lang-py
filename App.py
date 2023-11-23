@@ -22,7 +22,7 @@ frame2 = ctk.CTkFrame(main_frame, fg_color="transparent")
 frame2.grid(row=2, column=1, padx=(10, 5), pady=(0, 10), sticky="nsew")
 
 folder_frame = ctk.CTkScrollableFrame(frame1)
-folder_frame.grid(row=10, column=0, padx=10, pady=10, sticky="nsew")
+folder_frame.grid(row=10, column=0, padx=5, pady=5, sticky="nsew")
 folder_frame.grid_remove()
 frame1.grid_rowconfigure(10, weight=1)
 
@@ -328,15 +328,13 @@ def save(confirmed=False):
     if current_doc == '' and not confirmed:
         return
     global current_file
+    if current_file == "" or not os.path.exists(current_file):
+        saveFile() if tkmessagebox.askyesno(
+            "Save", "Do you want to save your code?") else None
+        return
     if open(current_file, "r").read().strip() == current_doc:
         return
     if not confirmed and not tkmessagebox.askyesno("Save", "Do you want to save your code?"):
-        return
-    if current_file == "":
-        saveFile()
-        return
-    if not os.path.exists(current_file):
-        saveFile()
         return
     file = open(current_file, "w")
     file.write(text_box.get("1.0", "end"))
@@ -350,25 +348,14 @@ def runCurrent():
     if current_file == "":
         return
     save()
-    print('current working directory:', os.getcwd())
-    print('current file:', current_file)
-
-    # text_box_console.configure(state='normal')
-    # text_box_console.insert('end', "import " + current_file + '\n')
-    # text_box_console.configure(state='disabled')
+    # print('current working directory:', os.getcwd())
+    # print('current file:', current_file)
 
     proc.stdin.write("cd " + os.path.dirname(current_file) + '\n')
     proc.stdin.flush()
 
     proc.stdin.write("import " + current_file + '\n')
     proc.stdin.flush()
-
-    proc.stdin.write("cd " + current_folder + '\n')
-    proc.stdin.flush()
-
-    text_box_console.configure(state='normal')
-    # text_box_console.insert('end', '\n')
-    text_box_console.configure(state='disabled')
 
 
 def run_interactive_separate():
@@ -417,22 +404,23 @@ def tes():
 
 
 def menu_action(action):
-    if action == "Open File":
-        openFile()
-    elif action == "Open Folder":
-        openFolder()
-    elif action == "Save":
-        save(True)
-    elif action == "Save as":
-        saveFile()
-    elif action == "Run":
-        runCurrent()
-    elif action == "Tes":
-        tes()
-    elif action == "New File":
-        new_file()
-    elif action == "New Folder":
-        new_folder()
+    match action:
+        case "Open File":
+            openFile()
+        case "Open Folder":
+            openFolder()
+        case "Save":
+            save(True)
+        case "Save as":
+            saveFile()
+        case "Run":
+            runCurrent()
+        case "Tes":
+            tes()
+        case "New File":
+            new_file()
+        case "New Folder":
+            new_folder()
     menubar.set("Menu")
 
 
@@ -474,21 +462,10 @@ menubar.configure(dropdown_font=("fira code", 14))
 
 menubar.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
-text_box.tag_config("block", foreground="brown1")
-text_box.tag_config("class", foreground="yellow")
-text_box.tag_config("funct", foreground="aqua")
-text_box.tag_config("var", foreground='orange')
-text_box.tag_config("digit", foreground='yellow')
-text_box.tag_config("operator", foreground='cadetblue')
-text_box.tag_config("label", foreground='brown1')
-text_box.tag_config("comment", foreground='gray')
-text_box.tag_config("string", foreground='white')
-text_box.tag_config("quote", foreground='orange')
-
 main_frame.pack(fill=ctk.BOTH, expand=1)
 app.after(0, lambda: app.state('zoomed'))
 
-console_frame = ctk.CTkFrame(main_frame, fg_color="gray20")
+console_frame = ctk.CTkFrame(main_frame)
 console_frame.grid(row=2, column=2, padx=0, pady=(0, 10), sticky="nsew")
 main_frame.grid_columnconfigure(2, weight=2)
 
@@ -498,7 +475,7 @@ text_box_console.pack(fill=ctk.BOTH, expand=8, padx=5,
 text_box_console.configure(font=("fira code", 14))
 
 console_input = ctk.CTkEntry(
-    console_frame, border_width=0, fg_color="#1e1e1e", height=40)
+    console_frame, border_width=0, height=40, fg_color=("white", "#1e1e1e"))
 console_input.pack(fill=ctk.X, pady=(10, 5), padx=5)
 console_input.configure(font=("fira code", 14))
 
@@ -521,14 +498,19 @@ console_input.bind('<Return>', console_on_enter)
 proc = subprocess.Popen('python ./interpreter.py', text=True,
                         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
+# proc = subprocess.Popen('pwsh', text=True,
+# stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+
 bef = ''
 
 
 def read_proc():
     while proc.poll() is None:
         data = os.read(proc.stdout.fileno(), 1 << 20)
+        # data = proc.stdout.readline()
         data = data.replace(b"\r\n", b"\n")
-        decoded = data.decode('utf-8')
+        decoded = data.decode()
         if data:
             if data == b'\x0c':
                 text_box_console.configure(state='normal')
@@ -536,6 +518,10 @@ def read_proc():
                 text_box_console.configure(state='disabled')
                 continue
             global bef
+            if decoded.strip()[-2:] == '>>':
+                proc.stdin.write("cd " + current_folder + '\n')
+                proc.stdin.flush()
+
             text_box_console.configure(state='normal')
             text_box_console.insert(
                 'end', decoded)
@@ -550,7 +536,7 @@ def read_err():
     while proc.poll() is None:
         data = os.read(proc.stderr.fileno(), 1 << 20)
         data = data.replace(b"\r\n", b"\n")
-        decoded = data.decode('utf-8')
+        decoded = data.decode()
         if data:
             if data == b'\x0c':
                 text_box_console.configure(state='normal')
@@ -664,28 +650,25 @@ def auto_save_cycle():
 
 def switch_mode():
     ctk.set_appearance_mode('dark' if mode_switch.get() else 'light')
+    tag_color = {
+        'block': ('brown1', 'brown4'),
+        'class': ('yellow', 'yellow4'),
+        'funct': ('aqua', 'blue4'),
+        'var': ('orange', 'orange4'),
+        'digit': ('yellow', 'yellow4'),
+        'operator': ('cadetblue', 'cadetblue4'),
+        'label': ('brown1', 'brown4'),
+        'comment': ('gray', 'gray20'),
+        'string': ('white', 'black'),
+        'quote': ('orange', 'orange4')
+    }
+
     if mode_switch.get():
-        text_box.tag_config("block", foreground="brown1")
-        text_box.tag_config("class", foreground="yellow")
-        text_box.tag_config("funct", foreground="aqua")
-        text_box.tag_config("var", foreground='orange')
-        text_box.tag_config("digit", foreground='yellow')
-        text_box.tag_config("operator", foreground='cadetblue')
-        text_box.tag_config("label", foreground='brown1')
-        text_box.tag_config("comment", foreground='gray')
-        text_box.tag_config("string", foreground='white')
-        text_box.tag_config("quote", foreground='orange')
+        for e in tag_color:
+            text_box.tag_config(e, foreground=tag_color[e][0])
     else:
-        text_box.tag_config("block", foreground='brown4')
-        text_box.tag_config("class", foreground='yellow4')
-        text_box.tag_config("funct", foreground='blue4')
-        text_box.tag_config("var", foreground='orange4')
-        text_box.tag_config("digit", foreground='yellow4')
-        text_box.tag_config("operator", foreground='cadetblue4')
-        text_box.tag_config("label", foreground='brown4')
-        text_box.tag_config("comment", foreground='gray20')
-        text_box.tag_config("string", foreground='black')
-        text_box.tag_config("quote", foreground='orange4')
+        for e in tag_color:
+            text_box.tag_config(e, foreground=tag_color[e][1])
 
 
 mode_switch = ctk.CTkSwitch(menu_frame, text='Dark mode', width=20)
@@ -694,9 +677,12 @@ mode_switch.configure(font=("fira code", 14))
 mode_switch.configure(command=switch_mode)
 mode_switch.toggle()
 
+switch_mode()
+
 app.after(auto_save_delay, auto_save_cycle)
 app.after(refresh_cycle_delay, refresh_cycle)
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
+app.iconbitmap('Icon.ico')
 # print('current working directory:', os.getcwd())
 app.mainloop()

@@ -326,6 +326,8 @@ class interpreter:
             tmpVar_val = self.check_operation(tmpVar_val)
             debug_log("tmpVar_val \t\t-->", tmpVar_val)
         debug_log("val \t\t\t-->", tmpVar_val)
+        if tmpVar_val == None:
+            return
         arr_index = -1
         if tmpVar_name.find("[") != -1:
             arr_index = tmpVar_name[tmpVar_name.find(
@@ -478,9 +480,8 @@ class interpreter:
                 if type(e) == str and isString(e):
                     e = e[1:-1]
                 str_to_print += str(e)
-            str_to_print = str_to_print.replace("\\n", "\n")
-            str_to_print = str_to_print.replace("\\t", "\t")
-            str_to_print = str_to_print.replace("None", "NULL")
+            str_to_print = str_to_print.replace("\\n", "\n").replace(
+                "\\t", "\t").replace("None", "NULL")
             print(str_to_print, end="")
             if break_line:
                 print()
@@ -740,6 +741,8 @@ def main():
                 in_block += 1
             if key == "cd":
                 arg = arg.strip()
+                if os.getcwd() == arg:
+                    return
                 # print('cd', arg)
                 no_print = True
                 debug_log(f"is {arg} path ?",
