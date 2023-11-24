@@ -247,7 +247,7 @@ import Lib\vector_class.pyhk
 
 vec1 = vector3(1,2,3)
 vec1.print()
-vec1.add(9,3,1)
+vec1.add(vector3(9,3,1))
 vec1.print()
-vec1.substrac(4,1,8)
+vec1.substrac(vector3(4,1,8))
 vec1.print()

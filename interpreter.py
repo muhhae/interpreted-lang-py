@@ -398,37 +398,6 @@ class interpreter:
         debug_log("inp_key \t\t-->", key)
         debug_log("key \t\t\t-->", key)
         debug_log("obj \t\t\t-->", obj)
-        if obj != None:
-            old_var = None
-            if obj.find("(") != -1:
-                ok, obj = self.checkkeyword(obj)
-                if not ok:
-                    print("error:", obj, "is not defined")
-                    return (False, None)
-            else:
-                old_var = self.find_var(obj, True)
-                if old_var == -1:
-                    print("error:", obj, "is not defined")
-                    return (True, None)
-                else:
-                    obj = old_var.value
-                if type(obj) != class_var:
-                    print("error:", obj, "is not a class")
-                    return (True, None)
-
-            match key:
-                case "var_list":
-                    tmp = []
-                    for e in obj.var_list:
-                        tmp.append((e.name, e.value))
-                    return (True, tmp)
-                case "funct_list":
-                    tmp = []
-                    for e in obj.funct_list:
-                        tmp.append((e.name, e.arg))
-                    return (True, tmp)
-
-            return (True, obj.exec_funct(key, arg))
 
         arg_tmp = []
         str_tmp = ""
@@ -464,6 +433,41 @@ class interpreter:
 
         debug_log("key \t\t\t-->", key)
         debug_log("arg \t\t\t-->", arg)
+
+        if obj != None:
+            old_var = None
+            if obj.find("(") != -1:
+                ok, obj = self.checkkeyword(obj)
+                if not ok:
+                    print("error:", obj, "is not defined")
+                    return (False, None)
+            else:
+                old_var = self.find_var(obj, True)
+                if old_var == -1:
+                    print("error:", obj, "is not defined")
+                    return (True, None)
+                else:
+                    obj = old_var.value
+                if type(obj) != class_var:
+                    print("error:", obj, "is not a class")
+                    return (True, None)
+
+            match key:
+                case "var_list":
+                    tmp = []
+                    for e in obj.var_list:
+                        tmp.append((e.name, e.value))
+                    return (True, tmp)
+                case "funct_list":
+                    tmp = []
+                    for e in obj.funct_list:
+                        tmp.append((e.name, e.arg))
+                    return (True, tmp)
+            for i, e in enumerate(arg):
+                e = e.strip()
+                e = self.check_operation(e)
+                arg[i] = e
+            return (True, obj.exec_funct(key, arg))
 
         if key == "out":
             str_to_print = ""
