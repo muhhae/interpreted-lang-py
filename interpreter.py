@@ -406,7 +406,7 @@ class interpreter:
         for e in arg:
             if len(e) == 0:
                 continue
-            if e.count("(") != e.count(")"):
+            if e.count("(") != e.count(")") and e[:e.find("(")].count("\"") % 2 == 0:
                 bracket_level += e.count("(") - e.count(")")
             if bracket_level == 0:
                 arg_tmp.append(str_tmp + e)
@@ -483,9 +483,11 @@ class interpreter:
                     e = self.check_operation(e)
                 if type(e) == str and isString(e):
                     e = e[1:-1]
+                if e == None:
+                    e = "NULL"
                 str_to_print += str(e)
             str_to_print = str_to_print.replace("\\n", "\n").replace(
-                "\\t", "\t").replace("None", "NULL")
+                "\\t", "\t")
             print(str_to_print, end="")
             if break_line:
                 print()
