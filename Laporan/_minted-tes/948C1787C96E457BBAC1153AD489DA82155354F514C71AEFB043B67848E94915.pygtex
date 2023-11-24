@@ -1,0 +1,94 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{import} \PYG{n+nn}{os}
+
+
+\PYG{k}{class} \PYG{n+nc}{syntax\PYGZus{}identifier}\PYG{p}{:}
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{work\PYGZus{}dir}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{k+kc}{None}\PYG{p}{):}
+        \PYG{k}{if} \PYG{n}{work\PYGZus{}dir} \PYG{o+ow}{is} \PYG{o+ow}{not} \PYG{k+kc}{None} \PYG{o+ow}{and} \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{exists}\PYG{p}{(}\PYG{n}{work\PYGZus{}dir}\PYG{p}{):}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{work\PYGZus{}dir} \PYG{o}{=} \PYG{n}{work\PYGZus{}dir}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{var\PYGZus{}list} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{funct\PYGZus{}list} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}out\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}in\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}sizeof\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}funct\PYGZus{}list\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}var\PYGZus{}list\PYGZsq{}}\PYG{p}{]}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{class\PYGZus{}list} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}this\PYGZsq{}}\PYG{p}{]}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{label\PYGZus{}list} \PYG{o}{=} \PYG{p}{[]}
+
+    \PYG{k}{def} \PYG{n+nf}{identify\PYGZus{}string}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n+nb}{str}\PYG{p}{):}
+        \PYG{n}{lines} \PYG{o}{=} \PYG{n+nb}{str}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+        \PYG{k}{for} \PYG{n}{line} \PYG{o+ow}{in} \PYG{n}{lines}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{identify\PYGZus{}line}\PYG{p}{(}\PYG{n}{line}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{identify\PYGZus{}file}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{file}\PYG{p}{):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{identify\PYGZus{}string}\PYG{p}{(}\PYG{n}{file}\PYG{o}{.}\PYG{n}{read}\PYG{p}{())}
+
+    \PYG{k}{def} \PYG{n+nf}{identify\PYGZus{}line}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{line}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{):}
+        \PYG{n}{line} \PYG{o}{=} \PYG{n}{line}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+        \PYG{k}{if} \PYG{n}{line} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}}\PYG{p}{:}
+            \PYG{k}{return}
+        \PYG{k}{if} \PYG{n}{line}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}:\PYGZsq{}}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{label\PYGZus{}list}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{line}\PYG{p}{[:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{])}
+            \PYG{k}{return}
+        \PYG{n}{line} \PYG{o}{=} \PYG{n}{line}\PYG{o}{.}\PYG{n}{replace}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}(\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{} ( \PYGZsq{}}\PYG{p}{)}
+        \PYG{n}{line} \PYG{o}{=} \PYG{n}{line}\PYG{o}{.}\PYG{n}{replace}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{})\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{} ) \PYGZsq{}}\PYG{p}{)}
+        \PYG{n}{line} \PYG{o}{=} \PYG{n}{line}\PYG{o}{.}\PYG{n}{replace}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}=\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{} = \PYGZsq{}}\PYG{p}{)}
+        \PYG{n}{line} \PYG{o}{=} \PYG{n}{line}\PYG{o}{.}\PYG{n}{replace}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}.\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{} . \PYGZsq{}}\PYG{p}{)}
+        \PYG{n}{line} \PYG{o}{=} \PYG{n}{line}\PYG{o}{.}\PYG{n}{replace}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{},\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{} , \PYGZsq{}}\PYG{p}{)}
+        \PYG{n}{line} \PYG{o}{=} \PYG{n}{line}\PYG{o}{.}\PYG{n}{replace}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}[\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{} [ \PYGZsq{}}\PYG{p}{)}
+        \PYG{n}{line} \PYG{o}{=} \PYG{n}{line}\PYG{o}{.}\PYG{n}{replace}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}]\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{} ] \PYGZsq{}}\PYG{p}{)}
+
+        \PYG{n}{tokens} \PYG{o}{=} \PYG{n}{line}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{} \PYGZsq{}}\PYG{p}{)}
+        \PYG{n}{tokens} \PYG{o}{=} \PYG{n+nb}{list}\PYG{p}{(}\PYG{n+nb}{filter}\PYG{p}{(}\PYG{k}{lambda} \PYG{n}{x}\PYG{p}{:} \PYG{n}{x} \PYG{o}{!=} \PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}}\PYG{p}{,} \PYG{n}{tokens}\PYG{p}{))}
+        \PYG{n}{tokens} \PYG{o}{=} \PYG{n+nb}{list}\PYG{p}{(}\PYG{n+nb}{filter}\PYG{p}{(}\PYG{k}{lambda} \PYG{n}{x}\PYG{p}{:} \PYG{n}{x} \PYG{o}{!=} \PYG{l+s+s1}{\PYGZsq{},\PYGZsq{}}\PYG{p}{,} \PYG{n}{tokens}\PYG{p}{))}
+        \PYG{c+c1}{\PYGZsh{} tokens = list(filter(lambda x: x != \PYGZsq{}(\PYGZsq{}, tokens))}
+        \PYG{c+c1}{\PYGZsh{} tokens = list(filter(lambda x: x != \PYGZsq{})\PYGZsq{}, tokens))}
+        \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{tokens}\PYG{p}{)):}
+            \PYG{n}{tokens}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{n}{tokens}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+        \PYG{n}{key} \PYG{o}{=} \PYG{n}{tokens}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}
+        \PYG{k}{match} \PYG{n}{key}\PYG{p}{:}
+            \PYG{k}{case} \PYG{l+s+s1}{\PYGZsq{}import\PYGZsq{}}\PYG{p}{:}
+                \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{tokens}\PYG{p}{)} \PYG{o}{\PYGZlt{}} \PYG{l+m+mi}{2}\PYG{p}{:}
+                    \PYG{k}{return}
+                \PYG{n}{path} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}}
+                \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n}{tokens}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:]:}
+                    \PYG{n}{path} \PYG{o}{+=} \PYG{n}{i}
+                \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}import\PYGZsq{}, path)}
+                \PYG{k}{try}\PYG{p}{:}
+                    \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}current working directory:\PYGZsq{}, os.getcwd())}
+                    \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}import\PYGZsq{}, path)}
+                    \PYG{n}{file} \PYG{o}{=} \PYG{n+nb}{open}\PYG{p}{(}\PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{join}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{work\PYGZus{}dir}\PYG{p}{,} \PYG{n}{path}\PYG{p}{),} \PYG{l+s+s1}{\PYGZsq{}r\PYGZsq{}}\PYG{p}{)}
+                    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{identify\PYGZus{}file}\PYG{p}{(}\PYG{n}{file}\PYG{p}{)}
+                    \PYG{n}{file}\PYG{o}{.}\PYG{n}{close}\PYG{p}{()}
+                \PYG{k}{except}\PYG{p}{:}
+                    \PYG{k}{pass}
+            \PYG{k}{case} \PYG{l+s+s1}{\PYGZsq{}fn\PYGZsq{}}\PYG{p}{:}
+                \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{tokens}\PYG{p}{)} \PYG{o}{\PYGZlt{}} \PYG{l+m+mi}{2}\PYG{p}{:}
+                    \PYG{k}{return}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{funct\PYGZus{}list}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}
+                    \PYG{n}{tokens}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{])} \PYG{k}{if} \PYG{n}{tokens}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{funct\PYGZus{}list} \PYG{k}{else} \PYG{k+kc}{None}
+                \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{tokens}\PYG{p}{[}\PYG{l+m+mi}{3}\PYG{p}{:}\PYG{n}{tokens}\PYG{o}{.}\PYG{n}{index}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{})\PYGZsq{}}\PYG{p}{)} \PYG{k}{if} \PYG{l+s+s1}{\PYGZsq{})\PYGZsq{}} \PYG{o+ow}{in} \PYG{n}{tokens} \PYG{k}{else} \PYG{k+kc}{None}\PYG{p}{]:}
+                    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{var\PYGZus{}list}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}
+                        \PYG{n}{e}\PYG{p}{)} \PYG{k}{if} \PYG{n}{e} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{var\PYGZus{}list} \PYG{k}{else} \PYG{k+kc}{None}
+            \PYG{k}{case} \PYG{l+s+s1}{\PYGZsq{}class\PYGZsq{}}\PYG{p}{:}
+                \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{tokens}\PYG{p}{)} \PYG{o}{\PYGZlt{}} \PYG{l+m+mi}{2}\PYG{p}{:}
+                    \PYG{k}{return}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{class\PYGZus{}list}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}
+                    \PYG{n}{tokens}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{])} \PYG{k}{if} \PYG{n}{tokens}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{class\PYGZus{}list} \PYG{k}{else} \PYG{k+kc}{None}
+        \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{tokens}\PYG{p}{)} \PYG{o}{\PYGZlt{}} \PYG{l+m+mi}{2}\PYG{p}{:}
+            \PYG{k}{return}
+        \PYG{k}{if} \PYG{n}{tokens}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}=\PYGZsq{}} \PYG{o+ow}{or} \PYG{n}{tokens}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}.\PYGZsq{}} \PYG{o+ow}{or} \PYG{n}{tokens}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}[\PYGZsq{}}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{var\PYGZus{}list}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}
+                \PYG{n}{tokens}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{])} \PYG{k}{if} \PYG{n}{tokens}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{var\PYGZus{}list} \PYG{k}{else} \PYG{k+kc}{None}
+            \PYG{k}{if} \PYG{n}{tokens}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}.\PYGZsq{}} \PYG{o+ow}{and} \PYG{n}{tokens}\PYG{p}{[}\PYG{l+m+mi}{3}\PYG{p}{]} \PYG{o}{!=} \PYG{l+s+s1}{\PYGZsq{}(\PYGZsq{}}\PYG{p}{:}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{var\PYGZus{}list}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}
+                    \PYG{n}{tokens}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{])} \PYG{k}{if} \PYG{n}{tokens}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{var\PYGZus{}list} \PYG{k}{else} \PYG{k+kc}{None}
+
+
+\PYG{k}{if} \PYG{n+nv+vm}{\PYGZus{}\PYGZus{}name\PYGZus{}\PYGZus{}} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}\PYGZus{}\PYGZus{}main\PYGZus{}\PYGZus{}\PYGZsq{}}\PYG{p}{:}
+    \PYG{n}{file} \PYG{o}{=} \PYG{n+nb}{open}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}Script/input.pyhk\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}r\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{identifier} \PYG{o}{=} \PYG{n}{syntax\PYGZus{}identifier}\PYG{p}{()}
+    \PYG{n}{identifier}\PYG{o}{.}\PYG{n}{identify\PYGZus{}string}\PYG{p}{(}\PYG{n}{file}\PYG{o}{.}\PYG{n}{read}\PYG{p}{())}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}var\PYGZsq{}}\PYG{p}{,} \PYG{n}{identifier}\PYG{o}{.}\PYG{n}{var\PYGZus{}list}\PYG{p}{)}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}fn\PYGZsq{}}\PYG{p}{,} \PYG{n}{identifier}\PYG{o}{.}\PYG{n}{funct\PYGZus{}list}\PYG{p}{)}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}class\PYGZsq{}}\PYG{p}{,} \PYG{n}{identifier}\PYG{o}{.}\PYG{n}{class\PYGZus{}list}\PYG{p}{)}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}label\PYGZsq{}}\PYG{p}{,} \PYG{n}{identifier}\PYG{o}{.}\PYG{n}{label\PYGZus{}list}\PYG{p}{)}
+
+    \PYG{n}{file}\PYG{o}{.}\PYG{n}{close}\PYG{p}{()}
+\end{Verbatim}

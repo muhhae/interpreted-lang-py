@@ -499,8 +499,7 @@ proc = subprocess.Popen('python ./interpreter.py', text=True,
                         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 # proc = subprocess.Popen('pwsh', text=True,
-# stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
+# stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
 
 bef = ''
 

@@ -1,0 +1,790 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{from} \PYG{n+nn}{LogicOperation} \PYG{k+kn}{import} \PYG{n}{logicPostfix}\PYG{p}{,} \PYG{n}{calculateLogic}\PYG{p}{,} \PYG{n}{isString}
+\PYG{k+kn}{import} \PYG{n+nn}{os}
+\PYG{k+kn}{import} \PYG{n+nn}{sys}
+
+\PYG{n}{DEBUG} \PYG{o}{=} \PYG{l+m+mi}{0}
+
+
+\PYG{k}{def} \PYG{n+nf}{debug\PYGZus{}log}\PYG{p}{(}\PYG{o}{*}\PYG{n}{args}\PYG{p}{,} \PYG{n}{sep}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{} \PYGZdq{}}\PYG{p}{,} \PYG{n}{end}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{file}\PYG{o}{=}\PYG{n}{sys}\PYG{o}{.}\PYG{n}{stdout}\PYG{p}{,} \PYG{n}{flush}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{):}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{o}{*}\PYG{n}{args}\PYG{p}{,} \PYG{n}{sep}\PYG{o}{=}\PYG{n}{sep}\PYG{p}{,} \PYG{n}{end}\PYG{o}{=}\PYG{n}{end}\PYG{p}{,} \PYG{n}{file}\PYG{o}{=}\PYG{n}{file}\PYG{p}{,} \PYG{n}{flush}\PYG{o}{=}\PYG{n}{flush}\PYG{p}{)} \PYG{k}{if} \PYG{n}{DEBUG} \PYG{k}{else} \PYG{k+kc}{None}
+
+
+\PYG{k}{class} \PYG{n+nc}{var}\PYG{p}{:}
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{name}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{value}\PYG{p}{):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{name} \PYG{o}{=} \PYG{n}{name}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{value} \PYG{o}{=} \PYG{n}{value}
+
+
+\PYG{k}{class} \PYG{n+nc}{label}\PYG{p}{:}
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{name}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{line}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{name} \PYG{o}{=} \PYG{n}{name}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{line} \PYG{o}{=} \PYG{n}{line}
+
+
+\PYG{k}{class} \PYG{n+nc}{funct}\PYG{p}{:}
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{name}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{content}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{arg}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{]):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{name} \PYG{o}{=} \PYG{n}{name}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{content} \PYG{o}{=} \PYG{n}{content}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{arg} \PYG{o}{=} \PYG{n}{arg}
+
+    \PYG{k}{def} \PYG{n+nf}{exec}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{arg}\PYG{p}{,} \PYG{n}{parent}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{,} \PYG{o}{*}\PYG{n}{args}\PYG{p}{):}
+        \PYG{n}{local\PYGZus{}interpreter} \PYG{o}{=} \PYG{n}{interpreter}\PYG{p}{(}\PYG{n}{parent}\PYG{p}{)}
+        \PYG{k}{for} \PYG{n}{a}\PYG{p}{,} \PYG{n}{b} \PYG{o+ow}{in} \PYG{n+nb}{zip}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{arg}\PYG{p}{,} \PYG{n}{arg}\PYG{p}{):}
+            \PYG{n}{local\PYGZus{}interpreter}\PYG{o}{.}\PYG{n}{var\PYGZus{}list}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{var}\PYG{p}{(}\PYG{n}{a}\PYG{p}{,} \PYG{n}{b}\PYG{p}{))}
+        \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{args}\PYG{p}{:}
+            \PYG{n}{local\PYGZus{}interpreter}\PYG{o}{.}\PYG{n}{var\PYGZus{}list}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{e}\PYG{p}{)}
+        \PYG{n}{ok}\PYG{p}{,} \PYG{n}{ret} \PYG{o}{=} \PYG{n}{local\PYGZus{}interpreter}\PYG{o}{.}\PYG{n}{execstring}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{content}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{ok}\PYG{p}{:}
+            \PYG{k}{return} \PYG{n}{ret}
+        \PYG{k}{return} \PYG{k+kc}{None}
+
+
+\PYG{k}{class} \PYG{n+nc}{class\PYGZus{}def}\PYG{p}{:}
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{name}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{content}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{name} \PYG{o}{=} \PYG{n}{name}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{content} \PYG{o}{=} \PYG{n}{content}
+
+
+\PYG{k}{class} \PYG{n+nc}{class\PYGZus{}var}\PYG{p}{:}
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{base}\PYG{p}{:} \PYG{n}{class\PYGZus{}def}\PYG{p}{,} \PYG{n}{arg}\PYG{o}{=}\PYG{p}{[],} \PYG{n}{parent}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{class\PYGZus{}interpreter} \PYG{o}{=} \PYG{n}{interpreter}\PYG{p}{(}\PYG{n}{parent}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{class\PYGZus{}interpreter}\PYG{o}{.}\PYG{n}{execstring}\PYG{p}{(}\PYG{n}{base}\PYG{o}{.}\PYG{n}{content}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{class\PYGZus{}list} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{class\PYGZus{}interpreter}\PYG{o}{.}\PYG{n}{class\PYGZus{}list}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{var\PYGZus{}list} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{class\PYGZus{}interpreter}\PYG{o}{.}\PYG{n}{var\PYGZus{}list}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{funct\PYGZus{}list} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{class\PYGZus{}interpreter}\PYG{o}{.}\PYG{n}{funct\PYGZus{}list}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{parent} \PYG{o}{=} \PYG{n}{parent}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{exec\PYGZus{}funct}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}init\PYGZdq{}}\PYG{p}{,} \PYG{n}{arg}\PYG{p}{)}
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Init Self = \PYGZdq{}}\PYG{p}{,} \PYG{n+nb+bp}{self}\PYG{p}{)}
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Init Self.parent = \PYGZdq{}}\PYG{p}{,} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{parent}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{exec\PYGZus{}funct}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{name}\PYG{p}{,} \PYG{n}{arg}\PYG{p}{):}
+        \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{funct\PYGZus{}list}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{e}\PYG{o}{.}\PYG{n}{name} \PYG{o}{==} \PYG{n}{name}\PYG{p}{:}
+                \PYG{k}{return} \PYG{n}{e}\PYG{o}{.}\PYG{n}{exec}\PYG{p}{(}\PYG{n}{arg}\PYG{p}{,} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{class\PYGZus{}interpreter}\PYG{p}{,} \PYG{n}{var}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}this\PYGZdq{}}\PYG{p}{,} \PYG{n+nb+bp}{self}\PYG{p}{))}
+        \PYG{k}{return} \PYG{k+kc}{None}
+
+    \PYG{k}{def} \PYG{n+nf}{get\PYGZus{}var}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{name}\PYG{p}{):}
+        \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{var\PYGZus{}list}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{e}\PYG{o}{.}\PYG{n}{name} \PYG{o}{==} \PYG{n}{name}\PYG{p}{:}
+                \PYG{k}{return} \PYG{n}{e}
+        \PYG{k}{return} \PYG{k+kc}{None}
+
+
+\PYG{k}{class} \PYG{n+nc}{interpreter}\PYG{p}{:}
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{parent}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{parent} \PYG{o}{=} \PYG{n}{parent}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{var\PYGZus{}list} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{label\PYGZus{}list} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{funct\PYGZus{}list} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{class\PYGZus{}list} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{line\PYGZus{}done} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{in\PYGZus{}goto} \PYG{o}{=} \PYG{k+kc}{False}
+
+    \PYG{k}{def} \PYG{n+nf}{find\PYGZus{}var}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{var\PYGZus{}name}\PYG{p}{,} \PYG{n}{recursive}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{):}
+        \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{var\PYGZus{}list}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{e}\PYG{o}{.}\PYG{n}{name} \PYG{o}{==} \PYG{n}{var\PYGZus{}name}\PYG{p}{:}
+                \PYG{k}{return} \PYG{n}{e}
+        \PYG{k}{if} \PYG{n}{recursive} \PYG{o+ow}{and} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{parent} \PYG{o}{!=} \PYG{k+kc}{None}\PYG{p}{:}
+            \PYG{k}{return} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{parent}\PYG{o}{.}\PYG{n}{find\PYGZus{}var}\PYG{p}{(}\PYG{n}{var\PYGZus{}name}\PYG{p}{,} \PYG{k+kc}{True}\PYG{p}{)}
+        \PYG{k}{return} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}
+
+    \PYG{k}{def} \PYG{n+nf}{find\PYGZus{}class}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{class\PYGZus{}name}\PYG{p}{):}
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}class\PYGZus{}name }\PYG{l+s+se}{\PYGZbs{}t\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n}{class\PYGZus{}name}\PYG{p}{)}
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}self.class\PYGZus{}list }\PYG{l+s+se}{\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{p}{[}\PYG{n}{i}\PYG{o}{.}\PYG{n}{name} \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{class\PYGZus{}list}\PYG{p}{])}
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}self.parent }\PYG{l+s+se}{\PYGZbs{}t\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{parent}\PYG{p}{)}
+        \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{class\PYGZus{}list}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{e}\PYG{o}{.}\PYG{n}{name} \PYG{o}{==} \PYG{n}{class\PYGZus{}name}\PYG{p}{:}
+                \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}return e\PYGZdq{}}\PYG{p}{,} \PYG{n}{e}\PYG{o}{.}\PYG{n}{name}\PYG{p}{)}
+                \PYG{k}{return} \PYG{n}{e}
+        \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{parent} \PYG{o}{!=} \PYG{k+kc}{None}\PYG{p}{:}
+            \PYG{k}{return} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{parent}\PYG{o}{.}\PYG{n}{find\PYGZus{}class}\PYG{p}{(}\PYG{n}{class\PYGZus{}name}\PYG{p}{)}
+        \PYG{k}{return} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}
+
+    \PYG{k}{def} \PYG{n+nf}{find\PYGZus{}funct}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{funct\PYGZus{}name}\PYG{p}{):}
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}funct\PYGZus{}name }\PYG{l+s+se}{\PYGZbs{}t\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n}{funct\PYGZus{}name}\PYG{p}{)}
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}self.funct\PYGZus{}list }\PYG{l+s+se}{\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{p}{[}\PYG{n}{i}\PYG{o}{.}\PYG{n}{name} \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{funct\PYGZus{}list}\PYG{p}{])}
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}self.parent }\PYG{l+s+se}{\PYGZbs{}t\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{parent}\PYG{p}{)}
+        \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{funct\PYGZus{}list}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{e}\PYG{o}{.}\PYG{n}{name} \PYG{o}{==} \PYG{n}{funct\PYGZus{}name}\PYG{p}{:}
+                \PYG{k}{return} \PYG{n}{e}
+        \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{parent} \PYG{o}{!=} \PYG{k+kc}{None}\PYG{p}{:}
+            \PYG{k}{return} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{parent}\PYG{o}{.}\PYG{n}{find\PYGZus{}funct}\PYG{p}{(}\PYG{n}{funct\PYGZus{}name}\PYG{p}{)}
+        \PYG{k}{return} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}
+
+    \PYG{k}{def} \PYG{n+nf}{check\PYGZus{}operation}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n+nb}{input}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{):}
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}input operation }\PYG{l+s+se}{\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n+nb}{input}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n+nb}{input}\PYG{p}{)} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+            \PYG{k}{return} \PYG{k+kc}{None}
+        \PYG{k}{if} \PYG{n+nb}{input}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}[\PYGZdq{}} \PYG{o+ow}{and} \PYG{n+nb}{input}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}]\PYGZdq{}}\PYG{p}{:}
+            \PYG{n}{tmp} \PYG{o}{=} \PYG{n+nb}{input}\PYG{p}{[}\PYG{n+nb}{input}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}[\PYGZdq{}}\PYG{p}{)} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{:}\PYG{n+nb}{input}\PYG{o}{.}\PYG{n}{rfind}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}]\PYGZdq{}}\PYG{p}{)}
+                        \PYG{p}{]}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{},\PYGZdq{}}\PYG{p}{)}
+            \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{tmp}\PYG{p}{)} \PYG{o}{==} \PYG{l+m+mi}{1} \PYG{o+ow}{and} \PYG{n}{tmp}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}\PYG{p}{:}
+                \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Returning []\PYGZdq{}}\PYG{p}{)}
+                \PYG{k}{return} \PYG{p}{[]}
+            \PYG{n}{tmp} \PYG{o}{=} \PYG{p}{[}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{check\PYGZus{}operation}\PYG{p}{(}\PYG{n}{e}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{())} \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{tmp}\PYG{p}{]}
+            \PYG{k}{return} \PYG{n}{tmp}
+
+        \PYG{n}{cprOp} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}!=\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}==\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}\PYGZlt{}=\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}\PYGZgt{}=\PYGZdq{}}\PYG{p}{,}
+                 \PYG{l+s+s2}{\PYGZdq{}\PYGZlt{}\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}+\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}/\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}*\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}\PYGZca{}\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}\PYGZpc{}\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}(\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{})\PYGZdq{}}\PYG{p}{]}
+        \PYG{n}{word\PYGZus{}op} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}and\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}or\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}not\PYGZdq{}}\PYG{p}{]}
+
+        \PYG{n}{tmp\PYGZus{}2} \PYG{o}{=} \PYG{n+nb}{input}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+
+        \PYG{n}{str\PYGZus{}tmp} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+        \PYG{n}{list\PYGZus{}str} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{n}{in\PYGZus{}quote} \PYG{o}{=} \PYG{k+kc}{False}
+        \PYG{k}{for} \PYG{n}{c} \PYG{o+ow}{in} \PYG{n}{tmp\PYGZus{}2}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{c} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}\PYGZdq{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{:}
+                \PYG{k}{if} \PYG{n}{in\PYGZus{}quote}\PYG{p}{:}
+                    \PYG{n}{list\PYGZus{}str}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{str\PYGZus{}tmp}\PYG{p}{)}
+                    \PYG{n}{str\PYGZus{}tmp} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+                    \PYG{n}{in\PYGZus{}quote} \PYG{o}{=} \PYG{k+kc}{False}
+                \PYG{k}{else}\PYG{p}{:}
+                    \PYG{n}{in\PYGZus{}quote} \PYG{o}{=} \PYG{k+kc}{True}
+                \PYG{k}{continue}
+            \PYG{k}{if} \PYG{n}{in\PYGZus{}quote}\PYG{p}{:}
+                \PYG{n}{str\PYGZus{}tmp} \PYG{o}{+=} \PYG{n}{c}
+                \PYG{k}{continue}
+
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}list\PYGZus{}str }\PYG{l+s+se}{\PYGZbs{}t\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n}{list\PYGZus{}str}\PYG{p}{)}
+        \PYG{k}{for} \PYG{n}{i}\PYG{p}{,} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{list\PYGZus{}str}\PYG{p}{):}
+            \PYG{k}{while} \PYG{n}{tmp\PYGZus{}2}\PYG{o}{.}\PYG{n}{count}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}\PYGZdq{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{e}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+se}{\PYGZbs{}\PYGZdq{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{):}
+                \PYG{n}{tmp\PYGZus{}2} \PYG{o}{=} \PYG{n}{tmp\PYGZus{}2}\PYG{o}{.}\PYG{n}{replace}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}\PYGZdq{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{e}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+se}{\PYGZbs{}\PYGZdq{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}\PYGZdl{}\PYGZus{}\PYGZus{}str\PYGZus{}\PYGZus{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{i}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdl{}\PYGZdq{}}\PYG{p}{)}
+
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}tmp\PYGZus{}2 }\PYG{l+s+se}{\PYGZbs{}t\PYGZbs{}t\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n}{tmp\PYGZus{}2}\PYG{p}{)}
+        \PYG{k}{for} \PYG{n}{i}\PYG{p}{,} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{cprOp}\PYG{p}{):}
+            \PYG{k}{while} \PYG{n}{tmp\PYGZus{}2}\PYG{o}{.}\PYG{n}{count}\PYG{p}{(}\PYG{n}{e}\PYG{p}{):}
+                \PYG{n}{tmp\PYGZus{}2} \PYG{o}{=} \PYG{n}{tmp\PYGZus{}2}\PYG{o}{.}\PYG{n}{replace}\PYG{p}{(}\PYG{n}{e}\PYG{p}{,} \PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}\PYGZdl{}\PYGZus{}\PYGZus{}op\PYGZus{}\PYGZus{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{i}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdl{}\PYGZdq{}}\PYG{p}{)}
+
+        \PYG{k}{for} \PYG{n}{i}\PYG{p}{,} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{word\PYGZus{}op}\PYG{p}{):}
+            \PYG{n}{prob\PYGZus{}case} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{} }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{e}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{ \PYGZdq{}}\PYG{p}{,}
+                         \PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{})}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{e}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{(\PYGZdq{}}\PYG{p}{,}
+                         \PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{})}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{e}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{ \PYGZdq{}}\PYG{p}{,}
+                         \PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{} }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{e}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{(\PYGZdq{}}\PYG{p}{]}
+            \PYG{k}{for} \PYG{n}{a} \PYG{o+ow}{in} \PYG{n}{prob\PYGZus{}case}\PYG{p}{:}
+                \PYG{k}{while} \PYG{n}{tmp\PYGZus{}2}\PYG{o}{.}\PYG{n}{count}\PYG{p}{(}\PYG{n}{a}\PYG{p}{):}
+                    \PYG{n}{tmp\PYGZus{}2} \PYG{o}{=} \PYG{n}{tmp\PYGZus{}2}\PYG{o}{.}\PYG{n}{replace}\PYG{p}{(}\PYG{n}{a}\PYG{p}{,} \PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}\PYGZdl{}\PYGZus{}\PYGZus{}w\PYGZus{}op\PYGZus{}\PYGZus{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{i}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdl{}\PYGZdq{}}\PYG{p}{)}
+
+        \PYG{k}{if} \PYG{n}{tmp\PYGZus{}2}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}not \PYGZdq{}}\PYG{p}{)} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+            \PYG{n}{tmp\PYGZus{}2} \PYG{o}{=} \PYG{n}{tmp\PYGZus{}2}\PYG{o}{.}\PYG{n}{replace}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}not \PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}\PYGZdl{}\PYGZus{}\PYGZus{}w\PYGZus{}op\PYGZus{}\PYGZus{}2\PYGZdl{}\PYGZdq{}}\PYG{p}{)}
+
+        \PYG{n}{tmp\PYGZus{}ls} \PYG{o}{=} \PYG{n}{tmp\PYGZus{}2}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZdl{}\PYGZdq{}}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} Check for list/array}
+        \PYG{n}{ls\PYGZus{}tmp} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{n}{str\PYGZus{}tmp} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+        \PYG{n}{bracket\PYGZus{}level} \PYG{o}{=} \PYG{l+m+mi}{0}
+        \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{tmp\PYGZus{}ls}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{e}\PYG{p}{)} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+                \PYG{k}{continue}
+            \PYG{k}{if} \PYG{n}{e}\PYG{p}{[:}\PYG{l+m+mi}{7}\PYG{p}{]} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZus{}\PYGZus{}str\PYGZus{}\PYGZus{}\PYGZdq{}}\PYG{p}{:}
+                \PYG{n}{str\PYGZus{}in} \PYG{o}{=} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{e}\PYG{p}{[}\PYG{l+m+mi}{7}\PYG{p}{:])}
+                \PYG{n}{e} \PYG{o}{=} \PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}\PYGZdq{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{list\PYGZus{}str}\PYG{p}{[}\PYG{n}{str\PYGZus{}in}\PYG{p}{]}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+se}{\PYGZbs{}\PYGZdq{}}\PYG{l+s+s2}{\PYGZdq{}}
+            \PYG{k}{elif} \PYG{n}{e}\PYG{p}{[:}\PYG{l+m+mi}{8}\PYG{p}{]} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZus{}\PYGZus{}w\PYGZus{}op\PYGZus{}\PYGZus{}\PYGZdq{}}\PYG{p}{:}
+                \PYG{n}{w\PYGZus{}op\PYGZus{}in} \PYG{o}{=} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{e}\PYG{p}{[}\PYG{l+m+mi}{8}\PYG{p}{:])}
+                \PYG{n}{e} \PYG{o}{=} \PYG{n}{word\PYGZus{}op}\PYG{p}{[}\PYG{n}{w\PYGZus{}op\PYGZus{}in}\PYG{p}{]}
+            \PYG{k}{elif} \PYG{n}{e}\PYG{p}{[:}\PYG{l+m+mi}{6}\PYG{p}{]} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZus{}\PYGZus{}op\PYGZus{}\PYGZus{}\PYGZdq{}}\PYG{p}{:}
+                \PYG{n}{op\PYGZus{}in} \PYG{o}{=} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{e}\PYG{p}{[}\PYG{l+m+mi}{6}\PYG{p}{:])}
+                \PYG{n}{e} \PYG{o}{=} \PYG{n}{cprOp}\PYG{p}{[}\PYG{n}{op\PYGZus{}in}\PYG{p}{]}
+            \PYG{k}{if} \PYG{n}{e}\PYG{o}{.}\PYG{n}{count}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}[\PYGZdq{}}\PYG{p}{)} \PYG{o}{!=} \PYG{n}{e}\PYG{o}{.}\PYG{n}{count}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}]\PYGZdq{}}\PYG{p}{):}
+                \PYG{n}{bracket\PYGZus{}level} \PYG{o}{+=} \PYG{n}{e}\PYG{o}{.}\PYG{n}{count}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}[\PYGZdq{}}\PYG{p}{)} \PYG{o}{\PYGZhy{}} \PYG{n}{e}\PYG{o}{.}\PYG{n}{count}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}]\PYGZdq{}}\PYG{p}{)}
+            \PYG{k}{if} \PYG{n}{bracket\PYGZus{}level} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+                \PYG{n}{ls\PYGZus{}tmp}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{str\PYGZus{}tmp} \PYG{o}{+} \PYG{n}{e}\PYG{p}{)}
+                \PYG{n}{str\PYGZus{}tmp} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{str\PYGZus{}tmp} \PYG{o}{+=} \PYG{n}{e}
+        \PYG{n}{tmp\PYGZus{}ls} \PYG{o}{=} \PYG{n}{ls\PYGZus{}tmp}
+
+        \PYG{c+c1}{\PYGZsh{} Check for function}
+        \PYG{n}{ls\PYGZus{}tmp} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{n}{in\PYGZus{}funct} \PYG{o}{=} \PYG{l+m+mi}{0}
+        \PYG{n}{func\PYGZus{}tmp} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+        \PYG{n}{funct\PYGZus{}index} \PYG{o}{=} \PYG{k+kc}{False}
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}tmp\PYGZus{}ls operation }\PYG{l+s+se}{\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n}{tmp\PYGZus{}ls}\PYG{p}{)}
+        \PYG{k}{for} \PYG{n}{i}\PYG{p}{,} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{tmp\PYGZus{}ls}\PYG{p}{):}
+            \PYG{n}{e} \PYG{o}{=} \PYG{n}{e}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+            \PYG{k}{if} \PYG{n}{e} \PYG{o+ow}{in} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{} \PYGZdq{}}\PYG{p}{]:}
+                \PYG{k}{continue}
+            \PYG{k}{if} \PYG{n}{i} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+                \PYG{n}{ls\PYGZus{}tmp}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{e}\PYG{p}{)}
+                \PYG{k}{continue}
+            \PYG{k}{if} \PYG{n}{e} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}(\PYGZdq{}}\PYG{p}{:}
+                \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}ls\PYGZus{}tmp[\PYGZhy{} 1] }\PYG{l+s+se}{\PYGZbs{}t\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n}{ls\PYGZus{}tmp}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{])}
+                \PYG{k}{if} \PYG{n}{ls\PYGZus{}tmp}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{][}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{isalpha}\PYG{p}{()} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{ls\PYGZus{}tmp}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o+ow}{in} \PYG{n}{cprOp}\PYG{p}{:}
+                    \PYG{n}{funct\PYGZus{}index} \PYG{o}{=} \PYG{k+kc}{True}
+                    \PYG{n}{in\PYGZus{}funct} \PYG{o}{+=} \PYG{l+m+mi}{1}
+                \PYG{k}{elif} \PYG{n}{in\PYGZus{}funct} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{0}\PYG{p}{:}
+                    \PYG{n}{in\PYGZus{}funct} \PYG{o}{+=} \PYG{l+m+mi}{1}
+            \PYG{k}{if} \PYG{n}{e} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{})\PYGZdq{}} \PYG{o+ow}{and} \PYG{n}{in\PYGZus{}funct}\PYG{p}{:}
+                \PYG{n}{in\PYGZus{}funct} \PYG{o}{\PYGZhy{}=} \PYG{l+m+mi}{1}
+            \PYG{k}{if} \PYG{n}{in\PYGZus{}funct} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{0}\PYG{p}{:}
+                \PYG{n}{func\PYGZus{}tmp} \PYG{o}{+=} \PYG{n}{e}
+            \PYG{k}{if} \PYG{n}{in\PYGZus{}funct} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+                \PYG{k}{if} \PYG{n}{funct\PYGZus{}index}\PYG{p}{:}
+                    \PYG{n}{ls\PYGZus{}tmp}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{+=} \PYG{n}{func\PYGZus{}tmp} \PYG{o}{+} \PYG{n}{e}
+                    \PYG{n}{funct\PYGZus{}index} \PYG{o}{=} \PYG{k+kc}{False}
+                \PYG{k}{else}\PYG{p}{:}
+                    \PYG{n}{ls\PYGZus{}tmp}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{e}\PYG{p}{)}
+                \PYG{n}{func\PYGZus{}tmp} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+        \PYG{n}{tmp\PYGZus{}ls} \PYG{o}{=} \PYG{n}{ls\PYGZus{}tmp}
+
+        \PYG{c+c1}{\PYGZsh{} Operation after formatting}
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}tmp\PYGZus{}ls after }\PYG{l+s+se}{\PYGZbs{}t\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n}{tmp\PYGZus{}ls}\PYG{p}{)}
+        \PYG{k}{for} \PYG{n}{i}\PYG{p}{,} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{tmp\PYGZus{}ls}\PYG{p}{):}
+            \PYG{n}{e} \PYG{o}{=} \PYG{n}{e}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+            \PYG{k}{if} \PYG{n}{e} \PYG{o+ow}{in} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{} \PYGZdq{}}\PYG{p}{]:}
+                \PYG{k}{continue}
+            \PYG{k}{if} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{cprOp} \PYG{o+ow}{or} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{word\PYGZus{}op}\PYG{p}{:}
+                \PYG{k}{continue}
+            \PYG{k}{try}\PYG{p}{:}
+                \PYG{n}{tmp\PYGZus{}ls}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{n+nb}{float}\PYG{p}{(}\PYG{n}{e}\PYG{p}{)}
+                \PYG{k}{continue}
+            \PYG{k}{except}\PYG{p}{:}
+                \PYG{k}{pass}
+
+            \PYG{n}{ok}\PYG{p}{,} \PYG{n}{res} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{checkkeyword}\PYG{p}{(}\PYG{n}{e}\PYG{p}{)}
+            \PYG{k}{if} \PYG{n}{ok}\PYG{p}{:}
+                \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}res from keyword \PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n}{res}\PYG{p}{)}
+                \PYG{n}{tmp\PYGZus{}ls}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{n}{res}
+            \PYG{k}{elif} \PYG{n}{e} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}NULL\PYGZdq{}}\PYG{p}{:}
+                \PYG{n}{tmp\PYGZus{}ls}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{k+kc}{None}
+            \PYG{k}{elif} \PYG{n}{e}\PYG{o}{.}\PYG{n}{isdigit}\PYG{p}{()} \PYG{o+ow}{or} \PYG{n}{isString}\PYG{p}{(}\PYG{n}{e}\PYG{p}{):}
+                \PYG{n}{tmp\PYGZus{}ls}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{n}{e}
+            \PYG{k}{elif} \PYG{n}{e}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}.\PYGZdq{}}\PYG{p}{)} \PYG{o}{!=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{:}
+                \PYG{n}{obj} \PYG{o}{=} \PYG{n}{e}\PYG{p}{[:}\PYG{n}{e}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}.\PYGZdq{}}\PYG{p}{)]}
+                \PYG{n}{e} \PYG{o}{=} \PYG{n}{e}\PYG{p}{[}\PYG{n}{e}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}.\PYGZdq{}}\PYG{p}{)} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{:]}
+                \PYG{n}{found\PYGZus{}var} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{find\PYGZus{}var}\PYG{p}{(}\PYG{n}{obj}\PYG{p}{,} \PYG{k+kc}{True}\PYG{p}{)}
+                \PYG{k}{if} \PYG{n}{found\PYGZus{}var} \PYG{o}{!=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{:}
+                    \PYG{k}{if} \PYG{n+nb}{type}\PYG{p}{(}\PYG{n}{found\PYGZus{}var}\PYG{o}{.}\PYG{n}{value}\PYG{p}{)} \PYG{o}{!=} \PYG{n}{class\PYGZus{}var}\PYG{p}{:}
+                        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}error:\PYGZdq{}}\PYG{p}{,} \PYG{n}{obj}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}is not a class\PYGZdq{}}\PYG{p}{)}
+                        \PYG{k}{return} \PYG{k+kc}{None}
+                    \PYG{n}{var\PYGZus{}val} \PYG{o}{=} \PYG{n}{found\PYGZus{}var}\PYG{o}{.}\PYG{n}{value}\PYG{o}{.}\PYG{n}{get\PYGZus{}var}\PYG{p}{(}\PYG{n}{e}\PYG{p}{)}
+                    \PYG{k}{if} \PYG{n}{var\PYGZus{}val} \PYG{o}{==} \PYG{k+kc}{None}\PYG{p}{:}
+                        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}error:\PYGZdq{}}\PYG{p}{,} \PYG{n}{e}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}is not defined\PYGZdq{}}\PYG{p}{)}
+                        \PYG{k}{return} \PYG{k+kc}{None}
+                    \PYG{n}{tmp\PYGZus{}ls}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{n}{var\PYGZus{}val}\PYG{o}{.}\PYG{n}{value}
+                \PYG{k}{else}\PYG{p}{:}
+                    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}error:\PYGZdq{}}\PYG{p}{,} \PYG{n}{obj}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}is not defined\PYGZdq{}}\PYG{p}{)}
+                    \PYG{k}{return}
+            \PYG{k}{elif} \PYG{n}{e}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}[\PYGZdq{}}\PYG{p}{)} \PYG{o}{!=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{:}
+                \PYG{n}{arr\PYGZus{}index} \PYG{o}{=} \PYG{n}{e}\PYG{p}{[}\PYG{n}{e}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}[\PYGZdq{}}\PYG{p}{)} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{:}\PYG{n}{e}\PYG{o}{.}\PYG{n}{rfind}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}]\PYGZdq{}}\PYG{p}{)]}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+                \PYG{n}{arr\PYGZus{}index} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{check\PYGZus{}operation}\PYG{p}{(}\PYG{n}{arr\PYGZus{}index}\PYG{p}{)}
+                \PYG{n}{e} \PYG{o}{=} \PYG{n}{e}\PYG{p}{[:}\PYG{n}{e}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}[\PYGZdq{}}\PYG{p}{)]}
+                \PYG{n}{found\PYGZus{}var} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{find\PYGZus{}var}\PYG{p}{(}\PYG{n}{e}\PYG{p}{,} \PYG{k+kc}{True}\PYG{p}{)}
+                \PYG{k}{if} \PYG{n}{found\PYGZus{}var} \PYG{o}{!=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{:}
+                    \PYG{k}{if} \PYG{n+nb}{type}\PYG{p}{(}\PYG{n}{found\PYGZus{}var}\PYG{o}{.}\PYG{n}{value}\PYG{p}{)} \PYG{o}{!=} \PYG{n+nb}{list}\PYG{p}{:}
+                        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}error:\PYGZdq{}}\PYG{p}{,} \PYG{n}{e}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}is not an array\PYGZdq{}}\PYG{p}{)}
+                        \PYG{k}{return} \PYG{k+kc}{None}
+                    \PYG{k}{if} \PYG{n}{arr\PYGZus{}index} \PYG{o}{+} \PYG{l+m+mi}{1} \PYG{o}{\PYGZgt{}} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{found\PYGZus{}var}\PYG{o}{.}\PYG{n}{value}\PYG{p}{):}
+                        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}error: index out of range\PYGZdq{}}\PYG{p}{)}
+                        \PYG{k}{return} \PYG{k+kc}{None}
+                    \PYG{k}{else}\PYG{p}{:}
+                        \PYG{n}{tmp\PYGZus{}ls}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{n}{found\PYGZus{}var}\PYG{o}{.}\PYG{n}{value}\PYG{p}{[}\PYG{n}{arr\PYGZus{}index}\PYG{p}{]}
+                \PYG{k}{else}\PYG{p}{:}
+                    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}error:\PYGZdq{}}\PYG{p}{,} \PYG{n}{e}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}is not defined\PYGZdq{}}\PYG{p}{)}
+                    \PYG{k}{return} \PYG{k+kc}{None}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{found\PYGZus{}var} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{find\PYGZus{}var}\PYG{p}{(}\PYG{n}{e}\PYG{p}{,} \PYG{k+kc}{True}\PYG{p}{)}
+                \PYG{k}{if} \PYG{n}{found\PYGZus{}var} \PYG{o}{!=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{:}
+                    \PYG{k}{if} \PYG{n+nb}{type}\PYG{p}{(}\PYG{n}{found\PYGZus{}var}\PYG{o}{.}\PYG{n}{value}\PYG{p}{)} \PYG{o}{==} \PYG{n+nb}{list}\PYG{p}{:}
+                        \PYG{n}{val} \PYG{o}{=} \PYG{n}{found\PYGZus{}var}\PYG{o}{.}\PYG{n}{value}
+                        \PYG{k}{return} \PYG{p}{[}\PYG{n}{e\PYGZus{}arr} \PYG{k}{for} \PYG{n}{e\PYGZus{}arr} \PYG{o+ow}{in} \PYG{n}{val}\PYG{p}{]}
+                    \PYG{k}{else}\PYG{p}{:}
+                        \PYG{n}{tmp\PYGZus{}ls}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{n}{found\PYGZus{}var}\PYG{o}{.}\PYG{n}{value}
+                \PYG{k}{else}\PYG{p}{:}
+                    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}error:\PYGZdq{}}\PYG{p}{,} \PYG{n}{e}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}is not defined\PYGZdq{}}\PYG{p}{)}
+                    \PYG{k}{return} \PYG{k+kc}{None}
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}tmp\PYGZus{}ls operation }\PYG{l+s+se}{\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n}{tmp\PYGZus{}ls}\PYG{p}{)}
+        \PYG{k}{try}\PYG{p}{:}
+            \PYG{n}{ls} \PYG{o}{=} \PYG{n}{calculateLogic}\PYG{p}{(}\PYG{n}{logicPostfix}\PYG{p}{(}\PYG{n}{tmp\PYGZus{}ls}\PYG{p}{))}
+            \PYG{k}{return} \PYG{n}{ls}
+        \PYG{k}{except}\PYG{p}{:}
+            \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}error in calculateLogic\PYGZdq{}}\PYG{p}{)}
+            \PYG{k}{return} \PYG{n}{tmp\PYGZus{}ls}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]} \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{tmp\PYGZus{}ls}\PYG{p}{)} \PYG{o}{==} \PYG{l+m+mi}{1} \PYG{k}{else} \PYG{k+kc}{None}
+
+    \PYG{k}{def} \PYG{n+nf}{check\PYGZus{}assigment}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n+nb}{input}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{):}
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}input assign }\PYG{l+s+se}{\PYGZbs{}t\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n+nb}{input}\PYG{p}{)}
+        \PYG{n}{bracketIndex} \PYG{o}{=} \PYG{n+nb}{input}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}(\PYGZsq{}}\PYG{p}{)}
+        \PYG{n}{asgnIndex} \PYG{o}{=} \PYG{n+nb}{input}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}=\PYGZsq{}}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{asgnIndex} \PYG{o}{==} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1} \PYG{o+ow}{or} \PYG{p}{(}\PYG{n}{bracketIndex} \PYG{o}{!=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1} \PYG{o+ow}{and} \PYG{n}{bracketIndex} \PYG{o}{\PYGZlt{}} \PYG{n}{asgnIndex}\PYG{p}{):}
+            \PYG{k}{return} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{checkkeyword}\PYG{p}{(}\PYG{n+nb}{input}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{())}
+        \PYG{n}{tmpVar\PYGZus{}name} \PYG{o}{=} \PYG{n+nb}{input}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{:}\PYG{n}{asgnIndex}\PYG{p}{]}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+        \PYG{n}{tmpVar\PYGZus{}val} \PYG{o}{=} \PYG{n+nb}{input}\PYG{p}{[}\PYG{n}{asgnIndex}\PYG{o}{+}\PYG{l+m+mi}{1}\PYG{p}{:]}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+        \PYG{n}{tmpVar\PYGZus{}scope} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}local\PYGZdq{}}
+
+        \PYG{k}{if} \PYG{n}{tmpVar\PYGZus{}name}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{} \PYGZdq{}}\PYG{p}{)} \PYG{o}{!=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{:}
+            \PYG{n}{splt} \PYG{o}{=} \PYG{n}{tmpVar\PYGZus{}name}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{} \PYGZdq{}}\PYG{p}{)}
+            \PYG{n}{tmpVar\PYGZus{}name} \PYG{o}{=} \PYG{n}{splt}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}
+            \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{splt}\PYG{p}{[:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]:}
+                \PYG{k}{if} \PYG{n}{e} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}global\PYGZdq{}}\PYG{p}{:}
+                    \PYG{n}{tmpVar\PYGZus{}scope} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}global\PYGZdq{}}
+
+        \PYG{k}{try}\PYG{p}{:}
+            \PYG{n}{tmpVar\PYGZus{}val} \PYG{o}{=} \PYG{n+nb}{float}\PYG{p}{(}\PYG{n}{tmpVar\PYGZus{}val}\PYG{p}{)}
+        \PYG{k}{except}\PYG{p}{:}
+            \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Masuk check Operation\PYGZdq{}}\PYG{p}{)}
+            \PYG{n}{tmpVar\PYGZus{}val} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{check\PYGZus{}operation}\PYG{p}{(}\PYG{n}{tmpVar\PYGZus{}val}\PYG{p}{)}
+            \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}tmpVar\PYGZus{}val }\PYG{l+s+se}{\PYGZbs{}t\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n}{tmpVar\PYGZus{}val}\PYG{p}{)}
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}val }\PYG{l+s+se}{\PYGZbs{}t\PYGZbs{}t\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n}{tmpVar\PYGZus{}val}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{tmpVar\PYGZus{}val} \PYG{o}{==} \PYG{k+kc}{None}\PYG{p}{:}
+            \PYG{k}{return}
+        \PYG{n}{arr\PYGZus{}index} \PYG{o}{=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}
+        \PYG{k}{if} \PYG{n}{tmpVar\PYGZus{}name}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}[\PYGZdq{}}\PYG{p}{)} \PYG{o}{!=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{:}
+            \PYG{n}{arr\PYGZus{}index} \PYG{o}{=} \PYG{n}{tmpVar\PYGZus{}name}\PYG{p}{[}\PYG{n}{tmpVar\PYGZus{}name}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}
+                \PYG{l+s+s2}{\PYGZdq{}[\PYGZdq{}}\PYG{p}{)} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{:}\PYG{n}{tmpVar\PYGZus{}name}\PYG{o}{.}\PYG{n}{rfind}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}]\PYGZdq{}}\PYG{p}{)]}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+            \PYG{n}{arr\PYGZus{}index} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{check\PYGZus{}operation}\PYG{p}{(}\PYG{n}{arr\PYGZus{}index}\PYG{p}{)}
+            \PYG{n}{tmpVar\PYGZus{}name} \PYG{o}{=} \PYG{n}{tmpVar\PYGZus{}name}\PYG{p}{[:}\PYG{n}{tmpVar\PYGZus{}name}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}[\PYGZdq{}}\PYG{p}{)]}
+
+        \PYG{n}{obj} \PYG{o}{=} \PYG{k+kc}{None}
+        \PYG{k}{if} \PYG{l+s+s2}{\PYGZdq{}.\PYGZdq{}} \PYG{o+ow}{in} \PYG{n}{tmpVar\PYGZus{}name}\PYG{p}{:}
+            \PYG{n}{obj} \PYG{o}{=} \PYG{n}{tmpVar\PYGZus{}name}\PYG{p}{[}\PYG{n}{tmpVar\PYGZus{}name}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}.\PYGZdq{}}\PYG{p}{)} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{:]}
+            \PYG{n}{tmpVar\PYGZus{}name} \PYG{o}{=} \PYG{n}{tmpVar\PYGZus{}name}\PYG{p}{[:}\PYG{n}{tmpVar\PYGZus{}name}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}.\PYGZdq{}}\PYG{p}{)]}
+
+        \PYG{n}{old\PYGZus{}var} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{find\PYGZus{}var}\PYG{p}{(}
+            \PYG{n}{tmpVar\PYGZus{}name}\PYG{p}{,} \PYG{k+kc}{True} \PYG{k}{if} \PYG{n}{tmpVar\PYGZus{}scope} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}global\PYGZdq{}} \PYG{k}{else} \PYG{k+kc}{False}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{old\PYGZus{}var} \PYG{o}{==} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{var\PYGZus{}list}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{var}\PYG{p}{(}\PYG{n}{tmpVar\PYGZus{}name}\PYG{p}{,} \PYG{n}{tmpVar\PYGZus{}val}\PYG{p}{))}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{arr\PYGZus{}index} \PYG{o}{!=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{:}
+                \PYG{k}{while} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{old\PYGZus{}var}\PYG{o}{.}\PYG{n}{value}\PYG{p}{)} \PYG{o}{\PYGZlt{}} \PYG{n}{arr\PYGZus{}index} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{:}
+                    \PYG{n}{old\PYGZus{}var}\PYG{o}{.}\PYG{n}{value}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{k+kc}{None}\PYG{p}{)}
+                \PYG{n}{old\PYGZus{}var}\PYG{o}{.}\PYG{n}{value}\PYG{p}{[}\PYG{n}{arr\PYGZus{}index}\PYG{p}{]} \PYG{o}{=} \PYG{n}{tmpVar\PYGZus{}val}
+            \PYG{k}{elif} \PYG{n}{obj} \PYG{o}{!=} \PYG{k+kc}{None}\PYG{p}{:}
+                \PYG{k}{if} \PYG{n+nb}{type}\PYG{p}{(}\PYG{n}{old\PYGZus{}var}\PYG{o}{.}\PYG{n}{value}\PYG{p}{)} \PYG{o}{!=} \PYG{n}{class\PYGZus{}var}\PYG{p}{:}
+                    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}error:\PYGZdq{}}\PYG{p}{,} \PYG{n}{tmpVar\PYGZus{}name}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}is not a class\PYGZdq{}}\PYG{p}{)}
+                    \PYG{k}{return}
+                \PYG{n}{var\PYGZus{}val} \PYG{o}{=} \PYG{n}{old\PYGZus{}var}\PYG{o}{.}\PYG{n}{value}\PYG{o}{.}\PYG{n}{get\PYGZus{}var}\PYG{p}{(}\PYG{n}{obj}\PYG{p}{)}
+                \PYG{k}{if} \PYG{n}{var\PYGZus{}val} \PYG{o}{==} \PYG{k+kc}{None}\PYG{p}{:}
+                    \PYG{n}{old\PYGZus{}var}\PYG{o}{.}\PYG{n}{value}\PYG{o}{.}\PYG{n}{var\PYGZus{}list}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{var}\PYG{p}{(}\PYG{n}{obj}\PYG{p}{,} \PYG{n}{tmpVar\PYGZus{}val}\PYG{p}{))}
+                \PYG{k}{else}\PYG{p}{:}
+                    \PYG{n}{var\PYGZus{}val}\PYG{o}{.}\PYG{n}{value} \PYG{o}{=} \PYG{n}{tmpVar\PYGZus{}val}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{old\PYGZus{}var}\PYG{o}{.}\PYG{n}{value} \PYG{o}{=} \PYG{n}{tmpVar\PYGZus{}val}
+
+    \PYG{k}{def} \PYG{n+nf}{checkkeyword}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{inp}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{tuple}\PYG{p}{[}\PYG{n+nb}{bool}\PYG{p}{,} \PYG{n+nb}{any}\PYG{p}{]:}
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}input keyword }\PYG{l+s+se}{\PYGZbs{}t\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n}{inp}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{inp}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}(\PYGZdq{}}\PYG{p}{)} \PYG{o}{==} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{:}
+            \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{False}\PYG{p}{,} \PYG{k+kc}{None}\PYG{p}{)}
+
+        \PYG{n}{obj} \PYG{o}{=} \PYG{k+kc}{None}
+        \PYG{n}{key} \PYG{o}{=} \PYG{k+kc}{None}
+        \PYG{n}{arg} \PYG{o}{=} \PYG{k+kc}{None}
+
+        \PYG{k}{def} \PYG{n+nf}{splitting}\PYG{p}{(}\PYG{n}{ch}\PYG{p}{,} \PYG{n+nb}{str}\PYG{p}{):}
+            \PYG{n}{bracket\PYGZus{}level} \PYG{o}{=} \PYG{l+m+mi}{0}
+            \PYG{c+c1}{\PYGZsh{} print(\PYGZdq{}str\PYGZdq{}, str)}
+            \PYG{k}{for} \PYG{n}{i}\PYG{p}{,} \PYG{n}{c} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n+nb}{reversed}\PYG{p}{(}\PYG{n+nb}{str}\PYG{p}{)):}
+                \PYG{c+c1}{\PYGZsh{} print(\PYGZdq{}c\PYGZdq{}, c)}
+                \PYG{c+c1}{\PYGZsh{} print(\PYGZdq{}bracket\PYGZus{}level\PYGZdq{}, bracket\PYGZus{}level)}
+                \PYG{k}{if} \PYG{n}{c} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}(\PYGZdq{}}\PYG{p}{:}
+                    \PYG{n}{bracket\PYGZus{}level} \PYG{o}{+=} \PYG{l+m+mi}{1}
+                \PYG{k}{if} \PYG{n}{c} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{})\PYGZdq{}}\PYG{p}{:}
+                    \PYG{n}{bracket\PYGZus{}level} \PYG{o}{\PYGZhy{}=} \PYG{l+m+mi}{1}
+                \PYG{k}{if} \PYG{n}{bracket\PYGZus{}level} \PYG{o}{==} \PYG{l+m+mi}{0} \PYG{o+ow}{and} \PYG{n}{c} \PYG{o}{==} \PYG{n}{ch}\PYG{p}{:}
+                    \PYG{k}{return} \PYG{p}{(}\PYG{n+nb}{str}\PYG{p}{[:}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n+nb}{str}\PYG{p}{)} \PYG{o}{\PYGZhy{}} \PYG{n}{i} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{],} \PYG{n+nb}{str}\PYG{p}{[}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n+nb}{str}\PYG{p}{)} \PYG{o}{\PYGZhy{}} \PYG{n}{i}\PYG{p}{:])}
+            \PYG{c+c1}{\PYGZsh{} print(\PYGZdq{}return None\PYGZdq{})}
+            \PYG{k}{return} \PYG{k+kc}{None}
+
+        \PYG{k}{if} \PYG{l+s+s2}{\PYGZdq{}.\PYGZdq{}} \PYG{o+ow}{in} \PYG{n}{inp}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{splitting}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}.\PYGZdq{}}\PYG{p}{,} \PYG{n}{inp}\PYG{p}{)} \PYG{o}{!=} \PYG{k+kc}{None}\PYG{p}{:}
+                \PYG{n}{obj}\PYG{p}{,} \PYG{n}{key} \PYG{o}{=} \PYG{n}{splitting}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}.\PYGZdq{}}\PYG{p}{,} \PYG{n}{inp}\PYG{p}{)}
+                \PYG{n}{arg} \PYG{o}{=} \PYG{n}{key}\PYG{p}{[}\PYG{n}{key}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}(\PYGZdq{}}\PYG{p}{)} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{:}\PYG{n}{key}\PYG{o}{.}\PYG{n}{rfind}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{})\PYGZdq{}}\PYG{p}{)]}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{},\PYGZdq{}}\PYG{p}{)}
+                \PYG{n}{key} \PYG{o}{=} \PYG{n}{key}\PYG{p}{[:}\PYG{n}{key}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}(\PYGZdq{}}\PYG{p}{)]}
+
+        \PYG{n}{key} \PYG{o}{=} \PYG{n}{inp}\PYG{p}{[:}\PYG{n}{inp}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}(\PYGZdq{}}\PYG{p}{)]} \PYG{k}{if} \PYG{n}{key} \PYG{o}{==} \PYG{k+kc}{None} \PYG{k}{else} \PYG{n}{key}
+        \PYG{n}{arg} \PYG{o}{=} \PYG{n}{inp}\PYG{p}{[}\PYG{n}{inp}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}(\PYGZdq{}}\PYG{p}{)} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{:}\PYG{n}{inp}\PYG{o}{.}\PYG{n}{rfind}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{})\PYGZdq{}}\PYG{p}{)}
+                  \PYG{p}{]}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{},\PYGZdq{}}\PYG{p}{)} \PYG{k}{if} \PYG{n}{arg} \PYG{o}{==} \PYG{k+kc}{None} \PYG{k}{else} \PYG{n}{arg}
+
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}inp\PYGZus{}key }\PYG{l+s+se}{\PYGZbs{}t\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n}{key}\PYG{p}{)}
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}key }\PYG{l+s+se}{\PYGZbs{}t\PYGZbs{}t\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n}{key}\PYG{p}{)}
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}obj }\PYG{l+s+se}{\PYGZbs{}t\PYGZbs{}t\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n}{obj}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{obj} \PYG{o}{!=} \PYG{k+kc}{None}\PYG{p}{:}
+            \PYG{n}{old\PYGZus{}var} \PYG{o}{=} \PYG{k+kc}{None}
+            \PYG{k}{if} \PYG{n}{obj}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}(\PYGZdq{}}\PYG{p}{)} \PYG{o}{!=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{:}
+                \PYG{n}{ok}\PYG{p}{,} \PYG{n}{obj} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{checkkeyword}\PYG{p}{(}\PYG{n}{obj}\PYG{p}{)}
+                \PYG{k}{if} \PYG{o+ow}{not} \PYG{n}{ok}\PYG{p}{:}
+                    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}error:\PYGZdq{}}\PYG{p}{,} \PYG{n}{obj}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}is not defined\PYGZdq{}}\PYG{p}{)}
+                    \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{False}\PYG{p}{,} \PYG{k+kc}{None}\PYG{p}{)}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{old\PYGZus{}var} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{find\PYGZus{}var}\PYG{p}{(}\PYG{n}{obj}\PYG{p}{,} \PYG{k+kc}{True}\PYG{p}{)}
+                \PYG{k}{if} \PYG{n}{old\PYGZus{}var} \PYG{o}{==} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{:}
+                    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}error:\PYGZdq{}}\PYG{p}{,} \PYG{n}{obj}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}is not defined\PYGZdq{}}\PYG{p}{)}
+                    \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{,} \PYG{k+kc}{None}\PYG{p}{)}
+                \PYG{k}{else}\PYG{p}{:}
+                    \PYG{n}{obj} \PYG{o}{=} \PYG{n}{old\PYGZus{}var}\PYG{o}{.}\PYG{n}{value}
+                \PYG{k}{if} \PYG{n+nb}{type}\PYG{p}{(}\PYG{n}{obj}\PYG{p}{)} \PYG{o}{!=} \PYG{n}{class\PYGZus{}var}\PYG{p}{:}
+                    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}error:\PYGZdq{}}\PYG{p}{,} \PYG{n}{obj}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}is not a class\PYGZdq{}}\PYG{p}{)}
+                    \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{,} \PYG{k+kc}{None}\PYG{p}{)}
+
+            \PYG{k}{match} \PYG{n}{key}\PYG{p}{:}
+                \PYG{k}{case} \PYG{l+s+s2}{\PYGZdq{}var\PYGZus{}list\PYGZdq{}}\PYG{p}{:}
+                    \PYG{n}{tmp} \PYG{o}{=} \PYG{p}{[]}
+                    \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{obj}\PYG{o}{.}\PYG{n}{var\PYGZus{}list}\PYG{p}{:}
+                        \PYG{n}{tmp}\PYG{o}{.}\PYG{n}{append}\PYG{p}{((}\PYG{n}{e}\PYG{o}{.}\PYG{n}{name}\PYG{p}{,} \PYG{n}{e}\PYG{o}{.}\PYG{n}{value}\PYG{p}{))}
+                    \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{tmp}\PYG{p}{)}
+                \PYG{k}{case} \PYG{l+s+s2}{\PYGZdq{}funct\PYGZus{}list\PYGZdq{}}\PYG{p}{:}
+                    \PYG{n}{tmp} \PYG{o}{=} \PYG{p}{[]}
+                    \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{obj}\PYG{o}{.}\PYG{n}{funct\PYGZus{}list}\PYG{p}{:}
+                        \PYG{n}{tmp}\PYG{o}{.}\PYG{n}{append}\PYG{p}{((}\PYG{n}{e}\PYG{o}{.}\PYG{n}{name}\PYG{p}{,} \PYG{n}{e}\PYG{o}{.}\PYG{n}{arg}\PYG{p}{))}
+                    \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{tmp}\PYG{p}{)}
+
+            \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{obj}\PYG{o}{.}\PYG{n}{exec\PYGZus{}funct}\PYG{p}{(}\PYG{n}{key}\PYG{p}{,} \PYG{n}{arg}\PYG{p}{))}
+
+        \PYG{n}{arg\PYGZus{}tmp} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{n}{str\PYGZus{}tmp} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+        \PYG{n}{bracket\PYGZus{}level} \PYG{o}{=} \PYG{l+m+mi}{0}
+
+        \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{arg}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{e}\PYG{p}{)} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+                \PYG{k}{continue}
+            \PYG{k}{if} \PYG{n}{e}\PYG{o}{.}\PYG{n}{count}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}(\PYGZdq{}}\PYG{p}{)} \PYG{o}{!=} \PYG{n}{e}\PYG{o}{.}\PYG{n}{count}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{})\PYGZdq{}}\PYG{p}{):}
+                \PYG{n}{bracket\PYGZus{}level} \PYG{o}{+=} \PYG{n}{e}\PYG{o}{.}\PYG{n}{count}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}(\PYGZdq{}}\PYG{p}{)} \PYG{o}{\PYGZhy{}} \PYG{n}{e}\PYG{o}{.}\PYG{n}{count}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{})\PYGZdq{}}\PYG{p}{)}
+            \PYG{k}{if} \PYG{n}{bracket\PYGZus{}level} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+                \PYG{n}{arg\PYGZus{}tmp}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{str\PYGZus{}tmp} \PYG{o}{+} \PYG{n}{e}\PYG{p}{)}
+                \PYG{n}{str\PYGZus{}tmp} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{str\PYGZus{}tmp} \PYG{o}{+=} \PYG{n}{e} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{},\PYGZdq{}}
+        \PYG{n}{arg} \PYG{o}{=} \PYG{n}{arg\PYGZus{}tmp}
+
+        \PYG{n}{arg\PYGZus{}tmp} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{n}{str\PYGZus{}tmp} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+        \PYG{n}{total\PYGZus{}quote} \PYG{o}{=} \PYG{l+m+mi}{0}
+
+        \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{arg}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{e}\PYG{p}{)} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+                \PYG{k}{continue}
+            \PYG{k}{if} \PYG{n}{e}\PYG{o}{.}\PYG{n}{count}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}\PYGZdq{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)} \PYG{o}{!=} \PYG{l+m+mi}{0}\PYG{p}{:}
+                \PYG{n}{total\PYGZus{}quote} \PYG{o}{+=} \PYG{n}{e}\PYG{o}{.}\PYG{n}{count}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}\PYGZdq{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+            \PYG{k}{if} \PYG{n}{total\PYGZus{}quote} \PYG{o}{\PYGZpc{}} \PYG{l+m+mi}{2} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+                \PYG{n}{arg\PYGZus{}tmp}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{str\PYGZus{}tmp} \PYG{o}{+} \PYG{n}{e}\PYG{p}{)}
+                \PYG{n}{str\PYGZus{}tmp} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{str\PYGZus{}tmp} \PYG{o}{+=} \PYG{n}{e} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{},\PYGZdq{}}
+        \PYG{n}{arg} \PYG{o}{=} \PYG{n}{arg\PYGZus{}tmp}
+
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}key }\PYG{l+s+se}{\PYGZbs{}t\PYGZbs{}t\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n}{key}\PYG{p}{)}
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}arg }\PYG{l+s+se}{\PYGZbs{}t\PYGZbs{}t\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n}{arg}\PYG{p}{)}
+
+        \PYG{k}{if} \PYG{n}{key} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}out\PYGZdq{}}\PYG{p}{:}
+            \PYG{n}{str\PYGZus{}to\PYGZus{}print} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+            \PYG{n}{break\PYGZus{}line} \PYG{o}{=} \PYG{k+kc}{True}
+            \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{arg}\PYG{p}{:}
+                \PYG{n}{e} \PYG{o}{=} \PYG{n}{e}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+                \PYG{k}{if} \PYG{n}{e} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}no\PYGZus{}break\PYGZdq{}}\PYG{p}{:}
+                    \PYG{n}{break\PYGZus{}line} \PYG{o}{=} \PYG{k+kc}{False}
+                    \PYG{k}{continue}
+                \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{e}\PYG{p}{)} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+                    \PYG{k}{continue}
+                \PYG{k}{if} \PYG{o+ow}{not} \PYG{n}{isString}\PYG{p}{(}\PYG{n}{e}\PYG{p}{):}
+                    \PYG{n}{e} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{check\PYGZus{}operation}\PYG{p}{(}\PYG{n}{e}\PYG{p}{)}
+                \PYG{k}{if} \PYG{n+nb}{type}\PYG{p}{(}\PYG{n}{e}\PYG{p}{)} \PYG{o}{==} \PYG{n+nb}{str} \PYG{o+ow}{and} \PYG{n}{isString}\PYG{p}{(}\PYG{n}{e}\PYG{p}{):}
+                    \PYG{n}{e} \PYG{o}{=} \PYG{n}{e}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}
+                \PYG{n}{str\PYGZus{}to\PYGZus{}print} \PYG{o}{+=} \PYG{n+nb}{str}\PYG{p}{(}\PYG{n}{e}\PYG{p}{)}
+            \PYG{n}{str\PYGZus{}to\PYGZus{}print} \PYG{o}{=} \PYG{n}{str\PYGZus{}to\PYGZus{}print}\PYG{o}{.}\PYG{n}{replace}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}\PYGZbs{}}\PYG{l+s+s2}{n\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}\PYG{o}{.}\PYG{n}{replace}\PYG{p}{(}
+                \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}\PYGZbs{}}\PYG{l+s+s2}{t\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}t}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}\PYG{o}{.}\PYG{n}{replace}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}None\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}NULL\PYGZdq{}}\PYG{p}{)}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{str\PYGZus{}to\PYGZus{}print}\PYG{p}{,} \PYG{n}{end}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}\PYG{p}{)}
+            \PYG{k}{if} \PYG{n}{break\PYGZus{}line}\PYG{p}{:}
+                \PYG{n+nb}{print}\PYG{p}{()}
+            \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{,} \PYG{k+kc}{None}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{key} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}in\PYGZdq{}}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{arg}\PYG{p}{)} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+                \PYG{n+nb}{input}\PYG{p}{()}
+                \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{,} \PYG{k+kc}{None}\PYG{p}{)}
+            \PYG{n}{val} \PYG{o}{=} \PYG{n+nb}{input}\PYG{p}{()}
+            \PYG{k}{if} \PYG{n}{val}\PYG{o}{.}\PYG{n}{isdigit}\PYG{p}{():}
+                \PYG{n}{val} \PYG{o}{=} \PYG{n+nb}{float}\PYG{p}{(}\PYG{n}{val}\PYG{p}{)}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{val} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}\PYGZdq{}}\PYG{l+s+s2}{\PYGZdq{}} \PYG{o}{+} \PYG{n}{val} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}\PYGZdq{}}\PYG{l+s+s2}{\PYGZdq{}}
+            \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{arg}\PYG{p}{:}
+                \PYG{n}{e}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+                \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{e}\PYG{p}{)} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+                    \PYG{k}{continue}
+                \PYG{n}{old\PYGZus{}var} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{find\PYGZus{}var}\PYG{p}{(}\PYG{n}{e}\PYG{p}{,} \PYG{k+kc}{True}\PYG{p}{)}
+                \PYG{k}{if} \PYG{n}{old\PYGZus{}var} \PYG{o}{==} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{:}
+                    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{var\PYGZus{}list}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{var}\PYG{p}{(}\PYG{n}{e}\PYG{p}{,} \PYG{n}{val}\PYG{p}{))}
+                \PYG{k}{else}\PYG{p}{:}
+                    \PYG{n}{old\PYGZus{}var}\PYG{o}{.}\PYG{n}{value} \PYG{o}{=} \PYG{n}{val}
+            \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{,} \PYG{k+kc}{None}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{key} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}sizeof\PYGZdq{}}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{arg}\PYG{p}{)} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+                \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{,} \PYG{k+kc}{None}\PYG{p}{)}
+            \PYG{n}{old\PYGZus{}var} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{find\PYGZus{}var}\PYG{p}{(}\PYG{n}{arg}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{],} \PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{k}{if} \PYG{n}{old\PYGZus{}var} \PYG{o}{==} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{:}
+                \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}error:\PYGZdq{}}\PYG{p}{,} \PYG{n}{arg}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{],} \PYG{l+s+s2}{\PYGZdq{}is not defined\PYGZdq{}}\PYG{p}{)}
+                \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{,} \PYG{k+kc}{None}\PYG{p}{)}
+            \PYG{k}{if} \PYG{n+nb}{type}\PYG{p}{(}\PYG{n}{old\PYGZus{}var}\PYG{o}{.}\PYG{n}{value}\PYG{p}{)} \PYG{o}{==} \PYG{n+nb}{list}\PYG{p}{:}
+                \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{old\PYGZus{}var}\PYG{o}{.}\PYG{n}{value}\PYG{p}{))}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}error:\PYGZdq{}}\PYG{p}{,} \PYG{n}{arg}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{],} \PYG{l+s+s2}{\PYGZdq{}is not an array\PYGZdq{}}\PYG{p}{)}
+                \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{,} \PYG{k+kc}{None}\PYG{p}{)}
+        \PYG{n}{func} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{find\PYGZus{}funct}\PYG{p}{(}\PYG{n}{key}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{func} \PYG{o}{!=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{:}
+            \PYG{k}{for} \PYG{n}{i}\PYG{p}{,} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{arg}\PYG{p}{):}
+                \PYG{n}{e} \PYG{o}{=} \PYG{n}{e}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+                \PYG{n}{e} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{check\PYGZus{}operation}\PYG{p}{(}\PYG{n}{e}\PYG{p}{)}
+                \PYG{n}{arg}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{n}{e}
+            \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{func}\PYG{o}{.}\PYG{n}{exec}\PYG{p}{(}\PYG{n}{arg}\PYG{p}{,} \PYG{n+nb+bp}{self}\PYG{p}{))}
+        \PYG{n+nb+bp}{cls} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{find\PYGZus{}class}\PYG{p}{(}\PYG{n}{key}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n+nb+bp}{cls} \PYG{o}{!=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{:}
+            \PYG{k}{for} \PYG{n}{i}\PYG{p}{,} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{arg}\PYG{p}{):}
+                \PYG{n}{e} \PYG{o}{=} \PYG{n}{e}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+                \PYG{n}{e} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{check\PYGZus{}operation}\PYG{p}{(}\PYG{n}{e}\PYG{p}{)}
+                \PYG{n}{arg}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{n}{e}
+            \PYG{c+c1}{\PYGZsh{} print(\PYGZdq{}arg\PYGZdq{}, arg)}
+            \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{class\PYGZus{}var}\PYG{p}{(}\PYG{n+nb+bp}{cls}\PYG{p}{,} \PYG{n}{arg}\PYG{p}{,} \PYG{n+nb+bp}{self}\PYG{p}{))}
+        \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{False}\PYG{p}{,} \PYG{k+kc}{None}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{execline}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n+nb}{input}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{):}
+        \PYG{n+nb}{input} \PYG{o}{=} \PYG{n+nb}{input}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+        \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n+nb}{input}\PYG{p}{)} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+            \PYG{k}{return}
+        \PYG{n}{cmt\PYGZus{}index} \PYG{o}{=} \PYG{n+nb}{input}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZsh{}\PYGZdq{}}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{cmt\PYGZus{}index} \PYG{o}{!=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{:}
+            \PYG{n+nb}{input} \PYG{o}{=} \PYG{n+nb}{input}\PYG{p}{[:}\PYG{n}{cmt\PYGZus{}index}\PYG{p}{]}
+        \PYG{k}{if} \PYG{n+nb}{input}\PYG{p}{[:}\PYG{l+m+mi}{4}\PYG{p}{]} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}goto\PYGZdq{}}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{exec\PYGZus{}goto}\PYG{p}{(}\PYG{n+nb}{input}\PYG{p}{)}
+            \PYG{k}{return}
+        \PYG{k}{if} \PYG{n+nb}{input}\PYG{p}{[:}\PYG{n+nb}{len}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}import\PYGZsq{}}\PYG{p}{)]} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}import\PYGZdq{}}\PYG{p}{:}
+            \PYG{n}{mod} \PYG{o}{=} \PYG{n+nb}{input}\PYG{p}{[}\PYG{n+nb}{len}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}import\PYGZsq{}}\PYG{p}{):]}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+            \PYG{k}{if} \PYG{o+ow}{not} \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{exists}\PYG{p}{(}\PYG{n}{mod}\PYG{p}{):}
+                \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}error :\PYGZdq{}}\PYG{p}{,} \PYG{n}{mod}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}does not exist\PYGZdq{}}\PYG{p}{)}
+                \PYG{k}{return}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{execfile}\PYG{p}{(}\PYG{n}{mod}\PYG{p}{)}
+            \PYG{k}{return}
+        \PYG{n}{res} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{check\PYGZus{}assigment}\PYG{p}{(}\PYG{n+nb}{input}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{res}
+
+    \PYG{k}{def} \PYG{n+nf}{exec\PYGZus{}if}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{inp}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{]):}
+        \PYG{n}{block\PYGZus{}k} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}if\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}while\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}fn\PYGZdq{}}\PYG{p}{]}
+
+        \PYG{n}{ls\PYGZus{}cond} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{n}{ls\PYGZus{}task} \PYG{o}{=} \PYG{p}{[]}
+
+        \PYG{n}{tmp} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+        \PYG{n}{nested} \PYG{o}{=} \PYG{l+m+mi}{0}
+
+        \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{inp}\PYG{p}{:}
+            \PYG{n}{es} \PYG{o}{=} \PYG{n}{e}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+            \PYG{k}{for} \PYG{n}{k} \PYG{o+ow}{in} \PYG{n}{block\PYGZus{}k}\PYG{p}{:}
+                \PYG{k}{if} \PYG{n}{es}\PYG{p}{[:}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{k}\PYG{p}{)]} \PYG{o}{==} \PYG{n}{k}\PYG{p}{:}
+                    \PYG{n}{nested} \PYG{o}{+=} \PYG{l+m+mi}{1}
+                    \PYG{k}{break}
+            \PYG{k}{if} \PYG{n}{e} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}end\PYGZdq{}}\PYG{p}{:}
+                \PYG{n}{nested} \PYG{o}{\PYGZhy{}=} \PYG{l+m+mi}{1}
+            \PYG{k}{if} \PYG{n}{nested} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{1}\PYG{p}{:}
+                \PYG{n}{tmp} \PYG{o}{+=} \PYG{n}{es} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}
+                \PYG{k}{continue}
+
+            \PYG{n}{cond\PYGZus{}key} \PYG{o}{=} \PYG{n}{es} \PYG{k}{if} \PYG{n}{es} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}else\PYGZdq{}} \PYG{k}{else} \PYG{n}{es}\PYG{p}{[:}\PYG{n}{es}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{} \PYGZdq{}}\PYG{p}{)]}
+            \PYG{c+c1}{\PYGZsh{} debug\PYGZus{}log(\PYGZdq{}es \PYGZbs{}t\PYGZbs{}t\PYGZbs{}t\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}, es)}
+            \PYG{c+c1}{\PYGZsh{} debug\PYGZus{}log(\PYGZdq{}conditional key \PYGZbs{}t\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}, cond\PYGZus{}key)}
+
+            \PYG{k}{if} \PYG{n}{cond\PYGZus{}key} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}if\PYGZsq{}}\PYG{p}{:}
+                \PYG{n}{ls\PYGZus{}cond}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{e}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{:]}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{())}
+            \PYG{k}{elif} \PYG{n}{cond\PYGZus{}key} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}else\PYGZus{}if\PYGZsq{}}\PYG{p}{:}
+                \PYG{n}{ls\PYGZus{}cond}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{e}\PYG{p}{[}\PYG{l+m+mi}{7}\PYG{p}{:]}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{())}
+                \PYG{n}{ls\PYGZus{}task}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{tmp}\PYG{p}{)}
+                \PYG{n}{tmp} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+            \PYG{k}{elif} \PYG{n}{cond\PYGZus{}key} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}else\PYGZsq{}}\PYG{p}{:}
+                \PYG{n}{ls\PYGZus{}cond}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}1\PYGZsq{}}\PYG{p}{)}
+                \PYG{n}{ls\PYGZus{}task}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{tmp}\PYG{p}{)}
+                \PYG{n}{tmp} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{tmp} \PYG{o}{+=} \PYG{n}{es} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}
+        \PYG{n}{ls\PYGZus{}task}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{tmp}\PYG{p}{)}
+        \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}condition }\PYG{l+s+se}{\PYGZbs{}t\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n}{ls\PYGZus{}cond}\PYG{p}{)}
+
+        \PYG{k}{for} \PYG{n}{condition}\PYG{p}{,} \PYG{n}{task} \PYG{o+ow}{in} \PYG{n+nb}{zip}\PYG{p}{(}\PYG{n}{ls\PYGZus{}cond}\PYG{p}{,} \PYG{n}{ls\PYGZus{}task}\PYG{p}{):}
+            \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{check\PYGZus{}operation}\PYG{p}{(}\PYG{n}{condition}\PYG{p}{):}
+                \PYG{k}{return} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{execstring}\PYG{p}{(}\PYG{n}{task}\PYG{p}{)}
+                \PYG{c+c1}{\PYGZsh{} return interpreter(self).execstring(task)}
+        \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{False}\PYG{p}{,} \PYG{k+kc}{None}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{exec\PYGZus{}while}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{inp}\PYG{p}{):}
+        \PYG{n}{condition} \PYG{o}{=} \PYG{n}{inp}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{][}\PYG{n}{inp}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}while\PYGZdq{}}\PYG{p}{)} \PYG{o}{+} \PYG{n+nb}{len}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}while\PYGZsq{}}\PYG{p}{):]}
+        \PYG{n}{condition}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+        \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+        \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{inp}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:]:}
+            \PYG{n+nb}{str} \PYG{o}{+=} \PYG{n}{e} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}
+        \PYG{k}{while} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{check\PYGZus{}operation}\PYG{p}{(}\PYG{n}{condition}\PYG{p}{):}
+            \PYG{n}{ok}\PYG{p}{,} \PYG{n}{ret} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{execstring}\PYG{p}{(}\PYG{n+nb}{str}\PYG{p}{)}
+            \PYG{c+c1}{\PYGZsh{} ok, ret = interpreter(self).execstring(str)}
+            \PYG{k}{if} \PYG{n}{ok}\PYG{p}{:}
+                \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{ret}\PYG{p}{)}
+        \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{False}\PYG{p}{,} \PYG{k+kc}{None}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{exec\PYGZus{}goto}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{inp}\PYG{p}{):}
+        \PYG{n}{label\PYGZus{}name} \PYG{o}{=} \PYG{n}{inp}\PYG{p}{[}\PYG{l+m+mi}{4}\PYG{p}{:]}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+        \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{label\PYGZus{}list}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{e}\PYG{o}{.}\PYG{n}{name} \PYG{o}{==} \PYG{n}{label\PYGZus{}name}\PYG{p}{:}
+                \PYG{n}{in\PYGZus{}goto} \PYG{o}{=} \PYG{k+kc}{True}
+                \PYG{n}{goto\PYGZus{}line} \PYG{o}{=} \PYG{n}{e}\PYG{o}{.}\PYG{n}{line}
+                \PYG{n}{str\PYGZus{}to\PYGZus{}exec} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+                \PYG{k}{for} \PYG{n}{lin} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{line\PYGZus{}done}\PYG{p}{[}\PYG{n}{goto\PYGZus{}line}\PYG{p}{:]:}
+                    \PYG{n}{str\PYGZus{}to\PYGZus{}exec} \PYG{o}{+=} \PYG{n}{lin} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}
+                \PYG{n}{ok}\PYG{p}{,} \PYG{n}{ret} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{execstring}\PYG{p}{(}\PYG{n}{str\PYGZus{}to\PYGZus{}exec}\PYG{p}{)}
+                \PYG{n}{in\PYGZus{}goto} \PYG{o}{=} \PYG{k+kc}{False}
+                \PYG{k}{if} \PYG{n}{ok}\PYG{p}{:}
+                    \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{ret}\PYG{p}{)}
+                \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{False}\PYG{p}{,} \PYG{k+kc}{None}\PYG{p}{)}
+        \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{False}\PYG{p}{,} \PYG{k+kc}{None}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{def\PYGZus{}fn}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{inp}\PYG{p}{):}
+        \PYG{n}{name} \PYG{o}{=} \PYG{n}{inp}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{][}\PYG{n}{inp}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}fn\PYGZdq{}}\PYG{p}{)} \PYG{o}{+} \PYG{n+nb}{len}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}fn\PYGZsq{}}\PYG{p}{):}\PYG{n}{inp}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}(\PYGZdq{}}\PYG{p}{)]}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+        \PYG{n}{arg} \PYG{o}{=} \PYG{n}{inp}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{][}\PYG{n}{inp}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}(\PYGZdq{}}\PYG{p}{)} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{:}\PYG{n}{inp}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{rfind}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{})\PYGZdq{}}\PYG{p}{)]}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{},\PYGZdq{}}\PYG{p}{)}
+        \PYG{n}{arg} \PYG{o}{=} \PYG{p}{[}\PYG{n}{e}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()} \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{arg}\PYG{p}{]}
+        \PYG{n}{content} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+        \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{inp}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:]:}
+            \PYG{n}{content} \PYG{o}{+=} \PYG{n}{e} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}
+        \PYG{n}{fn\PYGZus{}tmp} \PYG{o}{=} \PYG{n}{funct}\PYG{p}{(}\PYG{n}{name}\PYG{p}{,} \PYG{n}{content}\PYG{p}{,} \PYG{n}{arg}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{funct\PYGZus{}list}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{fn\PYGZus{}tmp}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{def\PYGZus{}class}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{inp}\PYG{p}{):}
+        \PYG{n}{name} \PYG{o}{=} \PYG{n}{inp}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{][}\PYG{n}{inp}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}class\PYGZdq{}}\PYG{p}{)} \PYG{o}{+} \PYG{n+nb}{len}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}class\PYGZsq{}}\PYG{p}{):]}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+        \PYG{n}{content} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+        \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{inp}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:]:}
+            \PYG{n}{content} \PYG{o}{+=} \PYG{n}{e} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{class\PYGZus{}list}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{class\PYGZus{}def}\PYG{p}{(}\PYG{n}{name}\PYG{p}{,} \PYG{n}{content}\PYG{p}{))}
+
+    \PYG{k}{def} \PYG{n+nf}{execstring}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n+nb}{input}\PYG{p}{,} \PYG{n}{is\PYGZus{}root}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{):}
+        \PYG{n}{block\PYGZus{}k} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}if\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}while\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}fn\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}execPy\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}class\PYGZdq{}}\PYG{p}{]}
+        \PYG{n+nb}{input} \PYG{o}{=} \PYG{n+nb}{input}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+        \PYG{n}{in\PYGZus{}block} \PYG{o}{=} \PYG{l+m+mi}{0}
+        \PYG{n}{block\PYGZus{}type} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+        \PYG{n}{block\PYGZus{}content} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{k}{for} \PYG{n}{i}\PYG{p}{,} \PYG{n}{l} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n+nb}{input}\PYG{p}{):}
+            \PYG{n}{l} \PYG{o}{=} \PYG{n}{l}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+            \PYG{k}{if} \PYG{n}{is\PYGZus{}root} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{in\PYGZus{}goto}\PYG{p}{:}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{line\PYGZus{}done}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{l}\PYG{p}{)}
+            \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{l}\PYG{p}{)} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+                \PYG{k}{continue}
+            \PYG{k}{if} \PYG{n}{l}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}:\PYGZsq{}}\PYG{p}{:}
+                \PYG{n}{label\PYGZus{}name} \PYG{o}{=} \PYG{n}{l}\PYG{p}{[:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{label\PYGZus{}list}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{label}\PYG{p}{(}\PYG{n}{label\PYGZus{}name}\PYG{p}{,} \PYG{n}{i}\PYG{p}{))}
+                \PYG{k}{continue}
+
+            \PYG{n}{key} \PYG{o}{=} \PYG{n}{l}\PYG{p}{[:}\PYG{n}{l}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{} \PYGZdq{}}\PYG{p}{)]} \PYG{k}{if} \PYG{n}{l}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{} \PYGZdq{}}\PYG{p}{)} \PYG{o}{!=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1} \PYG{k}{else} \PYG{n}{l}
+            \PYG{k}{if} \PYG{n}{key} \PYG{o+ow}{in} \PYG{n}{block\PYGZus{}k}\PYG{p}{:}
+                \PYG{k}{if} \PYG{o+ow}{not} \PYG{n}{in\PYGZus{}block}\PYG{p}{:}
+                    \PYG{n}{block\PYGZus{}type} \PYG{o}{=} \PYG{n}{key}
+                \PYG{n}{in\PYGZus{}block} \PYG{o}{+=} \PYG{l+m+mi}{1}
+            \PYG{k}{if} \PYG{n}{in\PYGZus{}block} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{0} \PYG{o+ow}{and} \PYG{n}{key} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}end\PYGZdq{}}\PYG{p}{:}
+                \PYG{n}{in\PYGZus{}block} \PYG{o}{\PYGZhy{}=} \PYG{l+m+mi}{1}
+                \PYG{k}{if} \PYG{n}{in\PYGZus{}block} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+                    \PYG{k}{match} \PYG{n}{block\PYGZus{}type}\PYG{p}{:}
+                        \PYG{k}{case} \PYG{l+s+s2}{\PYGZdq{}if\PYGZdq{}}\PYG{p}{:}
+                            \PYG{n}{ok}\PYG{p}{,} \PYG{n}{ret} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{exec\PYGZus{}if}\PYG{p}{(}\PYG{n}{block\PYGZus{}content}\PYG{p}{)}
+                            \PYG{k}{if} \PYG{n}{ok}\PYG{p}{:}
+                                \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{ret}\PYG{p}{)}
+                        \PYG{k}{case} \PYG{l+s+s2}{\PYGZdq{}while\PYGZdq{}}\PYG{p}{:}
+                            \PYG{n}{ok}\PYG{p}{,} \PYG{n}{ret} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{exec\PYGZus{}while}\PYG{p}{(}\PYG{n}{block\PYGZus{}content}\PYG{p}{)}
+                            \PYG{k}{if} \PYG{n}{ok}\PYG{p}{:}
+                                \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{ret}\PYG{p}{)}
+                        \PYG{k}{case} \PYG{l+s+s2}{\PYGZdq{}fn\PYGZdq{}}\PYG{p}{:}
+                            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{def\PYGZus{}fn}\PYG{p}{(}\PYG{n}{block\PYGZus{}content}\PYG{p}{)}
+                        \PYG{k}{case} \PYG{l+s+s2}{\PYGZdq{}execPy\PYGZdq{}}\PYG{p}{:}
+                            \PYG{n}{str\PYGZus{}to\PYGZus{}exec} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+                            \PYG{k}{for} \PYG{n}{lin} \PYG{o+ow}{in} \PYG{n}{block\PYGZus{}content}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:]:}
+                                \PYG{n}{str\PYGZus{}to\PYGZus{}exec} \PYG{o}{+=} \PYG{n}{lin} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}
+                            \PYG{n}{exec}\PYG{p}{(}\PYG{n}{str\PYGZus{}to\PYGZus{}exec}\PYG{p}{)}
+                        \PYG{k}{case} \PYG{l+s+s2}{\PYGZdq{}class\PYGZdq{}}\PYG{p}{:}
+                            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{def\PYGZus{}class}\PYG{p}{(}\PYG{n}{block\PYGZus{}content}\PYG{p}{)}
+                    \PYG{n}{block\PYGZus{}content}\PYG{o}{.}\PYG{n}{clear}\PYG{p}{()}
+                    \PYG{k}{continue}
+            \PYG{k}{if} \PYG{n}{in\PYGZus{}block}\PYG{p}{:}
+                \PYG{n}{block\PYGZus{}content}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{l}\PYG{p}{)}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{k}{if} \PYG{n}{key} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}return\PYGZdq{}}\PYG{p}{:}
+                    \PYG{n}{ret} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{check\PYGZus{}operation}\PYG{p}{(}\PYG{n}{l}\PYG{p}{[}\PYG{l+m+mi}{6}\PYG{p}{:]}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{())}
+                    \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{ret}\PYG{p}{)}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{execline}\PYG{p}{(}\PYG{n}{l}\PYG{p}{)}
+        \PYG{k}{return} \PYG{p}{(}\PYG{k+kc}{False}\PYG{p}{,} \PYG{k+kc}{None}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{execfile}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{path}\PYG{p}{,} \PYG{n}{chdir}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{):}
+        \PYG{n}{os}\PYG{o}{.}\PYG{n}{chdir}\PYG{p}{(}\PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{dirname}\PYG{p}{(}\PYG{n}{path}\PYG{p}{))} \PYG{k}{if} \PYG{n}{chdir} \PYG{k}{else} \PYG{k+kc}{None}
+        \PYG{n}{file\PYGZus{}in} \PYG{o}{=} \PYG{n+nb}{open}\PYG{p}{(}\PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{basename}\PYG{p}{(}\PYG{n}{path}\PYG{p}{)} \PYG{k}{if} \PYG{n}{chdir} \PYG{k}{else} \PYG{n}{path}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}r\PYGZdq{}}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{execstring}\PYG{p}{(}\PYG{n}{file\PYGZus{}in}\PYG{o}{.}\PYG{n}{read}\PYG{p}{(),} \PYG{k+kc}{True}\PYG{p}{)}
+        \PYG{n}{file\PYGZus{}in}\PYG{o}{.}\PYG{n}{close}\PYG{p}{()}
+
+
+\PYG{k}{def} \PYG{n+nf}{main}\PYG{p}{():}
+    \PYG{n}{it} \PYG{o}{=} \PYG{n}{interpreter}\PYG{p}{()}
+    \PYG{n}{line\PYGZus{}input} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{input\PYGZus{}tmp} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+
+    \PYG{n}{key\PYGZus{}block} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}if\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}while\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}fn\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}execPy\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}class\PYGZdq{}}\PYG{p}{]}
+    \PYG{n}{in\PYGZus{}block} \PYG{o}{=} \PYG{l+m+mi}{0}
+
+    \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{sys}\PYG{o}{.}\PYG{n}{argv}\PYG{p}{)} \PYG{o}{==} \PYG{l+m+mi}{1} \PYG{o+ow}{or} \PYG{n}{sys}\PYG{o}{.}\PYG{n}{argv}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}i\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{sys}\PYG{o}{.}\PYG{n}{argv}\PYG{p}{)} \PYG{o}{==} \PYG{l+m+mi}{3}\PYG{p}{:}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZgt{}\PYGZgt{} import\PYGZdq{}}\PYG{p}{,} \PYG{n}{sys}\PYG{o}{.}\PYG{n}{argv}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{])}
+            \PYG{n}{it}\PYG{o}{.}\PYG{n}{execfile}\PYG{p}{(}\PYG{n}{sys}\PYG{o}{.}\PYG{n}{argv}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{],} \PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{n+nb}{print}\PYG{p}{()}
+        \PYG{n}{no\PYGZus{}print} \PYG{o}{=} \PYG{k+kc}{False}
+        \PYG{k}{while} \PYG{o+ow}{not} \PYG{n}{line\PYGZus{}input} \PYG{o+ow}{in} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}/q\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}/quit\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}/exit\PYGZdq{}}\PYG{p}{]:}
+            \PYG{k}{if} \PYG{o+ow}{not} \PYG{n}{no\PYGZus{}print}\PYG{p}{:}
+                \PYG{k}{if} \PYG{n}{in\PYGZus{}block}\PYG{p}{:}
+                    \PYG{n}{line\PYGZus{}input} \PYG{o}{=} \PYG{n+nb}{input}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}.. \PYGZdq{}}\PYG{p}{)}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+                \PYG{k}{else}\PYG{p}{:}
+                    \PYG{n}{line\PYGZus{}input} \PYG{o}{=} \PYG{n+nb}{input}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZgt{}\PYGZgt{} \PYGZdq{}}\PYG{p}{)}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{no\PYGZus{}print} \PYG{o}{=} \PYG{k+kc}{False}
+                \PYG{n}{line\PYGZus{}input} \PYG{o}{=} \PYG{n+nb}{input}\PYG{p}{()}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+            \PYG{n}{input\PYGZus{}tmp} \PYG{o}{+=} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}} \PYG{o}{+} \PYG{n}{line\PYGZus{}input}
+
+            \PYG{n}{key} \PYG{o}{=} \PYG{n}{line\PYGZus{}input}\PYG{p}{[:}\PYG{n}{line\PYGZus{}input}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{} \PYGZdq{}}\PYG{p}{)]} \PYG{k}{if} \PYG{n}{line\PYGZus{}input}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}
+                \PYG{l+s+s2}{\PYGZdq{} \PYGZdq{}}\PYG{p}{)} \PYG{o}{!=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1} \PYG{k}{else} \PYG{n}{line\PYGZus{}input}
+            \PYG{n}{arg} \PYG{o}{=} \PYG{n}{line\PYGZus{}input}\PYG{p}{[}\PYG{n}{line\PYGZus{}input}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{} \PYGZdq{}}\PYG{p}{):]}
+
+            \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}key }\PYG{l+s+se}{\PYGZbs{}t\PYGZbs{}t\PYGZbs{}t}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n}{key}\PYG{p}{)}
+            \PYG{k}{if} \PYG{n}{key} \PYG{o+ow}{in} \PYG{n}{key\PYGZus{}block}\PYG{p}{:}
+                \PYG{n}{in\PYGZus{}block} \PYG{o}{+=} \PYG{l+m+mi}{1}
+            \PYG{k}{if} \PYG{n}{key} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}cd\PYGZdq{}}\PYG{p}{:}
+                \PYG{n}{arg} \PYG{o}{=} \PYG{n}{arg}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+                \PYG{k}{if} \PYG{n}{os}\PYG{o}{.}\PYG{n}{getcwd}\PYG{p}{()} \PYG{o}{==} \PYG{n}{arg}\PYG{p}{:}
+                    \PYG{k}{return}
+                \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}cd\PYGZsq{}, arg)}
+                \PYG{n}{no\PYGZus{}print} \PYG{o}{=} \PYG{k+kc}{True}
+                \PYG{n}{debug\PYGZus{}log}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}is }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{arg}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{ path ?\PYGZdq{}}\PYG{p}{,}
+                          \PYG{l+s+s2}{\PYGZdq{}Yes\PYGZdq{}} \PYG{k}{if} \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{isdir}\PYG{p}{(}\PYG{n}{arg}\PYG{p}{)} \PYG{k}{else} \PYG{l+s+s2}{\PYGZdq{}No\PYGZdq{}}\PYG{p}{)}
+                \PYG{k}{if} \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{isdir}\PYG{p}{(}\PYG{n}{arg}\PYG{p}{):}
+                    \PYG{n}{os}\PYG{o}{.}\PYG{n}{chdir}\PYG{p}{(}\PYG{n}{arg}\PYG{p}{)}
+                \PYG{k}{continue}
+            \PYG{k}{if} \PYG{n}{line\PYGZus{}input} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}lab\PYGZdq{}}\PYG{p}{:}
+                \PYG{n}{ls} \PYG{o}{=} \PYG{p}{[}\PYG{n}{e}\PYG{o}{.}\PYG{n}{name} \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{it}\PYG{o}{.}\PYG{n}{label\PYGZus{}list}\PYG{p}{]}
+                \PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{ls}\PYG{p}{)}
+                \PYG{k}{continue}
+            \PYG{k}{if} \PYG{n}{line\PYGZus{}input} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}cls\PYGZdq{}}\PYG{p}{:}
+                \PYG{n}{os}\PYG{o}{.}\PYG{n}{system}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}cls\PYGZdq{}}\PYG{p}{)}
+                \PYG{k}{continue}
+            \PYG{k}{if} \PYG{n}{line\PYGZus{}input} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}wd\PYGZdq{}}\PYG{p}{:}
+                \PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{os}\PYG{o}{.}\PYG{n}{getcwd}\PYG{p}{())}
+                \PYG{k}{continue}
+            \PYG{k}{if} \PYG{n}{line\PYGZus{}input} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}var\PYGZdq{}}\PYG{p}{:}
+                \PYG{n}{ls} \PYG{o}{=} \PYG{p}{[(}\PYG{n}{e}\PYG{o}{.}\PYG{n}{name}\PYG{p}{,} \PYG{n}{e}\PYG{o}{.}\PYG{n}{value}\PYG{p}{)} \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{it}\PYG{o}{.}\PYG{n}{var\PYGZus{}list}\PYG{p}{]}
+                \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{ls}\PYG{p}{:}
+                    \PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{e}\PYG{p}{,} \PYG{n}{sep}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+                \PYG{k}{continue}
+            \PYG{k}{if} \PYG{n}{line\PYGZus{}input} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}funct\PYGZdq{}}\PYG{p}{:}
+                \PYG{n}{ls} \PYG{o}{=} \PYG{p}{[(}\PYG{n}{e}\PYG{o}{.}\PYG{n}{name}\PYG{p}{,} \PYG{n}{e}\PYG{o}{.}\PYG{n}{arg}\PYG{p}{)} \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{it}\PYG{o}{.}\PYG{n}{funct\PYGZus{}list}\PYG{p}{]}
+                \PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{ls}\PYG{p}{)}
+                \PYG{k}{continue}
+            \PYG{k}{if} \PYG{n}{line\PYGZus{}input} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}it\PYGZdq{}}\PYG{p}{:}
+                \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}interpreter\PYGZdq{}}\PYG{p}{,} \PYG{n}{it}\PYG{p}{)}
+                \PYG{k}{continue}
+            \PYG{k}{if} \PYG{n}{line\PYGZus{}input} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}end\PYGZdq{}}\PYG{p}{:}
+                \PYG{n}{in\PYGZus{}block} \PYG{o}{\PYGZhy{}=} \PYG{l+m+mi}{1}
+            \PYG{k}{if} \PYG{n}{in\PYGZus{}block} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+                \PYG{n}{ok}\PYG{p}{,} \PYG{n}{ret} \PYG{o}{=} \PYG{n}{it}\PYG{o}{.}\PYG{n}{execstring}\PYG{p}{(}\PYG{n}{input\PYGZus{}tmp}\PYG{p}{)}
+                \PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{ret}\PYG{p}{)} \PYG{k}{if} \PYG{n}{ret} \PYG{o}{!=} \PYG{k+kc}{None} \PYG{k}{else} \PYG{k+kc}{None}
+                \PYG{n}{input\PYGZus{}tmp} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+
+    \PYG{k}{else}\PYG{p}{:}
+        \PYG{n}{it}\PYG{o}{.}\PYG{n}{execfile}\PYG{p}{(}\PYG{n}{sys}\PYG{o}{.}\PYG{n}{argv}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{],} \PYG{k+kc}{True}\PYG{p}{)}
+        \PYG{n+nb}{input}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{Press Enter to continue...\PYGZdq{}}\PYG{p}{)}
+
+
+\PYG{k}{if} \PYG{n+nv+vm}{\PYGZus{}\PYGZus{}name\PYGZus{}\PYGZus{}} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZus{}\PYGZus{}main\PYGZus{}\PYGZus{}\PYGZdq{}}\PYG{p}{:}
+    \PYG{n}{main}\PYG{p}{()}
+\end{Verbatim}

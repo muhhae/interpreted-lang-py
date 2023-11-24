@@ -307,7 +307,7 @@ class interpreter:
         bracketIndex = input.find('(')
         asgnIndex = input.find('=')
         if asgnIndex == -1 or (bracketIndex != -1 and bracketIndex < asgnIndex):
-            return self.checkkeyword(input)
+            return self.checkkeyword(input.strip())
         tmpVar_name = input[0:asgnIndex].strip()
         tmpVar_val = input[asgnIndex+1:].strip()
         tmpVar_scope = "local"

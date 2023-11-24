@@ -1,0 +1,689 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{import} \PYG{n+nn}{customtkinter} \PYG{k}{as} \PYG{n+nn}{ctk}
+\PYG{k+kn}{import} \PYG{n+nn}{tkinter} \PYG{k}{as} \PYG{n+nn}{tk}
+\PYG{k+kn}{import} \PYG{n+nn}{tkinter.messagebox} \PYG{k}{as} \PYG{n+nn}{tkmessagebox}
+
+\PYG{k+kn}{import} \PYG{n+nn}{subprocess}
+\PYG{k+kn}{import} \PYG{n+nn}{os}
+\PYG{k+kn}{from} \PYG{n+nn}{syntax\PYGZus{}identifier} \PYG{k+kn}{import} \PYG{n}{syntax\PYGZus{}identifier}
+\PYG{k+kn}{from} \PYG{n+nn}{LogicOperation} \PYG{k+kn}{import} \PYG{n}{isOpLgc}
+\PYG{k+kn}{import} \PYG{n+nn}{threading}
+
+\PYG{n}{app} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{CTk}\PYG{p}{()}
+\PYG{n}{app}\PYG{o}{.}\PYG{n}{title}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}PyHaekal IDE\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{app}\PYG{o}{.}\PYG{n}{geometry}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}1280x720\PYGZdq{}}\PYG{p}{)}
+
+\PYG{n}{main\PYGZus{}frame} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{CTkFrame}\PYG{p}{(}\PYG{n}{app}\PYG{p}{)}
+
+\PYG{n}{frame1} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{CTkFrame}\PYG{p}{(}\PYG{n}{main\PYGZus{}frame}\PYG{p}{)}
+\PYG{n}{frame1}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{(}\PYG{n}{row}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{n}{column}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{padx}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{),} \PYG{n}{pady}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{10}\PYG{p}{),} \PYG{n}{sticky}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}nsew\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{frame1}\PYG{o}{.}\PYG{n}{grid\PYGZus{}remove}\PYG{p}{()}
+
+\PYG{n}{frame2} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{CTkFrame}\PYG{p}{(}\PYG{n}{main\PYGZus{}frame}\PYG{p}{,} \PYG{n}{fg\PYGZus{}color}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}transparent\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{frame2}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{(}\PYG{n}{row}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{n}{column}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{padx}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{l+m+mi}{5}\PYG{p}{),} \PYG{n}{pady}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{10}\PYG{p}{),} \PYG{n}{sticky}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}nsew\PYGZdq{}}\PYG{p}{)}
+
+\PYG{n}{folder\PYGZus{}frame} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{CTkScrollableFrame}\PYG{p}{(}\PYG{n}{frame1}\PYG{p}{)}
+\PYG{n}{folder\PYGZus{}frame}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{(}\PYG{n}{row}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{n}{column}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{padx}\PYG{o}{=}\PYG{l+m+mi}{5}\PYG{p}{,} \PYG{n}{pady}\PYG{o}{=}\PYG{l+m+mi}{5}\PYG{p}{,} \PYG{n}{sticky}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}nsew\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{folder\PYGZus{}frame}\PYG{o}{.}\PYG{n}{grid\PYGZus{}remove}\PYG{p}{()}
+\PYG{n}{frame1}\PYG{o}{.}\PYG{n}{grid\PYGZus{}rowconfigure}\PYG{p}{(}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{n}{weight}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}
+
+\PYG{n}{frame1}\PYG{o}{.}\PYG{n}{grid\PYGZus{}columnconfigure}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{weight}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} app.grid\PYGZus{}columnconfigure(0, weight=1)}
+\PYG{n}{main\PYGZus{}frame}\PYG{o}{.}\PYG{n}{grid\PYGZus{}columnconfigure}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{weight}\PYG{o}{=}\PYG{l+m+mi}{3}\PYG{p}{)}
+\PYG{n}{main\PYGZus{}frame}\PYG{o}{.}\PYG{n}{grid\PYGZus{}rowconfigure}\PYG{p}{(}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{n}{weight}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}
+
+\PYG{n}{text\PYGZus{}box} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{CTkTextbox}\PYG{p}{(}\PYG{n}{frame2}\PYG{p}{,} \PYG{n}{activate\PYGZus{}scrollbars}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+\PYG{n}{frame2}\PYG{o}{.}\PYG{n}{grid\PYGZus{}columnconfigure}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{weight}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}
+\PYG{n}{frame2}\PYG{o}{.}\PYG{n}{grid\PYGZus{}rowconfigure}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{weight}\PYG{o}{=}\PYG{l+m+mi}{3}\PYG{p}{)}
+\PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{(}\PYG{n}{row}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{column}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{padx}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{pady}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{sticky}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}nsew\PYGZdq{}}\PYG{p}{)}
+
+\PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{cget}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}font\PYGZdq{}}\PYG{p}{)}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{size}\PYG{o}{=}\PYG{l+m+mi}{18}\PYG{p}{)}
+\PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{cget}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}font\PYGZdq{}}\PYG{p}{)}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{family}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}fira code\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{undo}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+
+
+\PYG{k}{def} \PYG{n+nf}{tab\PYGZus{}pressed}\PYG{p}{(}\PYG{n}{event}\PYG{p}{:} \PYG{n}{tk}\PYG{o}{.}\PYG{n}{Event}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{str}\PYG{p}{:}
+    \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{insert}\PYG{p}{(}\PYG{n}{tk}\PYG{o}{.}\PYG{n}{INSERT}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}    \PYGZdq{}}\PYG{p}{)}
+    \PYG{k}{return} \PYG{l+s+s2}{\PYGZdq{}break\PYGZdq{}}
+
+
+\PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{bind}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZlt{}Tab\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n}{tab\PYGZus{}pressed}\PYG{p}{)}
+
+\PYG{n}{current\PYGZus{}file} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+\PYG{n}{current\PYGZus{}folder} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+
+
+\PYG{k}{class} \PYG{n+nc}{index\PYGZus{}counter}\PYG{p}{:}
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{index} \PYG{o}{=} \PYG{l+m+mi}{0}
+
+    \PYG{k}{def} \PYG{n+nf}{reset}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{index} \PYG{o}{=} \PYG{l+m+mi}{0}
+
+    \PYG{k}{def} \PYG{n+nf}{get}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{n}{a} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{index}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{index} \PYG{o}{+=} \PYG{l+m+mi}{1}
+        \PYG{k}{return} \PYG{n}{a}
+
+
+\PYG{n}{current\PYGZus{}file\PYGZus{}selected} \PYG{o}{=} \PYG{k+kc}{None}
+
+
+\PYG{k}{class} \PYG{n+nc}{file\PYGZus{}button}\PYG{p}{:}
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{name}\PYG{p}{,} \PYG{n}{path}\PYG{p}{,} \PYG{n}{depth}\PYG{p}{,} \PYG{n}{index}\PYG{p}{:} \PYG{n}{index\PYGZus{}counter}\PYG{p}{):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{label} \PYG{o}{=} \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{basename}\PYG{p}{(}\PYG{n}{path}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{path} \PYG{o}{=} \PYG{n}{path}
+
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{CTkButton}\PYG{p}{(}
+            \PYG{n}{folder\PYGZus{}frame}\PYG{p}{,} \PYG{n}{text}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}  \PYGZdq{}} \PYG{o}{*} \PYG{n}{depth} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}  \PYGZdq{}} \PYG{o}{+} \PYG{n}{name}\PYG{p}{,} \PYG{n}{command}\PYG{o}{=}\PYG{k}{lambda}\PYG{p}{:} \PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{select}\PYG{p}{(),} \PYG{n}{openFilePath}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{path}\PYG{p}{)))}
+
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{(}\PYG{n}{row}\PYG{o}{=}\PYG{n}{index}\PYG{o}{.}\PYG{n}{get}\PYG{p}{(),} \PYG{n}{column}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,}
+                         \PYG{n}{padx}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{n}{pady}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{n}{sticky}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}ew\PYGZdq{}}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{grid\PYGZus{}remove}\PYG{p}{()}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{anchor}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}w\PYGZdq{}}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{cget}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}font\PYGZdq{}}\PYG{p}{)}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{size}\PYG{o}{=}\PYG{l+m+mi}{14}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{cget}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}font\PYGZdq{}}\PYG{p}{)}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{family}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}fira code\PYGZdq{}}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{text\PYGZus{}color}\PYG{o}{=}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}black\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}white\PYGZdq{}}\PYG{p}{))}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{fg\PYGZus{}color}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}transparent\PYGZdq{}}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{select}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{k}{global} \PYG{n}{current\PYGZus{}file\PYGZus{}selected}
+        \PYG{k}{if} \PYG{n}{current\PYGZus{}file\PYGZus{}selected} \PYG{o}{!=} \PYG{k+kc}{None}\PYG{p}{:}
+            \PYG{n}{current\PYGZus{}file\PYGZus{}selected}\PYG{o}{.}\PYG{n}{unselect}\PYG{p}{()}
+        \PYG{n}{current\PYGZus{}file\PYGZus{}selected} \PYG{o}{=} \PYG{n+nb+bp}{self}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{fg\PYGZus{}color}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}gray\PYGZdq{}}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{unselect}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{fg\PYGZus{}color}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}transparent\PYGZdq{}}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{destroy}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{destroy}\PYG{p}{()}
+
+
+\PYG{k}{class} \PYG{n+nc}{folder\PYGZus{}button}\PYG{p}{:}
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{name}\PYG{p}{,} \PYG{n}{path}\PYG{p}{,} \PYG{n}{depth}\PYG{p}{,} \PYG{n}{index}\PYG{p}{:} \PYG{n}{index\PYGZus{}counter}\PYG{p}{):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{index} \PYG{o}{=} \PYG{n}{index}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{label} \PYG{o}{=} \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{basename}\PYG{p}{(}\PYG{n}{path}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{path} \PYG{o}{=} \PYG{n}{path}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{showed} \PYG{o}{=} \PYG{k+kc}{False}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{depth} \PYG{o}{=} \PYG{n}{depth}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{files} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{CTkButton}\PYG{p}{(}
+            \PYG{n}{folder\PYGZus{}frame}\PYG{p}{,} \PYG{n}{text}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}  \PYGZdq{}} \PYG{o}{*} \PYG{n}{depth} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}⏵ \PYGZdq{}} \PYG{o}{+} \PYG{n}{name}\PYG{p}{,} \PYG{n}{command}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{toggle}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{(}\PYG{n}{row}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{index}\PYG{o}{.}\PYG{n}{get}\PYG{p}{(),} \PYG{n}{column}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,}
+                         \PYG{n}{padx}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{n}{pady}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{n}{sticky}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}ew\PYGZdq{}}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{grid\PYGZus{}remove}\PYG{p}{()}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{depth} \PYG{o}{=} \PYG{n}{depth}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{listfiles}\PYG{p}{()}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{cget}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}font\PYGZdq{}}\PYG{p}{)}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{size}\PYG{o}{=}\PYG{l+m+mi}{14}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{cget}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}font\PYGZdq{}}\PYG{p}{)}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{family}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}fira code\PYGZdq{}}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{anchor}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}w\PYGZdq{}}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{text\PYGZus{}color}\PYG{o}{=}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}black\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}white\PYGZdq{}}\PYG{p}{))}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{fg\PYGZus{}color}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}transparent\PYGZdq{}}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{depth} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{()}
+
+    \PYG{k}{def} \PYG{n+nf}{toggle}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{showed}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{hide}\PYG{p}{()}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{show}\PYG{p}{()}
+
+    \PYG{k}{def} \PYG{n+nf}{show}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{text}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}  \PYGZdq{}} \PYG{o}{*} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{depth} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}⏷ \PYGZdq{}} \PYG{o}{+} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{label}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{showed} \PYG{o}{=} \PYG{k+kc}{True}
+        \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{files}\PYG{p}{:}
+            \PYG{n}{e}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{()}
+
+    \PYG{k}{def} \PYG{n+nf}{hide}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{text}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}  \PYGZdq{}} \PYG{o}{*} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{depth} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}⏵ \PYGZdq{}} \PYG{o}{+} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{label}\PYG{p}{)}
+        \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{files}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n+nb}{isinstance}\PYG{p}{(}\PYG{n}{e}\PYG{p}{,} \PYG{n}{folder\PYGZus{}button}\PYG{p}{):}
+                \PYG{n}{e}\PYG{o}{.}\PYG{n}{hide}\PYG{p}{()}
+            \PYG{n}{e}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{grid\PYGZus{}remove}\PYG{p}{()}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{showed} \PYG{o}{=} \PYG{k+kc}{False}
+
+    \PYG{k}{def} \PYG{n+nf}{destroy}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{button}\PYG{o}{.}\PYG{n}{destroy}\PYG{p}{()}
+        \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{files}\PYG{p}{:}
+            \PYG{n}{e}\PYG{o}{.}\PYG{n}{destroy}\PYG{p}{()}
+
+    \PYG{k}{def} \PYG{n+nf}{listfiles}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{k}{def} \PYG{n+nf}{list\PYGZus{}f}\PYG{p}{():}
+            \PYG{n}{tmp\PYGZus{}files} \PYG{o}{=} \PYG{p}{[]}
+            \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{os}\PYG{o}{.}\PYG{n}{listdir}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{path}\PYG{p}{):}
+                \PYG{k}{try}\PYG{p}{:}
+                    \PYG{k}{if} \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{isdir}\PYG{p}{(}\PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{join}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{path}\PYG{p}{,} \PYG{n}{e}\PYG{p}{)):}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{files}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{folder\PYGZus{}button}\PYG{p}{(}
+                            \PYG{n}{e}\PYG{p}{,} \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{join}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{path}\PYG{p}{,} \PYG{n}{e}\PYG{p}{),} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{depth} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{index}\PYG{p}{))}
+                    \PYG{k}{else}\PYG{p}{:}
+                        \PYG{n}{tmp\PYGZus{}files}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{e}\PYG{p}{)}
+                \PYG{k}{except}\PYG{p}{:}
+                    \PYG{k}{continue}
+            \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{tmp\PYGZus{}files}\PYG{p}{:}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{files}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{file\PYGZus{}button}\PYG{p}{(}\PYG{n}{e}\PYG{p}{,} \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{join}\PYG{p}{(}
+                    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{path}\PYG{p}{,} \PYG{n}{e}\PYG{p}{),} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{depth} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{index}\PYG{p}{))}
+            \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{depth} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{show}\PYG{p}{()}
+        \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{depth} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+            \PYG{n}{thread} \PYG{o}{=} \PYG{n}{threading}\PYG{o}{.}\PYG{n}{Thread}\PYG{p}{(}\PYG{n}{target}\PYG{o}{=}\PYG{n}{list\PYGZus{}f}\PYG{p}{)}
+            \PYG{n}{thread}\PYG{o}{.}\PYG{n}{start}\PYG{p}{()}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{n}{list\PYGZus{}f}\PYG{p}{()}
+
+
+\PYG{n}{current\PYGZus{}folder\PYGZus{}button} \PYG{o}{=} \PYG{k+kc}{None}
+
+
+\PYG{k}{def} \PYG{n+nf}{openFolder}\PYG{p}{():}
+    \PYG{k}{global} \PYG{n}{current\PYGZus{}folder}\PYG{p}{,} \PYG{n}{current\PYGZus{}folder\PYGZus{}button}\PYG{p}{,} \PYG{n}{current\PYGZus{}file\PYGZus{}selected}
+
+    \PYG{n}{current\PYGZus{}file\PYGZus{}selected} \PYG{o}{=} \PYG{k+kc}{None}
+
+    \PYG{n}{directory} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{filedialog}\PYG{o}{.}\PYG{n}{askdirectory}\PYG{p}{()}
+    \PYG{k}{if} \PYG{n}{directory} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return}
+    \PYG{k}{if} \PYG{n}{current\PYGZus{}folder\PYGZus{}button} \PYG{o}{!=} \PYG{k+kc}{None}\PYG{p}{:}
+        \PYG{n}{current\PYGZus{}folder\PYGZus{}button}\PYG{o}{.}\PYG{n}{destroy}\PYG{p}{()}
+    \PYG{n}{current\PYGZus{}folder} \PYG{o}{=} \PYG{n}{directory}
+    \PYG{n}{proc}\PYG{o}{.}\PYG{n}{stdin}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}cd \PYGZdq{}} \PYG{o}{+} \PYG{n}{current\PYGZus{}folder} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{proc}\PYG{o}{.}\PYG{n}{stdin}\PYG{o}{.}\PYG{n}{flush}\PYG{p}{()}
+
+    \PYG{n}{current\PYGZus{}folder\PYGZus{}button} \PYG{o}{=} \PYG{n}{folder\PYGZus{}button}\PYG{p}{(}
+        \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{basename}\PYG{p}{(}\PYG{n}{directory}\PYG{p}{),} \PYG{n}{directory}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{index\PYGZus{}counter}\PYG{p}{())}
+    \PYG{n}{frame1}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{()}
+    \PYG{n}{folder\PYGZus{}frame}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{()}
+
+
+\PYG{k}{def} \PYG{n+nf}{refreshFolder}\PYG{p}{():}
+    \PYG{k}{global} \PYG{n}{current\PYGZus{}folder}\PYG{p}{,} \PYG{n}{current\PYGZus{}folder\PYGZus{}button}
+    \PYG{k}{if} \PYG{n}{current\PYGZus{}folder} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return}
+    \PYG{k}{if} \PYG{n}{current\PYGZus{}folder\PYGZus{}button} \PYG{o}{!=} \PYG{k+kc}{None}\PYG{p}{:}
+        \PYG{n}{current\PYGZus{}folder\PYGZus{}button}\PYG{o}{.}\PYG{n}{destroy}\PYG{p}{()}
+    \PYG{n}{folder\PYGZus{}frame}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{()}
+    \PYG{n}{current\PYGZus{}folder\PYGZus{}button} \PYG{o}{=} \PYG{n}{folder\PYGZus{}button}\PYG{p}{(}
+        \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{basename}\PYG{p}{(}\PYG{n}{current\PYGZus{}folder}\PYG{p}{),} \PYG{n}{current\PYGZus{}folder}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{index\PYGZus{}counter}\PYG{p}{())}
+    \PYG{n}{current\PYGZus{}folder\PYGZus{}button}\PYG{o}{.}\PYG{n}{show}\PYG{p}{()}
+
+
+\PYG{k}{def} \PYG{n+nf}{refreshCode}\PYG{p}{():}
+    \PYG{n}{current\PYGZus{}code} \PYG{o}{=} \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{get}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}1.0\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{)}
+    \PYG{k}{if} \PYG{n}{current\PYGZus{}code}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}}\PYG{p}{:}
+        \PYG{k}{return}
+    \PYG{n}{insert\PYGZus{}cursor} \PYG{o}{=} \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{index}\PYG{p}{(}\PYG{n}{tk}\PYG{o}{.}\PYG{n}{INSERT}\PYG{p}{)}
+    \PYG{n}{scroll\PYGZus{}pos} \PYG{o}{=} \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{yview}\PYG{p}{()}
+    \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{delete}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}1.0\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}end\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{word\PYGZus{}color} \PYG{o}{=} \PYG{p}{\PYGZob{}\PYGZcb{}}
+    \PYG{n}{block} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}fn\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}if\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}while\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}else\PYGZsq{}}\PYG{p}{,}
+             \PYG{l+s+s1}{\PYGZsq{}else\PYGZus{}if\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}return\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}class\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}:\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}import\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}goto\PYGZsq{}}\PYG{p}{]}
+    \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{block}\PYG{p}{:}
+        \PYG{n}{word\PYGZus{}color}\PYG{o}{.}\PYG{n}{update}\PYG{p}{(\PYGZob{}}\PYG{n}{e}\PYG{p}{:} \PYG{l+s+s1}{\PYGZsq{}block\PYGZsq{}}\PYG{p}{\PYGZcb{})}
+    \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}current\PYGZus{}file \PYGZsq{}, current\PYGZus{}file)}
+    \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}current\PYGZus{}folder \PYGZsq{}, os.path.dirname(current\PYGZus{}file))}
+    \PYG{n}{identifier} \PYG{o}{=} \PYG{n}{syntax\PYGZus{}identifier}\PYG{p}{(}\PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{dirname}\PYG{p}{(}\PYG{n}{current\PYGZus{}file}\PYG{p}{))}
+    \PYG{n}{identifier}\PYG{o}{.}\PYG{n}{identify\PYGZus{}string}\PYG{p}{(}\PYG{n}{current\PYGZus{}code}\PYG{p}{)}
+    \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{identifier}\PYG{o}{.}\PYG{n}{var\PYGZus{}list}\PYG{p}{:}
+        \PYG{n}{word\PYGZus{}color}\PYG{o}{.}\PYG{n}{update}\PYG{p}{(\PYGZob{}}\PYG{n}{e}\PYG{p}{:} \PYG{l+s+s1}{\PYGZsq{}var\PYGZsq{}}\PYG{p}{\PYGZcb{})} \PYG{k}{if} \PYG{n}{e} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{n}{word\PYGZus{}color} \PYG{k}{else} \PYG{k+kc}{None}
+    \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{identifier}\PYG{o}{.}\PYG{n}{funct\PYGZus{}list}\PYG{p}{:}
+        \PYG{n}{word\PYGZus{}color}\PYG{o}{.}\PYG{n}{update}\PYG{p}{(\PYGZob{}}\PYG{n}{e}\PYG{p}{:} \PYG{l+s+s1}{\PYGZsq{}funct\PYGZsq{}}\PYG{p}{\PYGZcb{})} \PYG{k}{if} \PYG{n}{e} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{n}{word\PYGZus{}color} \PYG{k}{else} \PYG{k+kc}{None}
+    \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{identifier}\PYG{o}{.}\PYG{n}{class\PYGZus{}list}\PYG{p}{:}
+        \PYG{n}{word\PYGZus{}color}\PYG{o}{.}\PYG{n}{update}\PYG{p}{(\PYGZob{}}\PYG{n}{e}\PYG{p}{:} \PYG{l+s+s1}{\PYGZsq{}class\PYGZsq{}}\PYG{p}{\PYGZcb{})} \PYG{k}{if} \PYG{n}{e} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{n}{word\PYGZus{}color} \PYG{k}{else} \PYG{k+kc}{None}
+    \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{identifier}\PYG{o}{.}\PYG{n}{label\PYGZus{}list}\PYG{p}{:}
+        \PYG{n}{word\PYGZus{}color}\PYG{o}{.}\PYG{n}{update}\PYG{p}{(\PYGZob{}}\PYG{n}{e}\PYG{p}{:} \PYG{l+s+s1}{\PYGZsq{}label\PYGZsq{}}\PYG{p}{\PYGZcb{})} \PYG{k}{if} \PYG{n}{e} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{n}{word\PYGZus{}color} \PYG{k}{else} \PYG{k+kc}{None}
+
+    \PYG{k}{for} \PYG{n}{l}\PYG{p}{,} \PYG{n}{line} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{current\PYGZus{}code}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)):}
+        \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}line\PYGZsq{}, line)}
+        \PYG{c+c1}{\PYGZsh{} stripped = line.lstrip()}
+        \PYG{c+c1}{\PYGZsh{} text\PYGZus{}box.insert(\PYGZsq{}end\PYGZsq{}, \PYGZsq{} \PYGZsq{} * (len(line) \PYGZhy{} len(stripped)))}
+        \PYG{n}{quoted} \PYG{o}{=} \PYG{l+m+mi}{0}
+        \PYG{n}{tmp} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}}
+        \PYG{n}{in\PYGZus{}comment} \PYG{o}{=} \PYG{k+kc}{False}
+        \PYG{k}{for} \PYG{n}{i}\PYG{p}{,} \PYG{n}{char} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{line}\PYG{p}{):}
+            \PYG{n}{separator} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{} \PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}t}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{},\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}(\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{})\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}[\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}]\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}:\PYGZsq{}}\PYG{p}{,}
+                         \PYG{l+s+s1}{\PYGZsq{}.\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}=\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}+\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}/\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}*\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}\PYGZhy{}\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}\PYGZca{}\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}\PYGZpc{}\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}\PYGZlt{}\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}\PYGZgt{}\PYGZsq{}}\PYG{p}{]}
+            \PYG{k}{if} \PYG{n}{char} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}\PYGZdq{}\PYGZsq{}}\PYG{p}{:}
+                \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{insert}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{,} \PYG{n}{char}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}quote\PYGZsq{}}\PYG{p}{)}
+                \PYG{n}{quoted} \PYG{o}{+=} \PYG{l+m+mi}{1}
+                \PYG{k}{continue}
+            \PYG{k}{if} \PYG{n}{quoted} \PYG{o}{\PYGZpc{}} \PYG{l+m+mi}{2} \PYG{o}{!=} \PYG{l+m+mi}{0}\PYG{p}{:}
+                \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{insert}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{,} \PYG{n}{char}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}string\PYGZsq{}}\PYG{p}{)}
+                \PYG{k}{continue}
+            \PYG{k}{if} \PYG{n}{char} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}\PYGZsh{}\PYGZsq{}}\PYG{p}{:}
+                \PYG{n}{in\PYGZus{}comment} \PYG{o}{=} \PYG{k+kc}{True}
+            \PYG{k}{if} \PYG{n}{in\PYGZus{}comment}\PYG{p}{:}
+                \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{insert}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{,} \PYG{n}{char}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}comment\PYGZsq{}}\PYG{p}{)}
+                \PYG{k}{continue}
+            \PYG{k}{if} \PYG{n}{char} \PYG{o+ow}{in} \PYG{n}{separator} \PYG{o+ow}{or} \PYG{n}{i} \PYG{o}{==} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{line}\PYG{p}{)} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{:}
+                \PYG{n}{char\PYGZus{}in\PYGZus{}tmp} \PYG{o}{=} \PYG{k+kc}{False}
+
+                \PYG{k}{if} \PYG{n}{i} \PYG{o}{==} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{line}\PYG{p}{)} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1} \PYG{o+ow}{and} \PYG{n}{char} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{n}{separator}\PYG{p}{:}
+                    \PYG{n}{char\PYGZus{}in\PYGZus{}tmp} \PYG{o}{=} \PYG{k+kc}{True}
+                    \PYG{n}{tmp} \PYG{o}{+=} \PYG{n}{char}
+                \PYG{k}{if} \PYG{n}{tmp} \PYG{o+ow}{in} \PYG{n}{word\PYGZus{}color}\PYG{p}{:}
+                    \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{insert}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{,} \PYG{n}{tmp}\PYG{p}{,} \PYG{n}{word\PYGZus{}color}\PYG{p}{[}\PYG{n}{tmp}\PYG{p}{])}
+                \PYG{k}{elif} \PYG{n}{tmp}\PYG{o}{.}\PYG{n}{isdigit}\PYG{p}{()} \PYG{o+ow}{or} \PYG{n}{tmp} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}NULL\PYGZsq{}}\PYG{p}{:}
+                    \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{insert}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{,} \PYG{n}{tmp}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}digit\PYGZsq{}}\PYG{p}{)}
+                \PYG{k}{elif} \PYG{n}{isOpLgc}\PYG{p}{(}\PYG{n}{tmp}\PYG{p}{):}
+                    \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{insert}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{,} \PYG{n}{tmp}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}operator\PYGZsq{}}\PYG{p}{)}
+                \PYG{k}{else}\PYG{p}{:}
+                    \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{insert}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{,} \PYG{n}{tmp}\PYG{p}{)}
+                \PYG{n}{tmp} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}}
+
+                \PYG{k}{if} \PYG{n}{char\PYGZus{}in\PYGZus{}tmp}\PYG{p}{:}
+                    \PYG{k}{continue}
+
+                \PYG{k}{if} \PYG{n}{char} \PYG{o+ow}{in} \PYG{n}{word\PYGZus{}color}\PYG{p}{:}
+                    \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{insert}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{,} \PYG{n}{char}\PYG{p}{,} \PYG{n}{word\PYGZus{}color}\PYG{p}{[}\PYG{n}{char}\PYG{p}{])}
+                \PYG{k}{elif} \PYG{n}{isOpLgc}\PYG{p}{(}\PYG{n}{char}\PYG{p}{):}
+                    \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{insert}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{,} \PYG{n}{char}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}operator\PYGZsq{}}\PYG{p}{)}
+                \PYG{k}{elif} \PYG{n}{char} \PYG{o+ow}{in} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}[\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}]\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}=\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}.\PYGZsq{}}\PYG{p}{]:}
+                    \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{insert}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{,} \PYG{n}{char}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}operator\PYGZsq{}}\PYG{p}{)}
+                \PYG{k}{else}\PYG{p}{:}
+                    \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{insert}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{,} \PYG{n}{char}\PYG{p}{)}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{tmp} \PYG{o}{+=} \PYG{n}{char}
+        \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}l\PYGZsq{}, l)}
+        \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}len\PYGZsq{}, len(current\PYGZus{}code.split(\PYGZsq{}\PYGZbs{}n\PYGZsq{})) \PYGZhy{} 2)}
+        \PYG{k}{if} \PYG{n}{l} \PYG{o}{\PYGZlt{}} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{current\PYGZus{}code}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{))} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{2}\PYG{p}{:}
+            \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{insert}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{mark\PYGZus{}set}\PYG{p}{(}\PYG{n}{tk}\PYG{o}{.}\PYG{n}{INSERT}\PYG{p}{,} \PYG{n}{insert\PYGZus{}cursor}\PYG{p}{)}
+    \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{yview\PYGZus{}moveto}\PYG{p}{(}\PYG{n}{scroll\PYGZus{}pos}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{])}
+
+
+\PYG{k}{def} \PYG{n+nf}{openFilePath}\PYG{p}{(}\PYG{n}{path}\PYG{p}{):}
+    \PYG{n}{save}\PYG{p}{()}
+    \PYG{k}{global} \PYG{n}{current\PYGZus{}file}
+    \PYG{n}{current\PYGZus{}file} \PYG{o}{=} \PYG{n}{path}
+    \PYG{n}{file} \PYG{o}{=} \PYG{n+nb}{open}\PYG{p}{(}\PYG{n}{path}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}r\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{delete}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}1.0\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}end\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{insert}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}1.0\PYGZsq{}}\PYG{p}{,} \PYG{n}{file}\PYG{o}{.}\PYG{n}{read}\PYG{p}{())}
+    \PYG{n}{refreshCode}\PYG{p}{()}
+
+
+\PYG{k}{def} \PYG{n+nf}{openFile}\PYG{p}{():}
+    \PYG{k}{global} \PYG{n}{current\PYGZus{}file}
+    \PYG{n}{directory} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{filedialog}\PYG{o}{.}\PYG{n}{askopenfiles}\PYG{p}{()}
+    \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{directory}\PYG{p}{)} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+        \PYG{k}{return}
+    \PYG{n}{current\PYGZus{}file} \PYG{o}{=} \PYG{n}{directory}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{name}
+    \PYG{n}{openFilePath}\PYG{p}{(}\PYG{n}{current\PYGZus{}file}\PYG{p}{)}
+
+
+\PYG{k}{def} \PYG{n+nf}{saveFile}\PYG{p}{():}
+    \PYG{k}{global} \PYG{n}{current\PYGZus{}file}
+    \PYG{n}{directory} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{filedialog}\PYG{o}{.}\PYG{n}{asksaveasfilename}\PYG{p}{()}
+    \PYG{k}{if} \PYG{n}{directory} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return}
+    \PYG{n}{current\PYGZus{}file} \PYG{o}{=} \PYG{n}{directory}
+    \PYG{n}{file} \PYG{o}{=} \PYG{n+nb}{open}\PYG{p}{(}\PYG{n}{directory}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}w\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{file}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{get}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}1.0\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}end\PYGZdq{}}\PYG{p}{))}
+    \PYG{n}{file}\PYG{o}{.}\PYG{n}{close}\PYG{p}{()}
+    \PYG{n}{refreshFolder}\PYG{p}{()}
+
+
+\PYG{k}{def} \PYG{n+nf}{save}\PYG{p}{(}\PYG{n}{confirmed}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{):}
+    \PYG{n}{current\PYGZus{}doc} \PYG{o}{=} \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{get}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}1.0\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}end\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{current\PYGZus{}doc} \PYG{o}{=} \PYG{n}{current\PYGZus{}doc}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+    \PYG{k}{if} \PYG{n}{current\PYGZus{}doc} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{confirmed}\PYG{p}{:}
+        \PYG{k}{return}
+    \PYG{k}{global} \PYG{n}{current\PYGZus{}file}
+    \PYG{k}{if} \PYG{n}{current\PYGZus{}file} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}} \PYG{o+ow}{or} \PYG{o+ow}{not} \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{exists}\PYG{p}{(}\PYG{n}{current\PYGZus{}file}\PYG{p}{):}
+        \PYG{n}{saveFile}\PYG{p}{()} \PYG{k}{if} \PYG{n}{tkmessagebox}\PYG{o}{.}\PYG{n}{askyesno}\PYG{p}{(}
+            \PYG{l+s+s2}{\PYGZdq{}Save\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}Do you want to save your code?\PYGZdq{}}\PYG{p}{)} \PYG{k}{else} \PYG{k+kc}{None}
+        \PYG{k}{return}
+    \PYG{k}{if} \PYG{n+nb}{open}\PYG{p}{(}\PYG{n}{current\PYGZus{}file}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}r\PYGZdq{}}\PYG{p}{)}\PYG{o}{.}\PYG{n}{read}\PYG{p}{()}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()} \PYG{o}{==} \PYG{n}{current\PYGZus{}doc}\PYG{p}{:}
+        \PYG{k}{return}
+    \PYG{k}{if} \PYG{o+ow}{not} \PYG{n}{confirmed} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{tkmessagebox}\PYG{o}{.}\PYG{n}{askyesno}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Save\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}Do you want to save your code?\PYGZdq{}}\PYG{p}{):}
+        \PYG{k}{return}
+    \PYG{n}{file} \PYG{o}{=} \PYG{n+nb}{open}\PYG{p}{(}\PYG{n}{current\PYGZus{}file}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}w\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{file}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{get}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}1.0\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}end\PYGZdq{}}\PYG{p}{))}
+    \PYG{n}{file}\PYG{o}{.}\PYG{n}{close}\PYG{p}{()}
+
+
+\PYG{k}{def} \PYG{n+nf}{runCurrent}\PYG{p}{():}
+    \PYG{k}{global} \PYG{n}{current\PYGZus{}file}
+    \PYG{k}{if} \PYG{n}{current\PYGZus{}file} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}\PYG{p}{:}
+        \PYG{n}{openFile}\PYG{p}{()}
+    \PYG{k}{if} \PYG{n}{current\PYGZus{}file} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return}
+    \PYG{n}{save}\PYG{p}{()}
+    \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}current working directory:\PYGZsq{}, os.getcwd())}
+    \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}current file:\PYGZsq{}, current\PYGZus{}file)}
+
+    \PYG{n}{proc}\PYG{o}{.}\PYG{n}{stdin}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}cd \PYGZdq{}} \PYG{o}{+} \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{dirname}\PYG{p}{(}\PYG{n}{current\PYGZus{}file}\PYG{p}{)} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{proc}\PYG{o}{.}\PYG{n}{stdin}\PYG{o}{.}\PYG{n}{flush}\PYG{p}{()}
+
+    \PYG{n}{proc}\PYG{o}{.}\PYG{n}{stdin}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}import \PYGZdq{}} \PYG{o}{+} \PYG{n}{current\PYGZus{}file} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{proc}\PYG{o}{.}\PYG{n}{stdin}\PYG{o}{.}\PYG{n}{flush}\PYG{p}{()}
+
+
+\PYG{k}{def} \PYG{n+nf}{run\PYGZus{}interactive\PYGZus{}separate}\PYG{p}{():}
+    \PYG{k}{global} \PYG{n}{current\PYGZus{}file}
+    \PYG{k}{if} \PYG{n}{current\PYGZus{}file} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}\PYG{p}{:}
+        \PYG{n}{openFile}\PYG{p}{()}
+    \PYG{k}{if} \PYG{n}{current\PYGZus{}file} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return}
+    \PYG{n}{save}\PYG{p}{()}
+    \PYG{n}{subprocess}\PYG{o}{.}\PYG{n}{call}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}start ipython \PYGZhy{}\PYGZhy{} ./interpreter.py \PYGZhy{}i \PYGZsq{}} \PYG{o}{+}
+                    \PYG{n}{current\PYGZus{}file}\PYG{p}{,} \PYG{n}{shell}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+
+
+\PYG{k}{def} \PYG{n+nf}{run\PYGZus{}separate}\PYG{p}{():}
+    \PYG{k}{global} \PYG{n}{current\PYGZus{}file}
+    \PYG{k}{if} \PYG{n}{current\PYGZus{}file} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}\PYG{p}{:}
+        \PYG{n}{openFile}\PYG{p}{()}
+    \PYG{k}{if} \PYG{n}{current\PYGZus{}file} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return}
+    \PYG{n}{save}\PYG{p}{()}
+    \PYG{n}{subprocess}\PYG{o}{.}\PYG{n}{call}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}start ipython \PYGZhy{}\PYGZhy{} ./interpreter.py \PYGZsq{}} \PYG{o}{+}
+                    \PYG{n}{current\PYGZus{}file}\PYG{p}{,} \PYG{n}{shell}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+
+
+\PYG{k}{def} \PYG{n+nf}{new\PYGZus{}file}\PYG{p}{():}
+    \PYG{n}{save}\PYG{p}{()}
+    \PYG{k}{global} \PYG{n}{current\PYGZus{}file}
+    \PYG{n}{current\PYGZus{}file} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{delete}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}1.0\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}end\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{refreshCode}\PYG{p}{()}
+
+
+\PYG{k}{def} \PYG{n+nf}{new\PYGZus{}folder}\PYG{p}{():}
+    \PYG{k}{if} \PYG{n}{current\PYGZus{}folder} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return}
+    \PYG{n}{input\PYGZus{}dialog} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{CTkInputDialog}\PYG{p}{(}\PYG{n}{title}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}New Folder\PYGZdq{}}\PYG{p}{,} \PYG{n}{text}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Folder name:\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{new\PYGZus{}dir} \PYG{o}{=} \PYG{n}{input\PYGZus{}dialog}\PYG{o}{.}\PYG{n}{get\PYGZus{}input}\PYG{p}{()}
+    \PYG{k}{if} \PYG{n}{new\PYGZus{}dir} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{return}
+    \PYG{n}{os}\PYG{o}{.}\PYG{n}{mkdir}\PYG{p}{(}\PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{join}\PYG{p}{(}\PYG{n}{current\PYGZus{}folder}\PYG{p}{,} \PYG{n}{new\PYGZus{}dir}\PYG{p}{))}
+    \PYG{n}{refreshFolder}\PYG{p}{()}
+
+
+\PYG{k}{def} \PYG{n+nf}{tes}\PYG{p}{():}
+    \PYG{n}{refreshCode}\PYG{p}{()}
+
+
+\PYG{k}{def} \PYG{n+nf}{menu\PYGZus{}action}\PYG{p}{(}\PYG{n}{action}\PYG{p}{):}
+    \PYG{k}{match} \PYG{n}{action}\PYG{p}{:}
+        \PYG{k}{case} \PYG{l+s+s2}{\PYGZdq{}Open File\PYGZdq{}}\PYG{p}{:}
+            \PYG{n}{openFile}\PYG{p}{()}
+        \PYG{k}{case} \PYG{l+s+s2}{\PYGZdq{}Open Folder\PYGZdq{}}\PYG{p}{:}
+            \PYG{n}{openFolder}\PYG{p}{()}
+        \PYG{k}{case} \PYG{l+s+s2}{\PYGZdq{}Save\PYGZdq{}}\PYG{p}{:}
+            \PYG{n}{save}\PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{)}
+        \PYG{k}{case} \PYG{l+s+s2}{\PYGZdq{}Save as\PYGZdq{}}\PYG{p}{:}
+            \PYG{n}{saveFile}\PYG{p}{()}
+        \PYG{k}{case} \PYG{l+s+s2}{\PYGZdq{}Run\PYGZdq{}}\PYG{p}{:}
+            \PYG{n}{runCurrent}\PYG{p}{()}
+        \PYG{k}{case} \PYG{l+s+s2}{\PYGZdq{}Tes\PYGZdq{}}\PYG{p}{:}
+            \PYG{n}{tes}\PYG{p}{()}
+        \PYG{k}{case} \PYG{l+s+s2}{\PYGZdq{}New File\PYGZdq{}}\PYG{p}{:}
+            \PYG{n}{new\PYGZus{}file}\PYG{p}{()}
+        \PYG{k}{case} \PYG{l+s+s2}{\PYGZdq{}New Folder\PYGZdq{}}\PYG{p}{:}
+            \PYG{n}{new\PYGZus{}folder}\PYG{p}{()}
+    \PYG{n}{menubar}\PYG{o}{.}\PYG{n}{set}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Menu\PYGZdq{}}\PYG{p}{)}
+
+
+\PYG{n}{menu\PYGZus{}frame} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{CTkFrame}\PYG{p}{(}\PYG{n}{main\PYGZus{}frame}\PYG{p}{,} \PYG{n}{fg\PYGZus{}color}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}transparent\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{menu\PYGZus{}frame}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{(}\PYG{n}{row}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{column}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{padx}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{pady}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{sticky}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}nsew\PYGZdq{}}\PYG{p}{,} \PYG{n}{columnspan}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{)}
+
+
+\PYG{k}{def} \PYG{n+nf}{run\PYGZus{}on\PYGZus{}choice}\PYG{p}{(}\PYG{n}{choice}\PYG{p}{):}
+    \PYG{k}{global} \PYG{n}{run\PYGZus{}menu}
+    \PYG{k}{match} \PYG{n}{choice}\PYG{p}{:}
+        \PYG{k}{case} \PYG{l+s+s1}{\PYGZsq{}Run\PYGZsq{}}\PYG{p}{:}
+            \PYG{n}{runCurrent}\PYG{p}{()}
+        \PYG{k}{case} \PYG{l+s+s1}{\PYGZsq{}Run in external terminal\PYGZsq{}}\PYG{p}{:}
+            \PYG{n}{run\PYGZus{}separate}\PYG{p}{()}
+        \PYG{k}{case} \PYG{l+s+s1}{\PYGZsq{}Run interactive in external terminal\PYGZsq{}}\PYG{p}{:}
+            \PYG{n}{run\PYGZus{}interactive\PYGZus{}separate}\PYG{p}{()}
+        \PYG{k}{case} \PYG{l+s+s1}{\PYGZsq{}Restart\PYGZsq{}}\PYG{p}{:}
+            \PYG{n}{restart}\PYG{p}{()}
+    \PYG{n}{run\PYGZus{}menu}\PYG{o}{.}\PYG{n}{set}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}Run\PYGZsq{}}\PYG{p}{)}
+
+
+\PYG{n}{run\PYGZus{}menu} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{CTkOptionMenu}\PYG{p}{(}\PYG{n}{menu\PYGZus{}frame}\PYG{p}{,} \PYG{n}{values}\PYG{o}{=}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}Run\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}Run in external terminal\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}Run interactive in external terminal\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}Restart Terminal\PYGZsq{}}\PYG{p}{],}
+                             \PYG{n}{command}\PYG{o}{=}\PYG{n}{run\PYGZus{}on\PYGZus{}choice}\PYG{p}{,} \PYG{n}{width}\PYG{o}{=}\PYG{l+m+mi}{100}\PYG{p}{)}
+\PYG{n}{run\PYGZus{}menu}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{font}\PYG{o}{=}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}fira code\PYGZdq{}}\PYG{p}{,} \PYG{l+m+mi}{14}\PYG{p}{))}
+\PYG{n}{run\PYGZus{}menu}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{dropdown\PYGZus{}font}\PYG{o}{=}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}fira code\PYGZdq{}}\PYG{p}{,} \PYG{l+m+mi}{14}\PYG{p}{))}
+\PYG{n}{run\PYGZus{}menu}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{(}\PYG{n}{row}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{column}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{padx}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{pady}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{n}{sticky}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}nsew\PYGZdq{}}\PYG{p}{)}
+
+
+\PYG{c+c1}{\PYGZsh{} runButton = ctk.CTkButton(menu\PYGZus{}frame, text=\PYGZdq{}Run\PYGZdq{}, command=runCurrent, width=10)}
+\PYG{c+c1}{\PYGZsh{} runButton.grid(row=0, column=1, padx=0, pady=10, sticky=\PYGZdq{}w\PYGZdq{})}
+
+
+\PYG{n}{menubar} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{CTkOptionMenu}\PYG{p}{(}\PYG{n}{menu\PYGZus{}frame}\PYG{p}{,} \PYG{n}{bg\PYGZus{}color}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}transparent\PYGZdq{}}\PYG{p}{,} \PYG{n}{values}\PYG{o}{=}\PYG{p}{[}
+                            \PYG{l+s+s1}{\PYGZsq{}New File\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}Open File\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}New Folder\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}Open Folder\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}Save\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}Save as\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}Run\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}Tes\PYGZdq{}}\PYG{p}{],} \PYG{n}{command}\PYG{o}{=}\PYG{n}{menu\PYGZus{}action}\PYG{p}{,} \PYG{n}{width}\PYG{o}{=}\PYG{l+m+mi}{100}\PYG{p}{)}
+\PYG{n}{menubar}\PYG{o}{.}\PYG{n}{set}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Menu\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{menubar}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{font}\PYG{o}{=}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}fira code\PYGZdq{}}\PYG{p}{,} \PYG{l+m+mi}{14}\PYG{p}{))}
+\PYG{n}{menubar}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{dropdown\PYGZus{}font}\PYG{o}{=}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}fira code\PYGZdq{}}\PYG{p}{,} \PYG{l+m+mi}{14}\PYG{p}{))}
+\PYG{c+c1}{\PYGZsh{} menubar.\PYGZus{}dropdown\PYGZus{}menu.configure()}
+
+\PYG{n}{menubar}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{(}\PYG{n}{row}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{column}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{padx}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{n}{pady}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{n}{sticky}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}nsew\PYGZdq{}}\PYG{p}{)}
+
+\PYG{n}{main\PYGZus{}frame}\PYG{o}{.}\PYG{n}{pack}\PYG{p}{(}\PYG{n}{fill}\PYG{o}{=}\PYG{n}{ctk}\PYG{o}{.}\PYG{n}{BOTH}\PYG{p}{,} \PYG{n}{expand}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}
+\PYG{n}{app}\PYG{o}{.}\PYG{n}{after}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{k}{lambda}\PYG{p}{:} \PYG{n}{app}\PYG{o}{.}\PYG{n}{state}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}zoomed\PYGZsq{}}\PYG{p}{))}
+
+\PYG{n}{console\PYGZus{}frame} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{CTkFrame}\PYG{p}{(}\PYG{n}{main\PYGZus{}frame}\PYG{p}{)}
+\PYG{n}{console\PYGZus{}frame}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{(}\PYG{n}{row}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{n}{column}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{n}{padx}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{pady}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{10}\PYG{p}{),} \PYG{n}{sticky}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}nsew\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{main\PYGZus{}frame}\PYG{o}{.}\PYG{n}{grid\PYGZus{}columnconfigure}\PYG{p}{(}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{n}{weight}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{)}
+
+\PYG{n}{text\PYGZus{}box\PYGZus{}console} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{CTkTextbox}\PYG{p}{(}\PYG{n}{console\PYGZus{}frame}\PYG{p}{,} \PYG{n}{activate\PYGZus{}scrollbars}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+\PYG{n}{text\PYGZus{}box\PYGZus{}console}\PYG{o}{.}\PYG{n}{pack}\PYG{p}{(}\PYG{n}{fill}\PYG{o}{=}\PYG{n}{ctk}\PYG{o}{.}\PYG{n}{BOTH}\PYG{p}{,} \PYG{n}{expand}\PYG{o}{=}\PYG{l+m+mi}{8}\PYG{p}{,} \PYG{n}{padx}\PYG{o}{=}\PYG{l+m+mi}{5}\PYG{p}{,}
+                      \PYG{n}{pady}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{5}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{))}
+\PYG{n}{text\PYGZus{}box\PYGZus{}console}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{font}\PYG{o}{=}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}fira code\PYGZdq{}}\PYG{p}{,} \PYG{l+m+mi}{14}\PYG{p}{))}
+
+\PYG{n}{console\PYGZus{}input} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{CTkEntry}\PYG{p}{(}
+    \PYG{n}{console\PYGZus{}frame}\PYG{p}{,} \PYG{n}{border\PYGZus{}width}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{height}\PYG{o}{=}\PYG{l+m+mi}{40}\PYG{p}{,} \PYG{n}{fg\PYGZus{}color}\PYG{o}{=}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}white\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}\PYGZsh{}1e1e1e\PYGZdq{}}\PYG{p}{))}
+\PYG{n}{console\PYGZus{}input}\PYG{o}{.}\PYG{n}{pack}\PYG{p}{(}\PYG{n}{fill}\PYG{o}{=}\PYG{n}{ctk}\PYG{o}{.}\PYG{n}{X}\PYG{p}{,} \PYG{n}{pady}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{l+m+mi}{5}\PYG{p}{),} \PYG{n}{padx}\PYG{o}{=}\PYG{l+m+mi}{5}\PYG{p}{)}
+\PYG{n}{console\PYGZus{}input}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{font}\PYG{o}{=}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}fira code\PYGZdq{}}\PYG{p}{,} \PYG{l+m+mi}{14}\PYG{p}{))}
+
+
+\PYG{k}{def} \PYG{n+nf}{console\PYGZus{}on\PYGZus{}enter}\PYG{p}{(}\PYG{n}{event}\PYG{p}{):}
+    \PYG{n}{data} \PYG{o}{=} \PYG{n}{console\PYGZus{}input}\PYG{o}{.}\PYG{n}{get}\PYG{p}{()} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}
+
+    \PYG{n}{text\PYGZus{}box\PYGZus{}console}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{state}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}normal\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{text\PYGZus{}box\PYGZus{}console}\PYG{o}{.}\PYG{n}{insert}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{,} \PYG{n}{data}\PYG{p}{)}
+    \PYG{n}{text\PYGZus{}box\PYGZus{}console}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{state}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}disabled\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{k}{if} \PYG{n}{proc}\PYG{o}{.}\PYG{n}{poll}\PYG{p}{():}
+        \PYG{n}{restart}\PYG{p}{()}
+    \PYG{n}{proc}\PYG{o}{.}\PYG{n}{stdin}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{n}{data}\PYG{p}{)}
+    \PYG{n}{proc}\PYG{o}{.}\PYG{n}{stdin}\PYG{o}{.}\PYG{n}{flush}\PYG{p}{()}
+    \PYG{n}{console\PYGZus{}input}\PYG{o}{.}\PYG{n}{delete}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{)}
+
+
+\PYG{n}{console\PYGZus{}input}\PYG{o}{.}\PYG{n}{bind}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}\PYGZlt{}Return\PYGZgt{}\PYGZsq{}}\PYG{p}{,} \PYG{n}{console\PYGZus{}on\PYGZus{}enter}\PYG{p}{)}
+\PYG{n}{proc} \PYG{o}{=} \PYG{n}{subprocess}\PYG{o}{.}\PYG{n}{Popen}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}python ./interpreter.py\PYGZsq{}}\PYG{p}{,} \PYG{n}{text}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,}
+                        \PYG{n}{stdin}\PYG{o}{=}\PYG{n}{subprocess}\PYG{o}{.}\PYG{n}{PIPE}\PYG{p}{,} \PYG{n}{stdout}\PYG{o}{=}\PYG{n}{subprocess}\PYG{o}{.}\PYG{n}{PIPE}\PYG{p}{,} \PYG{n}{stderr}\PYG{o}{=}\PYG{n}{subprocess}\PYG{o}{.}\PYG{n}{PIPE}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} proc = subprocess.Popen(\PYGZsq{}pwsh\PYGZsq{}, text=True,}
+\PYG{c+c1}{\PYGZsh{} stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE}
+
+\PYG{n}{bef} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}}
+
+
+\PYG{k}{def} \PYG{n+nf}{read\PYGZus{}proc}\PYG{p}{():}
+    \PYG{k}{while} \PYG{n}{proc}\PYG{o}{.}\PYG{n}{poll}\PYG{p}{()} \PYG{o+ow}{is} \PYG{k+kc}{None}\PYG{p}{:}
+        \PYG{n}{data} \PYG{o}{=} \PYG{n}{os}\PYG{o}{.}\PYG{n}{read}\PYG{p}{(}\PYG{n}{proc}\PYG{o}{.}\PYG{n}{stdout}\PYG{o}{.}\PYG{n}{fileno}\PYG{p}{(),} \PYG{l+m+mi}{1} \PYG{o}{\PYGZlt{}\PYGZlt{}} \PYG{l+m+mi}{20}\PYG{p}{)}
+        \PYG{c+c1}{\PYGZsh{} data = proc.stdout.readline()}
+        \PYG{n}{data} \PYG{o}{=} \PYG{n}{data}\PYG{o}{.}\PYG{n}{replace}\PYG{p}{(}\PYG{l+s+sa}{b}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}r\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+sa}{b}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+        \PYG{n}{decoded} \PYG{o}{=} \PYG{n}{data}\PYG{o}{.}\PYG{n}{decode}\PYG{p}{()}
+        \PYG{k}{if} \PYG{n}{data}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{data} \PYG{o}{==} \PYG{l+s+sa}{b}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}x0c}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:}
+                \PYG{n}{text\PYGZus{}box\PYGZus{}console}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{state}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}normal\PYGZsq{}}\PYG{p}{)}
+                \PYG{n}{text\PYGZus{}box\PYGZus{}console}\PYG{o}{.}\PYG{n}{delete}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}1.0\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{)}
+                \PYG{n}{text\PYGZus{}box\PYGZus{}console}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{state}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}disabled\PYGZsq{}}\PYG{p}{)}
+                \PYG{k}{continue}
+            \PYG{k}{global} \PYG{n}{bef}
+            \PYG{k}{if} \PYG{n}{decoded}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{2}\PYG{p}{:]} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}\PYGZgt{}\PYGZgt{}\PYGZsq{}}\PYG{p}{:}
+                \PYG{n}{proc}\PYG{o}{.}\PYG{n}{stdin}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}cd \PYGZdq{}} \PYG{o}{+} \PYG{n}{current\PYGZus{}folder} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+                \PYG{n}{proc}\PYG{o}{.}\PYG{n}{stdin}\PYG{o}{.}\PYG{n}{flush}\PYG{p}{()}
+
+            \PYG{n}{text\PYGZus{}box\PYGZus{}console}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{state}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}normal\PYGZsq{}}\PYG{p}{)}
+            \PYG{n}{text\PYGZus{}box\PYGZus{}console}\PYG{o}{.}\PYG{n}{insert}\PYG{p}{(}
+                \PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{,} \PYG{n}{decoded}\PYG{p}{)}
+            \PYG{n}{text\PYGZus{}box\PYGZus{}console}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{state}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}disabled\PYGZsq{}}\PYG{p}{)}
+            \PYG{n}{text\PYGZus{}box\PYGZus{}console}\PYG{o}{.}\PYG{n}{see}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{)}
+            \PYG{n}{bef} \PYG{o}{=} \PYG{n}{decoded}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{k}{return} \PYG{k+kc}{None}
+
+
+\PYG{k}{def} \PYG{n+nf}{read\PYGZus{}err}\PYG{p}{():}
+    \PYG{k}{while} \PYG{n}{proc}\PYG{o}{.}\PYG{n}{poll}\PYG{p}{()} \PYG{o+ow}{is} \PYG{k+kc}{None}\PYG{p}{:}
+        \PYG{n}{data} \PYG{o}{=} \PYG{n}{os}\PYG{o}{.}\PYG{n}{read}\PYG{p}{(}\PYG{n}{proc}\PYG{o}{.}\PYG{n}{stderr}\PYG{o}{.}\PYG{n}{fileno}\PYG{p}{(),} \PYG{l+m+mi}{1} \PYG{o}{\PYGZlt{}\PYGZlt{}} \PYG{l+m+mi}{20}\PYG{p}{)}
+        \PYG{n}{data} \PYG{o}{=} \PYG{n}{data}\PYG{o}{.}\PYG{n}{replace}\PYG{p}{(}\PYG{l+s+sa}{b}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}r\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+sa}{b}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+        \PYG{n}{decoded} \PYG{o}{=} \PYG{n}{data}\PYG{o}{.}\PYG{n}{decode}\PYG{p}{()}
+        \PYG{k}{if} \PYG{n}{data}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{data} \PYG{o}{==} \PYG{l+s+sa}{b}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}x0c}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:}
+                \PYG{n}{text\PYGZus{}box\PYGZus{}console}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{state}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}normal\PYGZsq{}}\PYG{p}{)}
+                \PYG{n}{text\PYGZus{}box\PYGZus{}console}\PYG{o}{.}\PYG{n}{delete}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}1.0\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{)}
+                \PYG{n}{text\PYGZus{}box\PYGZus{}console}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{state}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}disabled\PYGZsq{}}\PYG{p}{)}
+                \PYG{k}{continue}
+            \PYG{n}{text\PYGZus{}box\PYGZus{}console}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{state}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}normal\PYGZsq{}}\PYG{p}{)}
+            \PYG{n}{text\PYGZus{}box\PYGZus{}console}\PYG{o}{.}\PYG{n}{insert}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{,} \PYG{n}{decoded}\PYG{p}{)}
+            \PYG{n}{text\PYGZus{}box\PYGZus{}console}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{state}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}disabled\PYGZsq{}}\PYG{p}{)}
+            \PYG{n}{text\PYGZus{}box\PYGZus{}console}\PYG{o}{.}\PYG{n}{see}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}end\PYGZsq{}}\PYG{p}{)}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{k}{return} \PYG{k+kc}{None}
+
+
+\PYG{n}{thread} \PYG{o}{=} \PYG{n}{threading}\PYG{o}{.}\PYG{n}{Thread}\PYG{p}{(}\PYG{n}{target}\PYG{o}{=}\PYG{n}{read\PYGZus{}proc}\PYG{p}{)}
+\PYG{n}{thread}\PYG{o}{.}\PYG{n}{start}\PYG{p}{()}
+
+\PYG{n}{thread\PYGZus{}err} \PYG{o}{=} \PYG{n}{threading}\PYG{o}{.}\PYG{n}{Thread}\PYG{p}{(}\PYG{n}{target}\PYG{o}{=}\PYG{n}{read\PYGZus{}err}\PYG{p}{)}
+\PYG{n}{thread\PYGZus{}err}\PYG{o}{.}\PYG{n}{start}\PYG{p}{()}
+
+
+\PYG{k}{def} \PYG{n+nf}{restart}\PYG{p}{():}
+    \PYG{k}{global} \PYG{n}{proc}\PYG{p}{,} \PYG{n}{thread}\PYG{p}{,} \PYG{n}{thread\PYGZus{}err}
+    \PYG{n}{proc} \PYG{o}{=} \PYG{n}{subprocess}\PYG{o}{.}\PYG{n}{Popen}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}python ./interpreter.py\PYGZsq{}}\PYG{p}{,} \PYG{n}{text}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,}
+                            \PYG{n}{stdin}\PYG{o}{=}\PYG{n}{subprocess}\PYG{o}{.}\PYG{n}{PIPE}\PYG{p}{,} \PYG{n}{stdout}\PYG{o}{=}\PYG{n}{subprocess}\PYG{o}{.}\PYG{n}{PIPE}\PYG{p}{,} \PYG{n}{stderr}\PYG{o}{=}\PYG{n}{subprocess}\PYG{o}{.}\PYG{n}{PIPE}\PYG{p}{)}
+    \PYG{n}{thread} \PYG{o}{=} \PYG{n}{threading}\PYG{o}{.}\PYG{n}{Thread}\PYG{p}{(}\PYG{n}{target}\PYG{o}{=}\PYG{n}{read\PYGZus{}proc}\PYG{p}{)}
+    \PYG{n}{thread}\PYG{o}{.}\PYG{n}{start}\PYG{p}{()}
+
+    \PYG{n}{thread\PYGZus{}err} \PYG{o}{=} \PYG{n}{threading}\PYG{o}{.}\PYG{n}{Thread}\PYG{p}{(}\PYG{n}{target}\PYG{o}{=}\PYG{n}{read\PYGZus{}err}\PYG{p}{)}
+    \PYG{n}{thread\PYGZus{}err}\PYG{o}{.}\PYG{n}{start}\PYG{p}{()}
+
+
+\PYG{k}{def} \PYG{n+nf}{on\PYGZus{}closing}\PYG{p}{():}
+    \PYG{n}{proc}\PYG{o}{.}\PYG{n}{terminate}\PYG{p}{()}
+    \PYG{n}{save}\PYG{p}{()}
+    \PYG{k}{if} \PYG{n}{tkmessagebox}\PYG{o}{.}\PYG{n}{askyesno}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Quit\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}Do you want to quit?\PYGZdq{}}\PYG{p}{):}
+        \PYG{n}{app}\PYG{o}{.}\PYG{n}{destroy}\PYG{p}{()}
+
+
+\PYG{n}{app}\PYG{o}{.}\PYG{n}{protocol}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}WM\PYGZus{}DELETE\PYGZus{}WINDOW\PYGZdq{}}\PYG{p}{,} \PYG{n}{on\PYGZus{}closing}\PYG{p}{)}
+
+\PYG{n}{refresh\PYGZus{}cycle\PYGZus{}delay} \PYG{o}{=} \PYG{l+m+mi}{1000}
+
+
+\PYG{k}{def} \PYG{n+nf}{set\PYGZus{}refresh\PYGZus{}cycle\PYGZus{}delay}\PYG{p}{(}\PYG{n}{x}\PYG{p}{):}
+    \PYG{k}{global} \PYG{n}{refresh\PYGZus{}cycle\PYGZus{}delay}
+    \PYG{n}{x} \PYG{o}{=} \PYG{n}{x}\PYG{o}{.}\PYG{n}{replace}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{} ms\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{refresh\PYGZus{}cycle\PYGZus{}delay} \PYG{o}{=} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}
+
+
+\PYG{n}{delay\PYGZus{}label} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{CTkLabel}\PYG{p}{(}\PYG{n}{menu\PYGZus{}frame}\PYG{p}{,} \PYG{n}{text}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Refresh delay :\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{delay\PYGZus{}label}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{(}\PYG{n}{row}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{column}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{,} \PYG{n}{padx}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{),} \PYG{n}{pady}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{n}{sticky}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}nsew\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{delay\PYGZus{}label}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{font}\PYG{o}{=}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}fira code\PYGZdq{}}\PYG{p}{,} \PYG{l+m+mi}{14}\PYG{p}{))}
+
+\PYG{n}{delay\PYGZus{}input} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{CTkOptionMenu}\PYG{p}{(}
+    \PYG{n}{menu\PYGZus{}frame}\PYG{p}{,} \PYG{n}{values}\PYG{o}{=}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}100 ms\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}500 ms\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}1000 ms\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}2000 ms\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}3000 ms\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}4000 ms\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}5000 ms\PYGZsq{}}\PYG{p}{],} \PYG{n}{command}\PYG{o}{=}\PYG{n}{set\PYGZus{}refresh\PYGZus{}cycle\PYGZus{}delay}\PYG{p}{,} \PYG{n}{width}\PYG{o}{=}\PYG{l+m+mi}{100}\PYG{p}{)}
+\PYG{n}{delay\PYGZus{}input}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{(}\PYG{n}{row}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{column}\PYG{o}{=}\PYG{l+m+mi}{3}\PYG{p}{,} \PYG{n}{padx}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{n}{pady}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{n}{sticky}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}nsew\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{delay\PYGZus{}input}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{font}\PYG{o}{=}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}fira code\PYGZdq{}}\PYG{p}{,} \PYG{l+m+mi}{14}\PYG{p}{))}
+\PYG{n}{delay\PYGZus{}input}\PYG{o}{.}\PYG{n}{set}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}1000 ms\PYGZsq{}}\PYG{p}{)}
+
+\PYG{n}{is\PYGZus{}auto\PYGZus{}save} \PYG{o}{=} \PYG{k+kc}{False}
+\PYG{n}{auto\PYGZus{}save\PYGZus{}delay} \PYG{o}{=} \PYG{l+m+mi}{1000}
+
+
+\PYG{k}{def} \PYG{n+nf}{set\PYGZus{}auto\PYGZus{}save\PYGZus{}delay}\PYG{p}{(}\PYG{n}{x}\PYG{p}{):}
+    \PYG{k}{global} \PYG{n}{auto\PYGZus{}save\PYGZus{}delay}
+    \PYG{n}{x} \PYG{o}{=} \PYG{n}{x}\PYG{o}{.}\PYG{n}{replace}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{} ms\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{auto\PYGZus{}save\PYGZus{}delay} \PYG{o}{=} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}
+
+
+\PYG{n}{auto\PYGZus{}save\PYGZus{}delay\PYGZus{}input} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{CTkOptionMenu}\PYG{p}{(}\PYG{n}{menu\PYGZus{}frame}\PYG{p}{,} \PYG{n}{values}\PYG{o}{=}\PYG{p}{[}
+                                          \PYG{l+s+s1}{\PYGZsq{}100 ms\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}500 ms\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}1000 ms\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}2000 ms\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}3000 ms\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}4000 ms\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}5000 ms\PYGZsq{}}\PYG{p}{],} \PYG{n}{command}\PYG{o}{=}\PYG{n}{set\PYGZus{}auto\PYGZus{}save\PYGZus{}delay}\PYG{p}{,} \PYG{n}{width}\PYG{o}{=}\PYG{l+m+mi}{100}\PYG{p}{)}
+\PYG{n}{auto\PYGZus{}save\PYGZus{}delay\PYGZus{}input}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{(}\PYG{n}{row}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{column}\PYG{o}{=}\PYG{l+m+mi}{6}\PYG{p}{,} \PYG{n}{padx}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{n}{pady}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{n}{sticky}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}nsew\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{auto\PYGZus{}save\PYGZus{}delay\PYGZus{}input}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{font}\PYG{o}{=}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}fira code\PYGZdq{}}\PYG{p}{,} \PYG{l+m+mi}{14}\PYG{p}{))}
+\PYG{n}{auto\PYGZus{}save\PYGZus{}delay\PYGZus{}input}\PYG{o}{.}\PYG{n}{set}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}1000 ms\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{auto\PYGZus{}save\PYGZus{}delay\PYGZus{}input}\PYG{o}{.}\PYG{n}{grid\PYGZus{}remove}\PYG{p}{()} \PYG{k}{if} \PYG{o+ow}{not} \PYG{n}{is\PYGZus{}auto\PYGZus{}save} \PYG{k}{else} \PYG{k+kc}{None}
+
+
+\PYG{k}{def} \PYG{n+nf}{set\PYGZus{}auto\PYGZus{}save}\PYG{p}{():}
+    \PYG{k}{global} \PYG{n}{is\PYGZus{}auto\PYGZus{}save}
+    \PYG{n}{is\PYGZus{}auto\PYGZus{}save} \PYG{o}{=} \PYG{n}{auto\PYGZus{}save\PYGZus{}input}\PYG{o}{.}\PYG{n}{get}\PYG{p}{()}
+    \PYG{n}{auto\PYGZus{}save\PYGZus{}delay\PYGZus{}input}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{()} \PYG{k}{if} \PYG{n}{is\PYGZus{}auto\PYGZus{}save} \PYG{k}{else} \PYG{n}{auto\PYGZus{}save\PYGZus{}delay\PYGZus{}input}\PYG{o}{.}\PYG{n}{grid\PYGZus{}remove}\PYG{p}{()}
+    \PYG{c+c1}{\PYGZsh{} print(is\PYGZus{}auto\PYGZus{}save)}
+
+
+\PYG{n}{auto\PYGZus{}save\PYGZus{}label} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{CTkLabel}\PYG{p}{(}\PYG{n}{menu\PYGZus{}frame}\PYG{p}{,} \PYG{n}{text}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Auto save\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{auto\PYGZus{}save\PYGZus{}label}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{(}\PYG{n}{row}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{column}\PYG{o}{=}\PYG{l+m+mi}{4}\PYG{p}{,} \PYG{n}{padx}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{),} \PYG{n}{pady}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{n}{sticky}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}nsew\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{auto\PYGZus{}save\PYGZus{}label}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{font}\PYG{o}{=}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}fira code\PYGZdq{}}\PYG{p}{,} \PYG{l+m+mi}{14}\PYG{p}{))}
+
+\PYG{n}{auto\PYGZus{}save\PYGZus{}input} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{CTkSwitch}\PYG{p}{(}
+    \PYG{n}{menu\PYGZus{}frame}\PYG{p}{,} \PYG{n}{text}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}}\PYG{p}{,} \PYG{n}{command}\PYG{o}{=}\PYG{n}{set\PYGZus{}auto\PYGZus{}save}\PYG{p}{,} \PYG{n}{width}\PYG{o}{=}\PYG{l+m+mi}{20}\PYG{p}{)}
+\PYG{n}{auto\PYGZus{}save\PYGZus{}input}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{(}\PYG{n}{row}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{column}\PYG{o}{=}\PYG{l+m+mi}{5}\PYG{p}{,} \PYG{n}{padx}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{),} \PYG{n}{pady}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{,}
+                     \PYG{n}{sticky}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}nsew\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{auto\PYGZus{}save\PYGZus{}input}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{font}\PYG{o}{=}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}fira code\PYGZdq{}}\PYG{p}{,} \PYG{l+m+mi}{14}\PYG{p}{))}
+
+
+\PYG{k}{def} \PYG{n+nf}{refresh\PYGZus{}cycle}\PYG{p}{():}
+    \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}refresh\PYGZsq{}, refresh\PYGZus{}cycle\PYGZus{}delay)}
+    \PYG{n}{refreshCode}\PYG{p}{()}
+    \PYG{n}{app}\PYG{o}{.}\PYG{n}{after}\PYG{p}{(}\PYG{n}{refresh\PYGZus{}cycle\PYGZus{}delay}\PYG{p}{,} \PYG{n}{refresh\PYGZus{}cycle}\PYG{p}{)}
+
+
+\PYG{k}{def} \PYG{n+nf}{auto\PYGZus{}save\PYGZus{}cycle}\PYG{p}{():}
+    \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}auto save cycle\PYGZsq{})}
+    \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}auto save\PYGZsq{}, is\PYGZus{}auto\PYGZus{}save)}
+    \PYG{k}{if} \PYG{n}{is\PYGZus{}auto\PYGZus{}save} \PYG{o+ow}{and} \PYG{n}{current\PYGZus{}file} \PYG{o}{!=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}} \PYG{o+ow}{and} \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{get}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}1.0\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}end\PYGZdq{}}\PYG{p}{)}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()} \PYG{o}{!=} \PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}}\PYG{p}{:}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}auto save\PYGZsq{}}\PYG{p}{)}
+        \PYG{n}{save}\PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{)}
+    \PYG{n}{app}\PYG{o}{.}\PYG{n}{after}\PYG{p}{(}\PYG{n}{auto\PYGZus{}save\PYGZus{}delay}\PYG{p}{,} \PYG{n}{auto\PYGZus{}save\PYGZus{}cycle}\PYG{p}{)}
+
+
+\PYG{k}{def} \PYG{n+nf}{switch\PYGZus{}mode}\PYG{p}{():}
+    \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{set\PYGZus{}appearance\PYGZus{}mode}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}dark\PYGZsq{}} \PYG{k}{if} \PYG{n}{mode\PYGZus{}switch}\PYG{o}{.}\PYG{n}{get}\PYG{p}{()} \PYG{k}{else} \PYG{l+s+s1}{\PYGZsq{}light\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{tag\PYGZus{}color} \PYG{o}{=} \PYG{p}{\PYGZob{}}
+        \PYG{l+s+s1}{\PYGZsq{}block\PYGZsq{}}\PYG{p}{:} \PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}brown1\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}brown4\PYGZsq{}}\PYG{p}{),}
+        \PYG{l+s+s1}{\PYGZsq{}class\PYGZsq{}}\PYG{p}{:} \PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}yellow\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}yellow4\PYGZsq{}}\PYG{p}{),}
+        \PYG{l+s+s1}{\PYGZsq{}funct\PYGZsq{}}\PYG{p}{:} \PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}aqua\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}blue4\PYGZsq{}}\PYG{p}{),}
+        \PYG{l+s+s1}{\PYGZsq{}var\PYGZsq{}}\PYG{p}{:} \PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}orange\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}orange4\PYGZsq{}}\PYG{p}{),}
+        \PYG{l+s+s1}{\PYGZsq{}digit\PYGZsq{}}\PYG{p}{:} \PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}yellow\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}yellow4\PYGZsq{}}\PYG{p}{),}
+        \PYG{l+s+s1}{\PYGZsq{}operator\PYGZsq{}}\PYG{p}{:} \PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}cadetblue\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}cadetblue4\PYGZsq{}}\PYG{p}{),}
+        \PYG{l+s+s1}{\PYGZsq{}label\PYGZsq{}}\PYG{p}{:} \PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}brown1\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}brown4\PYGZsq{}}\PYG{p}{),}
+        \PYG{l+s+s1}{\PYGZsq{}comment\PYGZsq{}}\PYG{p}{:} \PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}gray\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}gray20\PYGZsq{}}\PYG{p}{),}
+        \PYG{l+s+s1}{\PYGZsq{}string\PYGZsq{}}\PYG{p}{:} \PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}white\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}black\PYGZsq{}}\PYG{p}{),}
+        \PYG{l+s+s1}{\PYGZsq{}quote\PYGZsq{}}\PYG{p}{:} \PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}orange\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}orange4\PYGZsq{}}\PYG{p}{)}
+    \PYG{p}{\PYGZcb{}}
+
+    \PYG{k}{if} \PYG{n}{mode\PYGZus{}switch}\PYG{o}{.}\PYG{n}{get}\PYG{p}{():}
+        \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{tag\PYGZus{}color}\PYG{p}{:}
+            \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{tag\PYGZus{}config}\PYG{p}{(}\PYG{n}{e}\PYG{p}{,} \PYG{n}{foreground}\PYG{o}{=}\PYG{n}{tag\PYGZus{}color}\PYG{p}{[}\PYG{n}{e}\PYG{p}{][}\PYG{l+m+mi}{0}\PYG{p}{])}
+    \PYG{k}{else}\PYG{p}{:}
+        \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{n}{tag\PYGZus{}color}\PYG{p}{:}
+            \PYG{n}{text\PYGZus{}box}\PYG{o}{.}\PYG{n}{tag\PYGZus{}config}\PYG{p}{(}\PYG{n}{e}\PYG{p}{,} \PYG{n}{foreground}\PYG{o}{=}\PYG{n}{tag\PYGZus{}color}\PYG{p}{[}\PYG{n}{e}\PYG{p}{][}\PYG{l+m+mi}{1}\PYG{p}{])}
+
+
+\PYG{n}{mode\PYGZus{}switch} \PYG{o}{=} \PYG{n}{ctk}\PYG{o}{.}\PYG{n}{CTkSwitch}\PYG{p}{(}\PYG{n}{menu\PYGZus{}frame}\PYG{p}{,} \PYG{n}{text}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}Dark mode\PYGZsq{}}\PYG{p}{,} \PYG{n}{width}\PYG{o}{=}\PYG{l+m+mi}{20}\PYG{p}{)}
+\PYG{n}{mode\PYGZus{}switch}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{(}\PYG{n}{row}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{column}\PYG{o}{=}\PYG{l+m+mi}{7}\PYG{p}{,} \PYG{n}{padx}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{),} \PYG{n}{pady}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{n}{sticky}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}nsew\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{mode\PYGZus{}switch}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{font}\PYG{o}{=}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}fira code\PYGZdq{}}\PYG{p}{,} \PYG{l+m+mi}{14}\PYG{p}{))}
+\PYG{n}{mode\PYGZus{}switch}\PYG{o}{.}\PYG{n}{configure}\PYG{p}{(}\PYG{n}{command}\PYG{o}{=}\PYG{n}{switch\PYGZus{}mode}\PYG{p}{)}
+\PYG{n}{mode\PYGZus{}switch}\PYG{o}{.}\PYG{n}{toggle}\PYG{p}{()}
+
+\PYG{n}{switch\PYGZus{}mode}\PYG{p}{()}
+
+\PYG{n}{app}\PYG{o}{.}\PYG{n}{after}\PYG{p}{(}\PYG{n}{auto\PYGZus{}save\PYGZus{}delay}\PYG{p}{,} \PYG{n}{auto\PYGZus{}save\PYGZus{}cycle}\PYG{p}{)}
+\PYG{n}{app}\PYG{o}{.}\PYG{n}{after}\PYG{p}{(}\PYG{n}{refresh\PYGZus{}cycle\PYGZus{}delay}\PYG{p}{,} \PYG{n}{refresh\PYGZus{}cycle}\PYG{p}{)}
+
+\PYG{n}{os}\PYG{o}{.}\PYG{n}{chdir}\PYG{p}{(}\PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{dirname}\PYG{p}{(}\PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{realpath}\PYG{p}{(}\PYG{n+nv+vm}{\PYGZus{}\PYGZus{}file\PYGZus{}\PYGZus{}}\PYG{p}{)))}
+\PYG{n}{app}\PYG{o}{.}\PYG{n}{iconbitmap}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}Icon.ico\PYGZsq{}}\PYG{p}{)}
+\PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}current working directory:\PYGZsq{}, os.getcwd())}
+\PYG{n}{app}\PYG{o}{.}\PYG{n}{mainloop}\PYG{p}{()}
+\end{Verbatim}

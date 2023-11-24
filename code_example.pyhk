@@ -241,4 +241,13 @@ while conf != "y" and conf != "n"
     end
 end
 
+#Import
+out("Import")
+import Lib\vector_class.pyhk
 
+vec1 = vector3(1,2,3)
+vec1.print()
+vec1.add(9,3,1)
+vec1.print()
+vec1.substrac(4,1,8)
+vec1.print()
