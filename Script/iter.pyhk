@@ -1,11 +1,12 @@
 a = [1,2,3,4,5]
 i = 0
-max = size(a)
+max = sizeof(a)
 
 while i < max
     out(a[i])
     i = i + 1
 end
+
 
 
 

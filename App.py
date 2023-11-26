@@ -476,8 +476,17 @@ text_box_console.configure(font=("fira code", 14))
 
 console_input = ctk.CTkEntry(
     console_frame, border_width=0, height=40, fg_color=("white", "#1e1e1e"))
+
 console_input.pack(fill=ctk.X, pady=(10, 5), padx=5)
 console_input.configure(font=("fira code", 14))
+
+
+def console_on_tab(event):
+    console_input.insert(tk.INSERT, "    ")
+    return "break"
+
+
+console_input.bind("<Tab>", console_on_tab)
 
 
 def console_on_enter(event):
@@ -633,14 +642,11 @@ auto_save_input.configure(font=("fira code", 14))
 
 
 def refresh_cycle():
-    # print('refresh', refresh_cycle_delay)
     refreshCode()
     app.after(refresh_cycle_delay, refresh_cycle)
 
 
 def auto_save_cycle():
-    # print('auto save cycle')
-    # print('auto save', is_auto_save)
     if is_auto_save and current_file != "" and text_box.get("1.0", "end").strip() != '':
         print('auto save')
         save(True)

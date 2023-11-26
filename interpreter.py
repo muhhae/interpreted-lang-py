@@ -3,6 +3,7 @@ import os
 import sys
 
 DEBUG = 0
+# sys.setrecursionlimit(100000)
 
 
 def debug_log(*args, sep=" ", end="\n", file=sys.stdout, flush=False):
@@ -47,6 +48,7 @@ class class_def:
 
 class class_var:
     def __init__(self, base: class_def, arg=[], parent=None):
+        self.class_name = base.name
         self.class_interpreter = interpreter(parent)
         self.class_interpreter.execstring(base.content)
         self.class_list = self.class_interpreter.class_list
@@ -61,6 +63,9 @@ class class_var:
         for e in self.funct_list:
             if e.name == name:
                 return e.exec(arg, self.class_interpreter, var("this", self))
+        if name == "init":
+            return None
+        print("error: class", self.class_name, "has no function", name)
         return None
 
     def get_var(self, name):
@@ -467,6 +472,9 @@ class interpreter:
                 e = e.strip()
                 e = self.check_operation(e)
                 arg[i] = e
+            if obj == None:
+                print("error: unable to execute function from NULL")
+                return (True, None)
             return (True, obj.exec_funct(key, arg))
 
         if key == "out":
@@ -549,7 +557,7 @@ class interpreter:
             input = input[:cmt_index]
         if input[:4] == "goto":
             self.exec_goto(input)
-            return
+            return "goto"
         if input[:len('import')] == "import":
             mod = input[len('import'):].strip()
             if not os.path.exists(mod):
@@ -626,7 +634,7 @@ class interpreter:
                 in_goto = True
                 goto_line = e.line
                 str_to_exec = ""
-                for lin in self.line_done[goto_line:]:
+                for lin in self.line_done[goto_line:-1]:
                     str_to_exec += lin + "\n"
                 ok, ret = self.execstring(str_to_exec)
                 in_goto = False
@@ -643,6 +651,15 @@ class interpreter:
         for e in inp[1:]:
             content += e + "\n"
         fn_tmp = funct(name, content, arg)
+        fn_exist = self.find_funct(name) != -1
+        # if fn_exist:
+        #     for i, e in enumerate(self.funct_list):
+        #         if e.name == name:
+        #             self.funct_list[i] = fn_tmp
+        #             break
+        # else:
+        #     self.funct_list.append(fn_tmp)
+
         self.funct_list.append(fn_tmp)
 
     def def_class(self, inp):
@@ -682,6 +699,10 @@ class interpreter:
                             ok, ret = self.exec_if(block_content)
                             if ok:
                                 return (True, ret)
+                            while ret == "goto":
+                                ok, ret = self.exec_if(block_content)
+                                if ok:
+                                    return (True, ret)
                         case "while":
                             ok, ret = self.exec_while(block_content)
                             if ok:
@@ -703,7 +724,9 @@ class interpreter:
                 if key == "return":
                     ret = self.check_operation(l[6:].strip())
                     return (True, ret)
-                self.execline(l)
+                exc = self.execline(l)
+                if exc == "goto":
+                    return (False, "goto")
         return (False, None)
 
     def execfile(self, path, chdir=False):

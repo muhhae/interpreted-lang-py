@@ -201,6 +201,10 @@ class tes
         return this
     end
     
+    fn copy()
+        return tes(this.a, this.b, this.c)
+    end
+    
     fn copy_add()
         return tes(this.a + 1, this.b + 1, this.c + 1)
     end
@@ -231,6 +235,15 @@ fn copy_tes(obj)
 end
 
 copy_cls = copy_tes(objA)
+obj_copy = objA.copy()
+
+out("objA \t\t: ", objA)
+out("objB \t\t: ", objB)
+out("objC \t\t: ", objC)
+out("objD \t\t: ", objD)
+out("copy_cls \t: ", copy_cls)
+out("obj_copy \t: ", obj_copy)
+out()
 
 conf = ""
 while conf != "y" and conf != "n"

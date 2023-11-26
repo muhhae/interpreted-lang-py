@@ -1,15 +1,9 @@
-fn add(a, b)     
-   return a + b     
-end     
-     
-a = 10 * add(3,add(2,add(1,1)))     
-     
-b = add(1,1)     
-c = add(2,b)     
-d = add(3,c)     
-e = 10 * d     
-     
-out("a ", a)     
-out("e ", e)     
-out("x ", 10 * add(3,add(2,add(1,1))))
-
+c = 0
+a = 1
+b = 2
+ulang:
+c = a + b + c + 1
+out(a," ",b, " ",c)
+if c < 1000
+    goto ulang
+end

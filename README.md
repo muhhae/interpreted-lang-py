@@ -73,6 +73,7 @@ sizeof(a) # return the size of list a
 class.funct_list() # return the function list of class
 class.var_list() # return the variable list of class
 ```
+NOTE: it has goto statement, but dont use it. its work in file but not in interactive terminal. And i hate it so i'm not gonna work on it. So dont use it. EVER. 
 Text editor supports the following features:
 1.  Open folder and file
 2.  Save file
