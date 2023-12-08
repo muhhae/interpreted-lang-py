@@ -74,6 +74,12 @@ class class_var:
                 return e
         return None
 
+    def __str__(self):
+        return f"Object \"{self.class_name}\" at {hex(id(self))}"
+
+    def __repr__(self):
+        return f"Object \"{self.class_name}\" at {hex(id(self))}"
+
 
 class interpreter:
     def __init__(self, parent=None):
