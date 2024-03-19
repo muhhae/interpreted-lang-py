@@ -3,7 +3,6 @@ import os
 import sys
 
 DEBUG = 0
-# sys.setrecursionlimit(100000)
 
 
 def debug_log(*args, sep=" ", end="\n", file=sys.stdout, flush=False):
@@ -75,10 +74,10 @@ class class_var:
         return None
 
     def __str__(self):
-        return f"Object \"{self.class_name}\" at {hex(id(self))}"
+        return f'Object "{self.class_name}" at {hex(id(self))}'
 
     def __repr__(self):
-        return f"Object \"{self.class_name}\" at {hex(id(self))}"
+        return f'Object "{self.class_name}" at {hex(id(self))}'
 
 
 class interpreter:
@@ -127,16 +126,29 @@ class interpreter:
         if len(input) == 0:
             return None
         if input[0] == "[" and input[-1] == "]":
-            tmp = input[input.find("[") + 1:input.rfind("]")
-                        ].strip().split(",")
+            tmp = input[input.find("[") + 1 : input.rfind("]")].strip().split(",")
             if len(tmp) == 1 and tmp[0] == "":
                 debug_log("Returning []")
                 return []
             tmp = [self.check_operation(e.strip()) for e in tmp]
             return tmp
 
-        cprOp = ["!=", "==", "<=", ">=",
-                 "<", ">", "+", "/", "*", "-", "^", "%", "(", ")"]
+        cprOp = [
+            "!=",
+            "==",
+            "<=",
+            ">=",
+            "<",
+            ">",
+            "+",
+            "/",
+            "*",
+            "-",
+            "^",
+            "%",
+            "(",
+            ")",
+        ]
         word_op = ["and", "or", "not"]
 
         tmp_2 = input.strip()
@@ -145,7 +157,7 @@ class interpreter:
         list_str = []
         in_quote = False
         for c in tmp_2:
-            if c == "\"":
+            if c == '"':
                 if in_quote:
                     list_str.append(str_tmp)
                     str_tmp = ""
@@ -159,8 +171,8 @@ class interpreter:
 
         debug_log("list_str \t\t-->", list_str)
         for i, e in enumerate(list_str):
-            while tmp_2.count(f"\"{e}\""):
-                tmp_2 = tmp_2.replace(f"\"{e}\"", f"$__str__{i}$")
+            while tmp_2.count(f'"{e}"'):
+                tmp_2 = tmp_2.replace(f'"{e}"', f"$__str__{i}$")
 
         debug_log("tmp_2 \t\t\t-->", tmp_2)
         for i, e in enumerate(cprOp):
@@ -168,10 +180,7 @@ class interpreter:
                 tmp_2 = tmp_2.replace(e, f"$__op__{i}$")
 
         for i, e in enumerate(word_op):
-            prob_case = [f" {e} ",
-                         f"){e}(",
-                         f"){e} ",
-                         f" {e}("]
+            prob_case = [f" {e} ", f"){e}(", f"){e} ", f" {e}("]
             for a in prob_case:
                 while tmp_2.count(a):
                     tmp_2 = tmp_2.replace(a, f"$__w_op__{i}$")
@@ -190,7 +199,7 @@ class interpreter:
                 continue
             if e[:7] == "__str__":
                 str_in = int(e[7:])
-                e = f"\"{list_str[str_in]}\""
+                e = f'"{list_str[str_in]}"'
             elif e[:8] == "__w_op__":
                 w_op_in = int(e[8:])
                 e = word_op[w_op_in]
@@ -262,8 +271,8 @@ class interpreter:
             elif e.isdigit() or isString(e):
                 tmp_ls[i] = e
             elif e.find(".") != -1:
-                obj = e[:e.find(".")]
-                e = e[e.find(".") + 1:]
+                obj = e[: e.find(".")]
+                e = e[e.find(".") + 1 :]
                 found_var = self.find_var(obj, True)
                 if found_var != -1:
                     if type(found_var.value) != class_var:
@@ -278,9 +287,9 @@ class interpreter:
                     print("error:", obj, "is not defined")
                     return
             elif e.find("[") != -1:
-                arr_index = e[e.find("[") + 1:e.rfind("]")].strip()
+                arr_index = e[e.find("[") + 1 : e.rfind("]")].strip()
                 arr_index = self.check_operation(arr_index)
-                e = e[:e.find("[")]
+                e = e[: e.find("[")]
                 found_var = self.find_var(e, True)
                 if found_var != -1:
                     if type(found_var.value) != list:
@@ -315,12 +324,12 @@ class interpreter:
 
     def check_assigment(self, input: str):
         debug_log("input assign \t\t-->", input)
-        bracketIndex = input.find('(')
-        asgnIndex = input.find('=')
+        bracketIndex = input.find("(")
+        asgnIndex = input.find("=")
         if asgnIndex == -1 or (bracketIndex != -1 and bracketIndex < asgnIndex):
             return self.checkkeyword(input.strip())
         tmpVar_name = input[0:asgnIndex].strip()
-        tmpVar_val = input[asgnIndex+1:].strip()
+        tmpVar_val = input[asgnIndex + 1 :].strip()
         tmpVar_scope = "local"
 
         if tmpVar_name.find(" ") != -1:
@@ -341,18 +350,20 @@ class interpreter:
             return
         arr_index = -1
         if tmpVar_name.find("[") != -1:
-            arr_index = tmpVar_name[tmpVar_name.find(
-                "[") + 1:tmpVar_name.rfind("]")].strip()
+            arr_index = tmpVar_name[
+                tmpVar_name.find("[") + 1 : tmpVar_name.rfind("]")
+            ].strip()
             arr_index = self.check_operation(arr_index)
-            tmpVar_name = tmpVar_name[:tmpVar_name.find("[")]
+            tmpVar_name = tmpVar_name[: tmpVar_name.find("[")]
 
         obj = None
         if "." in tmpVar_name:
-            obj = tmpVar_name[tmpVar_name.find(".") + 1:]
-            tmpVar_name = tmpVar_name[:tmpVar_name.find(".")]
+            obj = tmpVar_name[tmpVar_name.find(".") + 1 :]
+            tmpVar_name = tmpVar_name[: tmpVar_name.find(".")]
 
         old_var = self.find_var(
-            tmpVar_name, True if tmpVar_scope == "global" else False)
+            tmpVar_name, True if tmpVar_scope == "global" else False
+        )
         if old_var == -1:
             self.var_list.append(var(tmpVar_name, tmpVar_val))
         else:
@@ -392,19 +403,22 @@ class interpreter:
                 if c == ")":
                     bracket_level -= 1
                 if bracket_level == 0 and c == ch:
-                    return (str[:len(str) - i - 1], str[len(str) - i:])
+                    return (str[: len(str) - i - 1], str[len(str) - i :])
             # print("return None")
             return None
 
         if "." in inp:
             if splitting(".", inp) != None:
                 obj, key = splitting(".", inp)
-                arg = key[key.find("(") + 1:key.rfind(")")].strip().split(",")
-                key = key[:key.find("(")]
+                arg = key[key.find("(") + 1 : key.rfind(")")].strip().split(",")
+                key = key[: key.find("(")]
 
-        key = inp[:inp.find("(")] if key == None else key
-        arg = inp[inp.find("(") + 1:inp.rfind(")")
-                  ].strip().split(",") if arg == None else arg
+        key = inp[: inp.find("(")] if key == None else key
+        arg = (
+            inp[inp.find("(") + 1 : inp.rfind(")")].strip().split(",")
+            if arg == None
+            else arg
+        )
 
         debug_log("inp_key \t\t-->", key)
         debug_log("key \t\t\t-->", key)
@@ -417,7 +431,7 @@ class interpreter:
         for e in arg:
             if len(e) == 0:
                 continue
-            if e.count("(") != e.count(")") and e[:e.find("(")].count("\"") % 2 == 0:
+            if e.count("(") != e.count(")") and e[: e.find("(")].count('"') % 2 == 0:
                 bracket_level += e.count("(") - e.count(")")
             if bracket_level == 0:
                 arg_tmp.append(str_tmp + e)
@@ -433,8 +447,8 @@ class interpreter:
         for e in arg:
             if len(e) == 0:
                 continue
-            if e.count("\"") != 0:
-                total_quote += e.count("\"")
+            if e.count('"') != 0:
+                total_quote += e.count('"')
             if total_quote % 2 == 0:
                 arg_tmp.append(str_tmp + e)
                 str_tmp = ""
@@ -500,8 +514,7 @@ class interpreter:
                 if e == None:
                     e = "NULL"
                 str_to_print += str(e)
-            str_to_print = str_to_print.replace("\\n", "\n").replace(
-                "\\t", "\t")
+            str_to_print = str_to_print.replace("\\n", "\n").replace("\\t", "\t")
             print(str_to_print, end="")
             if break_line:
                 print()
@@ -514,7 +527,7 @@ class interpreter:
             if val.isdigit():
                 val = float(val)
             else:
-                val = "\"" + val + "\""
+                val = '"' + val + '"'
             for e in arg:
                 e.strip()
                 if len(e) == 0:
@@ -564,8 +577,8 @@ class interpreter:
         if input[:4] == "goto":
             self.exec_goto(input)
             return "goto"
-        if input[:len('import')] == "import":
-            mod = input[len('import'):].strip()
+        if input[: len("import")] == "import":
+            mod = input[len("import") :].strip()
             if not os.path.exists(mod):
                 print("error :", mod, "does not exist")
                 return
@@ -586,31 +599,31 @@ class interpreter:
         for e in inp:
             es = e.strip()
             for k in block_k:
-                if es[:len(k)] == k:
+                if es[: len(k)] == k:
                     nested += 1
                     break
             if e == "end":
                 nested -= 1
             if nested > 1:
-                tmp += es + '\n'
+                tmp += es + "\n"
                 continue
 
-            cond_key = es if es == "else" else es[:es.find(" ")]
+            cond_key = es if es == "else" else es[: es.find(" ")]
             # debug_log("es \t\t\t-->", es)
             # debug_log("conditional key \t-->", cond_key)
 
-            if cond_key == 'if':
+            if cond_key == "if":
                 ls_cond.append(e[2:].strip())
-            elif cond_key == 'else_if':
+            elif cond_key == "else_if":
                 ls_cond.append(e[7:].strip())
                 ls_task.append(tmp)
                 tmp = ""
-            elif cond_key == 'else':
-                ls_cond.append('1')
+            elif cond_key == "else":
+                ls_cond.append("1")
                 ls_task.append(tmp)
                 tmp = ""
             else:
-                tmp += es + '\n'
+                tmp += es + "\n"
         ls_task.append(tmp)
         debug_log("condition \t\t-->", ls_cond)
 
@@ -621,7 +634,7 @@ class interpreter:
         return (False, None)
 
     def exec_while(self, inp):
-        condition = inp[0][inp[0].find("while") + len('while'):]
+        condition = inp[0][inp[0].find("while") + len("while") :]
         condition.strip()
         str = ""
         for e in inp[1:]:
@@ -650,8 +663,8 @@ class interpreter:
         return (False, None)
 
     def def_fn(self, inp):
-        name = inp[0][inp[0].find("fn") + len('fn'):inp[0].find("(")].strip()
-        arg = inp[0][inp[0].find("(") + 1:inp[0].rfind(")")].strip().split(",")
+        name = inp[0][inp[0].find("fn") + len("fn") : inp[0].find("(")].strip()
+        arg = inp[0][inp[0].find("(") + 1 : inp[0].rfind(")")].strip().split(",")
         arg = [e.strip() for e in arg]
         content = ""
         for e in inp[1:]:
@@ -669,7 +682,7 @@ class interpreter:
         self.funct_list.append(fn_tmp)
 
     def def_class(self, inp):
-        name = inp[0][inp[0].find("class") + len('class'):].strip()
+        name = inp[0][inp[0].find("class") + len("class") :].strip()
         content = ""
         for e in inp[1:]:
             content += e + "\n"
@@ -687,12 +700,12 @@ class interpreter:
                 self.line_done.append(l)
             if len(l) == 0:
                 continue
-            if l[-1] == ':':
+            if l[-1] == ":":
                 label_name = l[:-1].strip()
                 self.label_list.append(label(label_name, i))
                 continue
 
-            key = l[:l.find(" ")] if l.find(" ") != -1 else l
+            key = l[: l.find(" ")] if l.find(" ") != -1 else l
             if key in block_k:
                 if not in_block:
                     block_type = key
@@ -756,7 +769,7 @@ def main():
             it.execfile(sys.argv[2], True)
             print()
         no_print = False
-        while not line_input in ["/q", "/quit", "/exit"]:
+        while line_input not in ["/q", "/quit", "/exit"]:
             if not no_print:
                 if in_block:
                     line_input = input(".. ").strip()
@@ -767,9 +780,12 @@ def main():
                 line_input = input().strip()
             input_tmp += "\n" + line_input
 
-            key = line_input[:line_input.find(" ")] if line_input.find(
-                " ") != -1 else line_input
-            arg = line_input[line_input.find(" "):]
+            key = (
+                line_input[: line_input.find(" ")]
+                if line_input.find(" ") != -1
+                else line_input
+            )
+            arg = line_input[line_input.find(" ") :]
 
             debug_log("key \t\t\t-->", key)
             if key in key_block:
@@ -780,8 +796,7 @@ def main():
                     return
                 # print('cd', arg)
                 no_print = True
-                debug_log(f"is {arg} path ?",
-                          "Yes" if os.path.isdir(arg) else "No")
+                debug_log(f"is {arg} path ?", "Yes" if os.path.isdir(arg) else "No")
                 if os.path.isdir(arg):
                     os.chdir(arg)
                 continue
@@ -811,7 +826,7 @@ def main():
                 in_block -= 1
             if in_block == 0:
                 ok, ret = it.execstring(input_tmp)
-                print(ret) if ret != None else None
+                print(ret) if ret is not None else None
                 input_tmp = ""
 
     else:
