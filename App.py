@@ -411,7 +411,9 @@ def run_interactive_separate():
     if current_file == "":
         return
     save()
-    subprocess.call("start ipython -- ./interpreter.py -i " + current_file, shell=True)
+    subprocess.call(
+        "$TERM_PROGRAM -e ipython -- ./interpreter.py -i " + current_file, shell=True
+    )
 
 
 def run_separate():
@@ -421,7 +423,9 @@ def run_separate():
     if current_file == "":
         return
     save()
-    subprocess.call("start ipython -- ./interpreter.py " + current_file, shell=True)
+    subprocess.call(
+        "$TERM_PROGRAM -e ipython -- ./interpreter.py " + current_file, shell=True
+    )
 
 
 def new_file():
@@ -530,7 +534,7 @@ menubar.configure(dropdown_font=("fira code", 14))
 menubar.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
 main_frame.pack(fill=ctk.BOTH, expand=1)
-app.after(0, lambda: app.state("zoomed"))
+app.after(0, lambda: app.state("normal"))
 
 console_frame = ctk.CTkFrame(main_frame)
 console_frame.grid(row=2, column=2, padx=0, pady=(0, 10), sticky="nsew")
